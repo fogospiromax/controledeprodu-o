@@ -1,144 +1,175 @@
-from flask import Flask, render_template, request, jsonify
-import json
 import os
-from datetime import date, datetime
 import uuid
+from datetime import datetime, date, timedelta
+from flask import Flask, render_template, request, jsonify
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__)
 
-DATA_FILE = 'tasks.json'
+
+def get_db():
+    database_url = os.environ.get('DATABASE_URL', '')
+    # Render usa "postgres://" mas psycopg2 precisa de "postgresql://"
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    return psycopg2.connect(database_url)
 
 
-def load_tasks():
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return {}
+def init_db():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS tasks (
+            id           TEXT PRIMARY KEY,
+            date         TEXT NOT NULL,
+            produto      TEXT NOT NULL,
+            quantidade   TEXT NOT NULL,
+            concluido    BOOLEAN DEFAULT FALSE,
+            assinatura   TEXT DEFAULT '',
+            concluido_em TEXT DEFAULT ''
+        )
+    ''')
+    conn.commit()
+    cur.close()
+    conn.close()
 
 
-def save_tasks(data):
-    with open(DATA_FILE, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+# Cria a tabela na primeira vez que o app sobe
+try:
+    init_db()
+except Exception as e:
+    print(f"[init_db] Aviso: {e}")
 
 
-# ─── Tela do Trabalhador ────────────────────────────────────────────────────
+def get_tasks(date_str):
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute('SELECT * FROM tasks WHERE date = %s ORDER BY id', (date_str,))
+    tasks = [dict(t) for t in cur.fetchall()]
+    cur.close()
+    conn.close()
+    return tasks
+
+
+# ── Trabalhador ────────────────────────────────────────────────────────────────
 
 @app.route('/')
-def worker():
-    today = str(date.today())
-    tasks = load_tasks()
-    day_tasks = tasks.get(today, [])
-    total = len(day_tasks)
-    concluidos = sum(1 for t in day_tasks if t.get('concluido'))
-    return render_template('worker.html', tasks=day_tasks, date=today,
+def worker_view():
+    today = date.today().isoformat()
+    tasks = get_tasks(today)
+    total = len(tasks)
+    concluidos = sum(1 for t in tasks if t['concluido'])
+    return render_template('worker.html', tasks=tasks, date=today,
                            total=total, concluidos=concluidos)
 
 
 @app.route('/worker/update', methods=['POST'])
-def update_task():
-    data = request.get_json()
-    task_date = data.get('date', str(date.today()))
-    task_id = data['id']
-    tasks = load_tasks()
-    if task_date in tasks:
-        for task in tasks[task_date]:
-            if task['id'] == task_id:
-                task['concluido'] = data.get('concluido', task['concluido'])
-                task['assinatura'] = data.get('assinatura', task['assinatura'])
-                if task['concluido'] and not task.get('concluido_em'):
-                    task['concluido_em'] = datetime.now().strftime('%H:%M')
-                elif not task['concluido']:
-                    task['concluido_em'] = None
-                break
-        save_tasks(tasks)
+def worker_update():
+    data = request.json
+    concluido_em = ''
+    if data.get('concluido'):
+        concluido_em = datetime.now().strftime('%H:%M')
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        'UPDATE tasks SET concluido=%s, assinatura=%s, concluido_em=%s '
+        'WHERE id=%s AND date=%s',
+        (data['concluido'], data.get('assinatura', ''),
+         concluido_em, data['id'], data['date'])
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
     return jsonify({'success': True})
 
 
-# ─── Tela do Gestor (Admin) ─────────────────────────────────────────────────
+# ── Gestor / Admin ─────────────────────────────────────────────────────────────
 
 @app.route('/admin')
-def admin():
-    today = str(date.today())
-    selected_date = request.args.get('date', today)
-    tasks = load_tasks()
-    day_tasks = tasks.get(selected_date, [])
-    return render_template('admin.html', tasks=day_tasks,
-                           date=selected_date, today=today)
+def admin_view():
+    date_str = request.args.get('date', date.today().isoformat())
+    tasks = get_tasks(date_str)
+    return render_template('admin.html', tasks=tasks, date=date_str)
 
 
 @app.route('/admin/add', methods=['POST'])
-def add_task():
-    data = request.get_json()
-    task_date = data.get('date', str(date.today()))
-    tasks = load_tasks()
-    if task_date not in tasks:
-        tasks[task_date] = []
-    new_task = {
+def admin_add():
+    data = request.json
+    task = {
         'id': str(uuid.uuid4()),
+        'date': data['date'],
         'produto': data['produto'].strip(),
-        'quantidade': int(data['quantidade']),
+        'quantidade': str(data['quantidade']),
         'concluido': False,
         'assinatura': '',
-        'concluido_em': None
+        'concluido_em': ''
     }
-    tasks[task_date].append(new_task)
-    save_tasks(tasks)
-    return jsonify({'success': True, 'task': new_task})
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        'INSERT INTO tasks (id, date, produto, quantidade, concluido, assinatura, concluido_em) '
+        'VALUES (%s, %s, %s, %s, %s, %s, %s)',
+        (task['id'], task['date'], task['produto'], task['quantidade'],
+         task['concluido'], task['assinatura'], task['concluido_em'])
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True, 'task': task})
 
 
 @app.route('/admin/delete/<task_id>', methods=['DELETE'])
-def delete_task(task_id):
-    data = request.get_json()
-    task_date = data.get('date', str(date.today()))
-    tasks = load_tasks()
-    if task_date in tasks:
-        tasks[task_date] = [t for t in tasks[task_date] if t['id'] != task_id]
-        save_tasks(tasks)
+def admin_delete(task_id):
+    data = request.json
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('DELETE FROM tasks WHERE id=%s AND date=%s',
+                (task_id, data['date']))
+    conn.commit()
+    cur.close()
+    conn.close()
     return jsonify({'success': True})
 
 
 @app.route('/admin/clear', methods=['POST'])
-def clear_tasks():
-    data = request.get_json()
-    task_date = data.get('date', str(date.today()))
-    tasks = load_tasks()
-    tasks[task_date] = []
-    save_tasks(tasks)
+def admin_clear():
+    data = request.json
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('DELETE FROM tasks WHERE date=%s', (data['date'],))
+    conn.commit()
+    cur.close()
+    conn.close()
     return jsonify({'success': True})
 
 
 @app.route('/admin/copy-yesterday', methods=['POST'])
-def copy_yesterday():
-    from datetime import timedelta
-    data = request.get_json()
-    target_date = data.get('date', str(date.today()))
-    target_dt = datetime.strptime(target_date, '%Y-%m-%d').date()
-    yesterday = str(target_dt - timedelta(days=1))
-    tasks = load_tasks()
-    if yesterday in tasks:
-        new_tasks = []
-        for t in tasks[yesterday]:
-            new_tasks.append({
-                'id': str(uuid.uuid4()),
-                'produto': t['produto'],
-                'quantidade': t['quantidade'],
-                'concluido': False,
-                'assinatura': '',
-                'concluido_em': None
-            })
-        tasks[target_date] = new_tasks
-        save_tasks(tasks)
-        return jsonify({'success': True, 'tasks': new_tasks})
-    return jsonify({'success': False, 'message': 'Nenhuma tarefa ontem.'})
+def admin_copy_yesterday():
+    data = request.json
+    today = data['date']
+    yesterday = (datetime.strptime(today, '%Y-%m-%d') - timedelta(days=1)).strftime('%Y-%m-%d')
+    yesterday_tasks = get_tasks(yesterday)
+    if not yesterday_tasks:
+        return jsonify({'success': False, 'message': 'Nenhuma tarefa encontrada para ontem.'})
+    conn = get_db()
+    cur = conn.cursor()
+    for t in yesterday_tasks:
+        cur.execute(
+            'INSERT INTO tasks (id, date, produto, quantidade, concluido, assinatura, concluido_em) '
+            'VALUES (%s, %s, %s, %s, %s, %s, %s)',
+            (str(uuid.uuid4()), today, t['produto'], t['quantidade'], False, '', '')
+        )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True})
 
-
-# ─── API: buscar tarefas de uma data ─────────────────────────────────────────
 
 @app.route('/api/tasks')
 def api_tasks():
-    task_date = request.args.get('date', str(date.today()))
-    tasks = load_tasks()
-    return jsonify(tasks.get(task_date, []))
+    date_str = request.args.get('date', date.today().isoformat())
+    return jsonify(get_tasks(date_str))
 
 
 if __name__ == '__main__':
