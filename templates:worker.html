@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Produção do Dia</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f4f8;
+      color: #2d3748;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1a56db, #1e40af);
+      color: white;
+      padding: 20px 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    header h1 { font-size: 1.5rem; font-weight: 700; }
+    header p  { font-size: 0.9rem; opacity: 0.85; margin-top: 4px; }
+
+    .progress-bar-wrap {
+      background: rgba(255,255,255,0.25);
+      border-radius: 20px;
+      height: 8px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      background: #86efac;
+      height: 100%;
+      border-radius: 20px;
+      transition: width 0.4s ease;
+    }
+    .progress-label {
+      font-size: 0.78rem;
+      opacity: 0.9;
+      margin-top: 5px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 28px auto;
+      padding: 0 16px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #718096;
+    }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+    .empty-state p { font-size: 1rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    }
+
+    thead {
+      background: #1a56db;
+      color: white;
+    }
+
+    thead th {
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #e2e8f0;
+      transition: background 0.15s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #f7faff; }
+    tbody tr.done { background: #f0fff4; }
+    tbody tr.done:hover { background: #e6ffed; }
+
+    td {
+      padding: 14px 16px;
+      font-size: 0.95rem;
+      vertical-align: middle;
+    }
+
+    .produto-name { font-weight: 600; }
+    .quantidade-badge {
+      display: inline-block;
+      background: #eff6ff;
+      color: #1a56db;
+      border: 1px solid #bfdbfe;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.88rem;
+    }
+
+    .check-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .check-wrap input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: #16a34a;
+    }
+    .check-label {
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+    .check-label.done-label {
+      color: #16a34a;
+      font-weight: 600;
+    }
+
+    .sign-input {
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 0.9rem;
+      width: 100%;
+      max-width: 180px;
+      transition: border 0.2s;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .sign-input:focus {
+      outline: none;
+      border-color: #1a56db;
+      box-shadow: 0 0 0 3px rgba(26,86,219,0.1);
+    }
+    .sign-input:disabled {
+      background: #f1f5f9;
+      color: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .hora-badge {
+      background: #fef9c3;
+      color: #854d0e;
+      border: 1px solid #fde68a;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .save-btn {
+      background: #1a56db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 14px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      font-weight: 500;
+    }
+    .save-btn:hover { background: #1e40af; }
+    .save-btn:active { transform: scale(0.97); }
+    .save-btn.saved {
+      background: #16a34a;
+      pointer-events: none;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1e293b;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s;
+      z-index: 100;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .admin-link {
+      display: inline-block;
+      margin-top: 24px;
+      color: #94a3b8;
+      font-size: 0.8rem;
+      text-decoration: none;
+    }
+    .admin-link:hover { color: #1a56db; }
+
+    @media (max-width: 640px) {
+      table { display: block; overflow-x: auto; }
+      .sign-input { max-width: 130px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>📋 Produção do Dia</h1>
+  <p id="dateLabel">Carregando...</p>
+  {% if total > 0 %}
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressFill"
+         style="width: {{ (concluidos / total * 100)|round|int }}%"></div>
+  </div>
+  <p class="progress-label" id="progressLabel">
+    {{ concluidos }} de {{ total }} itens concluídos
+  </p>
+  {% endif %}
+</header>
+
+<div class="container">
+
+  {% if tasks|length == 0 %}
+  <div class="empty-state">
+    <div class="icon">📭</div>
+    <p>Nenhuma tarefa foi cadastrada para hoje ainda.</p>
+    <p style="margin-top:8px; font-size:0.85rem;">Aguarde o gestor adicionar os itens.</p>
+  </div>
+  {% else %}
+
+  <table id="taskTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Produto</th>
+        <th>Qtd</th>
+        <th>Concluído</th>
+        <th>Responsável</th>
+        <th>Hora</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for task in tasks %}
+      <tr id="row-{{ task.id }}" class="{{ 'done' if task.concluido else '' }}">
+        <td style="color:#94a3b8; font-size:0.85rem;">{{ loop.index }}</td>
+        <td class="produto-name">{{ task.produto }}</td>
+        <td><span class="quantidade-badge">{{ task.quantidade }}</span></td>
+        <td>
+          <div class="check-wrap">
+            <input type="checkbox"
+                   id="check-{{ task.id }}"
+                   data-id="{{ task.id }}"
+                   {{ 'checked' if task.concluido else '' }}
+                   onchange="onCheckChange('{{ task.id }}')">
+            <span class="check-label {{ 'done-label' if task.concluido else '' }}"
+                  id="chklabel-{{ task.id }}">
+              {{ 'Feito!' if task.concluido else 'Pendente' }}
+            </span>
+          </div>
+        </td>
+        <td>
+          <input type="text"
+                 class="sign-input"
+                 id="sign-{{ task.id }}"
+                 placeholder="Seu nome"
+                 value="{{ task.assinatura }}"
+                 maxlength="40"
+                 {{ 'disabled' if task.concluido else '' }}>
+        </td>
+        <td>
+          {% if task.concluido_em %}
+          <span class="hora-badge" id="hora-{{ task.id }}">{{ task.concluido_em }}</span>
+          {% else %}
+          <span id="hora-{{ task.id }}">—</span>
+          {% endif %}
+        </td>
+        <td>
+          <button class="save-btn {{ 'saved' if task.concluido else '' }}"
+                  id="btn-{{ task.id }}"
+                  onclick="saveTask('{{ task.id }}')">
+            {{ '✓ Salvo' if task.concluido else 'Salvar' }}
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% endif %}
+
+  <a href="/admin" class="admin-link">⚙️ Área do gestor</a>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const TODAY = "{{ date }}";
+
+  // Formatar data em português
+  const d = new Date(TODAY + 'T00:00:00');
+  const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  document.getElementById('dateLabel').textContent =
+    d.toLocaleDateString('pt-BR', opts).replace(/^\w/, c => c.toUpperCase());
+
+  function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.background = isError ? '#dc2626' : '#1e293b';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function onCheckChange(id) {
+    const checked = document.getElementById('check-' + id).checked;
+    const signInput = document.getElementById('sign-' + id);
+    signInput.disabled = checked;
+    const lbl = document.getElementById('chklabel-' + id);
+    lbl.textContent = checked ? 'Feito!' : 'Pendente';
+    lbl.className = 'check-label ' + (checked ? 'done-label' : '');
+  }
+
+  async function saveTask(id) {
+    const checked = document.getElementById('check-' + id).checked;
+    const assinatura = document.getElementById('sign-' + id).value.trim();
+
+    if (checked && !assinatura) {
+      showToast('Por favor, assine seu nome antes de salvar.', true);
+      document.getElementById('sign-' + id).focus();
+      return;
+    }
+
+    const payload = {
+      id,
+      date: TODAY,
+      concluido: checked,
+      assinatura
+    };
+
+    const res = await fetch('/worker/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      const row = document.getElementById('row-' + id);
+      const btn = document.getElementById('btn-' + id);
+
+      if (checked) {
+        row.classList.add('done');
+        btn.textContent = '✓ Salvo';
+        btn.classList.add('saved');
+        // Atualizar hora
+        const now = new Date();
+        const hora = now.getHours().toString().padStart(2,'0') + ':' +
+                     now.getMinutes().toString().padStart(2,'0');
+        const horaEl = document.getElementById('hora-' + id);
+        horaEl.outerHTML = `<span class="hora-badge" id="hora-${id}">${hora}</span>`;
+      } else {
+        row.classList.remove('done');
+        btn.textContent = 'Salvar';
+        btn.classList.remove('saved');
+        document.getElementById('hora-' + id).textContent = '—';
+      }
+
+      updateProgress();
+      showToast(checked ? '✅ Tarefa salva com sucesso!' : 'Tarefa atualizada.');
+    } else {
+      showToast('Erro ao salvar. Tente novamente.', true);
+    }
+  }
+
+  function updateProgress() {
+    const checks = document.querySelectorAll('input[type="checkbox"]');
+    const total = checks.length;
+    const done = [...checks].filter(c => c.checked).length;
+    const pct = total > 0 ? Math.round(done / total * 100) : 0;
+    const fill = document.getElementById('progressFill');
+    const lbl  = document.getElementById('progressLabel');
+    if (fill) fill.style.width = pct + '%';
+    if (lbl)  lbl.textContent = done + ' de ' + total + ' itens concluídos';
+  }
+
+  // Auto-refresh a cada 60s para ver novas tarefas adicionadas pelo gestor
+  setTimeout(() => location.reload(), 60000);
+</script>
+
+</body>
+</html>
