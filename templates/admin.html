@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestor â ProduÃ§Ã£o</title>
+  <title>Gestor — Produção</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -126,7 +126,7 @@
     .form-group.produto { flex: 1; min-width: 200px; }
     .form-group.qtd { width: 130px; }
 
-    /* UrgÃªncia checkbox group */
+    /* Urgência checkbox group */
     .form-group.urgencia {
       justify-content: flex-end;
       padding-bottom: 2px;
@@ -300,7 +300,7 @@
       table { display: block; overflow-x: auto; }
     }
 
-    /* ââ Estilos de impressÃ£o / PDF âââââââââââââââââââââââââââââââââââââââ */
+    /* ── Estilos de impressão / PDF ─────────────────────────────────────── */
     @media print {
       * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
@@ -348,7 +348,7 @@
       }
     }
 
-    /* Ocultar elementos exclusivos de impressÃ£o na tela normal */
+    /* Ocultar elementos exclusivos de impressão na tela normal */
     .print-header, .print-date { display: none; }
   </style>
 </head>
@@ -356,31 +356,31 @@
 
 <header>
   <div>
-    <h1>âï¸ Ãrea do Gestor</h1>
-    <p>Gerencie as tarefas de produÃ§Ã£o diÃ¡ria</p>
+    <h1>⚙️ Área do Gestor</h1>
+    <p>Gerencie as tarefas de produção diária</p>
   </div>
   <div class="header-actions">
-    <button class="btn btn-white" onclick="copyYesterday()">ð Copiar ontem</button>
-    <button class="btn btn-white" onclick="printPDF()" title="Imprimir / Salvar como PDF">ð¨ï¸ Imprimir PDF</button>
-    <button class="btn btn-danger" onclick="confirmClear()">ðï¸ Limpar dia</button>
+    <button class="btn btn-white" onclick="copyYesterday()">📋 Copiar ontem</button>
+    <button class="btn btn-white" onclick="printPDF()" title="Imprimir / Salvar como PDF">🖨️ Imprimir PDF</button>
+    <button class="btn btn-danger" onclick="confirmClear()">🗑️ Limpar dia</button>
   </div>
 </header>
 
 <div class="container">
 
   <div class="date-bar">
-    <label for="datePicker">ð Data:</label>
+    <label for="datePicker">📅 Data:</label>
     <input type="date" id="datePicker" value="{{ date }}"
            onchange="changeDate(this.value)">
-    <a href="/" class="worker-link" target="_blank">ðï¸ Ver tela dos funcionÃ¡rios â</a>
+    <a href="/" class="worker-link" target="_blank">👁️ Ver tela dos funcionários ↗</a>
   </div>
 
   <div class="add-card">
-    <h2>â Adicionar Produto</h2>
+    <h2>➕ Adicionar Produto</h2>
     <div class="form-row">
       <div class="form-group produto">
         <label>Nome do Produto</label>
-        <input type="text" id="inputProduto" placeholder="Ex: Caixa de papelÃ£o tipo A"
+        <input type="text" id="inputProduto" placeholder="Ex: Caixa de papelão tipo A"
                maxlength="100" onkeydown="if(event.key==='Enter') addTask()">
       </div>
       <div class="form-group qtd">
@@ -392,15 +392,15 @@
         <label for="checkUrgente" class="urgencia-check" id="urgenciaLabel">
           <input type="checkbox" id="checkUrgente"
                  onchange="toggleUrgenciaStyle()">
-          <span>ð´ Urgente</span>
+          <span>🔴 Urgente</span>
         </label>
       </div>
       <button class="btn-add" onclick="addTask()">Adicionar</button>
     </div>
   </div>
 
-  <!-- CabeÃ§alho visÃ­vel somente no PDF / impressÃ£o -->
-  <div class="print-header">ð ProduÃ§Ã£o do Dia</div>
+  <!-- Cabeçalho visível somente no PDF / impressão -->
+  <div class="print-header">📋 Produção do Dia</div>
   <div class="print-date" id="printDateLabel"></div>
 
   <div class="tasks-card">
@@ -414,7 +414,7 @@
     <div id="tableWrap">
       {% if tasks|length == 0 %}
       <div class="empty-state" id="emptyState">
-        <div class="icon">ð­</div>
+        <div class="icon">📭</div>
         <p>Nenhuma tarefa adicionada ainda.</p>
       </div>
       {% else %}
@@ -436,18 +436,18 @@
             <td class="produto-cell">
               {{ task.produto }}
               {% if task.urgente %}
-              <span class="urgente-badge">ð´ URGENTE</span>
+              <span class="urgente-badge">🔴 URGENTE</span>
               {% endif %}
             </td>
             <td><span class="qtd-badge">{{ task.quantidade }}</span></td>
             <td>
               {% if task.concluido %}
-              <span class="status-done">â ConcluÃ­do</span>
+              <span class="status-done">✅ Concluído</span>
               {% else %}
-              <span class="status-pending">â³ Pendente</span>
+              <span class="status-pending">⏳ Pendente</span>
               {% endif %}
             </td>
-            <td>{{ task.concluido_em if task.concluido_em else 'â' }}</td>
+            <td>{{ task.concluido_em if task.concluido_em else '—' }}</td>
             <td>
               <button class="btn-del" onclick="deleteTask('{{ task.id }}')">Excluir</button>
             </td>
@@ -496,7 +496,7 @@
       return;
     }
     if (!qtd || qtd < 1) {
-      showToast('Digite uma quantidade vÃ¡lida.', true);
+      showToast('Digite uma quantidade válida.', true);
       document.getElementById('inputQtd').focus();
       return;
     }
@@ -516,7 +516,7 @@
       toggleUrgenciaStyle();
       document.getElementById('inputProduto').focus();
       updateCount(1);
-      showToast(urgente ? 'ð´ Produto urgente adicionado!' : 'â Produto adicionado!');
+      showToast(urgente ? '🔴 Produto urgente adicionado!' : '✅ Produto adicionado!');
     } else {
       showToast('Erro ao adicionar.', true);
     }
@@ -543,7 +543,7 @@
     const tbody  = document.getElementById('taskBody');
     const idx    = tbody.querySelectorAll('tr').length + 1;
     const urgBadge = task.urgente
-      ? '<span class="urgente-badge">ð´ URGENTE</span>' : '';
+      ? '<span class="urgente-badge">🔴 URGENTE</span>' : '';
     const rowClass = task.urgente ? 'urgente-row' : '';
 
     const tr = document.createElement('tr');
@@ -553,8 +553,8 @@
       <td style="color:#94a3b8; font-size:0.85rem;">${idx}</td>
       <td class="produto-cell">${task.produto}${urgBadge}</td>
       <td><span class="qtd-badge">${task.quantidade}</span></td>
-      <td><span class="status-pending">â³ Pendente</span></td>
-      <td>â</td>
+      <td><span class="status-pending">⏳ Pendente</span></td>
+      <td>—</td>
       <td><button class="btn-del" onclick="deleteTask('${task.id}')">Excluir</button></td>
     `;
     tbody.appendChild(tr);
@@ -570,12 +570,12 @@
     if (res.ok) {
       document.getElementById('row-' + id).remove();
       updateCount(-1);
-      showToast('Tarefa excluÃ­da.');
+      showToast('Tarefa excluída.');
       const tbody = document.getElementById('taskBody');
       if (tbody && tbody.querySelectorAll('tr').length === 0) {
         document.getElementById('tableWrap').innerHTML = `
           <div class="empty-state" id="emptyState">
-            <div class="icon">ð­</div>
+            <div class="icon">📭</div>
             <p>Nenhuma tarefa adicionada ainda.</p>
           </div>`;
       }
@@ -596,7 +596,7 @@
     if (res.ok) {
       document.getElementById('tableWrap').innerHTML = `
         <div class="empty-state" id="emptyState">
-          <div class="icon">ð­</div>
+          <div class="icon">📭</div>
           <p>Nenhuma tarefa adicionada ainda.</p>
         </div>`;
       document.getElementById('countBadge').textContent = '0';
@@ -625,7 +625,7 @@
   }
 
   function printPDF() {
-    // Preenche data formatada no cabeÃ§alho de impressÃ£o
+    // Preenche data formatada no cabeçalho de impressão
     const d    = new Date(CURRENT_DATE + 'T00:00:00');
     const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const label = document.getElementById('printDateLabel');
