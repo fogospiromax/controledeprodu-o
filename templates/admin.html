@@ -44,8 +44,10 @@
     .btn:active { transform: scale(0.97); }
     .btn-white  { background: white; color: #5b21b6; }
     .btn-white:hover { background: #f3e8ff; }
-    .btn-danger { background: #fee2e2; color: #dc2626; }
-    .btn-danger:hover { background: #fecaca; }
+    .btn-danger  { background: #fee2e2; color: #dc2626; }
+    .btn-danger:hover  { background: #fecaca; }
+    .btn-logout  { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.4); text-decoration: none; display: inline-flex; align-items: center; }
+    .btn-logout:hover  { background: rgba(255,255,255,0.25); }
 
     .container { max-width: 900px; margin: 28px auto; padding: 0 16px; }
 
@@ -363,6 +365,7 @@
     <button class="btn btn-white" onclick="copyLastDay()">📋 Copiar último dia</button>
     <button class="btn btn-white" onclick="printPDF()" title="Imprimir / Salvar como PDF">🖨️ Imprimir PDF</button>
     <button class="btn btn-danger" onclick="confirmClear()">🗑️ Limpar dia</button>
+    <a href="/admin/logout" class="btn btn-logout" title="Sair da área do gestor">🚪 Sair</a>
   </div>
 </header>
 
