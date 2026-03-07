@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Produção do Dia — Fogos Piromax</title>
+  <title>Gestor — Produção · Fogos Piromax</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -15,615 +15,512 @@
     }
 
     header {
-      background: linear-gradient(135deg, #1a56db, #1e40af);
+      background: linear-gradient(135deg, #7c3aed, #5b21b6);
       color: white;
-      padding: 16px 24px 0;
+      padding: 14px 20px 0;
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
+    /* ── Linha 1: marca + nav + sair ── */
     .header-top {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
       flex-wrap: wrap;
       gap: 10px;
-      padding-bottom: 14px;
+      padding-bottom: 12px;
     }
 
-    .header-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+    .header-brand { display: flex; align-items: center; gap: 12px; }
 
+    /* Logo retangular para caber texto "PIROMAX FOGOS" */
     .header-logo {
-      width: 46px;
-      height: 46px;
-      background: rgba(255,255,255,0.15);
-      border: 2px solid rgba(255,255,255,0.4);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      flex-shrink: 0;
+      height: 38px;
+      width: 110px;
+      background: white;
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; flex-shrink: 0;
+      padding: 4px 6px;
     }
-
-    .header-brand-text h1 {
-      font-size: 1.5rem;
-      font-weight: 800;
-      letter-spacing: -0.3px;
-      line-height: 1.1;
+    .header-logo img {
+      height: 100%; width: 100%;
+      object-fit: contain;
     }
 
     .header-brand-text .app-name {
-      font-size: 0.8rem;
-      opacity: 0.8;
-      font-weight: 500;
-      margin-top: 2px;
-      letter-spacing: 0.3px;
+      font-size: 0.8rem; opacity: 0.82;
+      font-weight: 600; letter-spacing: 0.3px;
+    }
+
+    .header-right {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
     }
 
     .header-nav {
-      display: flex;
-      gap: 4px;
+      display: flex; gap: 3px;
       background: rgba(255,255,255,0.1);
-      border-radius: 10px;
-      padding: 4px;
+      border-radius: 9px; padding: 3px;
     }
-
     .header-nav a {
-      color: white;
-      text-decoration: none;
-      padding: 7px 14px;
-      border-radius: 7px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      transition: background 0.2s;
-      opacity: 0.75;
+      color: white; text-decoration: none;
+      padding: 6px 13px; border-radius: 7px;
+      font-size: 0.83rem; font-weight: 600;
+      transition: background 0.2s; opacity: 0.75;
     }
-
-    .header-nav a:hover { background: rgba(255,255,255,0.15); opacity: 1; }
+    .header-nav a:hover  { background: rgba(255,255,255,0.15); opacity: 1; }
     .header-nav a.active { background: rgba(255,255,255,0.25); opacity: 1; }
 
-    .date-nav {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
-
-    .nav-btn {
-      background: rgba(255,255,255,0.2);
-      color: white;
-      border: 1px solid rgba(255,255,255,0.35);
-      border-radius: 7px;
-      padding: 6px 14px;
-      font-size: 0.88rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-      font-family: inherit;
-    }
-    .nav-btn:hover { background: rgba(255,255,255,0.35); }
-
-    .date-display {
-      font-size: 0.95rem;
-      font-weight: 600;
-      opacity: 0.97;
-    }
-
-    .cal-wrap {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-    }
-    .cal-btn {
-      background: rgba(255,255,255,0.2);
-      color: white;
-      border: 1px solid rgba(255,255,255,0.35);
-      border-radius: 7px;
-      padding: 6px 10px;
-      font-size: 1rem;
-      cursor: pointer;
-      line-height: 1;
-      font-family: inherit;
-    }
-    .cal-input {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-      width: 100%;
-      height: 100%;
-    }
-
-    .today-link {
-      background: rgba(255,255,255,0.15);
-      color: white;
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 7px;
-      padding: 5px 12px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-    .today-link:hover { background: rgba(255,255,255,0.3); }
-
-    .past-badge {
+    .btn-logout {
       background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.25);
-      border-radius: 20px;
-      padding: 3px 10px;
-      font-size: 0.75rem;
-      opacity: 0.85;
+      color: white; text-decoration: none;
+      border: 1.5px solid rgba(255,255,255,0.3);
+      border-radius: 8px; padding: 6px 13px;
+      font-size: 0.82rem; font-weight: 600;
+      transition: background 0.2s; white-space: nowrap;
+    }
+    .btn-logout:hover { background: rgba(255,255,255,0.22); }
+
+    /* ── Linha 2: ações (copiar, imprimir, limpar) ── */
+    .header-actions {
+      display: flex; gap: 7px; flex-wrap: wrap;
+      padding-bottom: 12px;
     }
 
-    .future-badge {
-      background: rgba(255,230,0,0.18);
-      border: 1px solid rgba(255,230,0,0.35);
-      border-radius: 20px;
-      padding: 3px 10px;
-      font-size: 0.75rem;
-      opacity: 0.9;
+    .btn {
+      padding: 8px 15px; border: none;
+      border-radius: 7px; font-size: 0.84rem;
+      font-weight: 600; cursor: pointer;
+      transition: all 0.2s; font-family: inherit;
     }
+    .btn:active { transform: scale(0.97); }
+    .btn-white  { background: white; color: #5b21b6; }
+    .btn-white:hover { background: #f3e8ff; }
+    .btn-danger { background: #fee2e2; color: #dc2626; }
+    .btn-danger:hover { background: #fecaca; }
 
-    .progress-bar-wrap {
-      background: rgba(255,255,255,0.25);
-      border-radius: 20px;
-      height: 8px;
-      margin-top: 12px;
-      overflow: hidden;
-    }
-    .progress-bar-fill {
-      background: #86efac;
-      height: 100%;
-      border-radius: 20px;
-      transition: width 0.4s ease;
-    }
-    .progress-label {
-      font-size: 0.78rem;
-      opacity: 0.9;
-      margin-top: 5px;
-    }
+    /* ── Container ── */
+    .container { max-width: 900px; margin: 24px auto; padding: 0 16px; }
 
-    .container {
-      max-width: 900px;
-      margin: 28px auto;
-      padding: 0 16px;
+    .date-bar {
+      background: white; border-radius: 10px;
+      padding: 13px 18px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      margin-bottom: 20px; flex-wrap: wrap;
     }
-
-    .readonly-notice {
-      border-radius: 8px;
-      padding: 10px 16px;
-      font-size: 0.875rem;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .date-bar label { font-weight: 600; font-size: 0.9rem; color: #4a5568; }
+    .date-bar input[type="date"] {
+      border: 1px solid #cbd5e0; border-radius: 7px;
+      padding: 7px 12px; font-size: 0.9rem;
+      font-family: inherit; cursor: pointer;
     }
-    .readonly-notice.past {
-      background: #fffbeb;
-      border: 1px solid #fde68a;
-      color: #92400e;
+    .date-bar input[type="date"]:focus {
+      outline: none; border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
     }
-    .readonly-notice.future {
-      background: #eff6ff;
+    .worker-link {
+      margin-left: auto;
+      background: #eff6ff; color: #1a56db;
       border: 1px solid #bfdbfe;
-      color: #1e40af;
+      padding: 7px 14px; border-radius: 7px;
+      text-decoration: none; font-size: 0.85rem;
+      font-weight: 600; transition: background 0.2s;
     }
+    .worker-link:hover { background: #dbeafe; }
 
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: #718096;
-    }
-    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
-    .empty-state p { font-size: 1rem; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
+    .add-card {
+      background: white; border-radius: 12px;
+      padding: 20px;
       box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+      margin-bottom: 24px;
     }
+    .add-card h2 { font-size: 1rem; font-weight: 700; margin-bottom: 14px; color: #5b21b6; }
 
-    thead { background: #1a56db; color: white; }
-    thead th {
-      padding: 14px 16px;
-      text-align: left;
-      font-size: 0.85rem;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
+    .form-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group label { font-size: 0.8rem; font-weight: 600; color: #64748b; text-transform: uppercase; }
+    .form-group input[type="text"],
+    .form-group input[type="number"] {
+      border: 1px solid #cbd5e0; border-radius: 7px;
+      padding: 9px 12px; font-size: 0.95rem;
+      font-family: inherit; transition: border 0.2s;
     }
+    .form-group input:focus {
+      outline: none; border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+    }
+    .form-group.produto { flex: 1; min-width: 200px; }
+    .form-group.qtd { width: 130px; }
+    .form-group.urgencia { justify-content: flex-end; padding-bottom: 2px; }
 
-    tbody tr {
+    .urgencia-check {
+      display: flex; align-items: center; gap: 8px;
+      cursor: pointer; padding: 9px 14px;
+      border: 1px solid #fca5a5; border-radius: 7px;
+      background: #fff5f5; transition: background 0.2s, border-color 0.2s;
+      user-select: none; white-space: nowrap;
+    }
+    .urgencia-check:hover { background: #fee2e2; border-color: #f87171; }
+    .urgencia-check input[type="checkbox"] { width: 17px; height: 17px; accent-color: #dc2626; cursor: pointer; }
+    .urgencia-check span { font-size: 0.88rem; font-weight: 700; color: #dc2626; }
+    .urgencia-check.active { background: #fee2e2; border-color: #ef4444; }
+
+    .btn-add {
+      background: #7c3aed; color: white;
+      padding: 9px 22px; border-radius: 7px; border: none;
+      font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; transition: background 0.2s;
+      font-family: inherit; height: 42px;
+    }
+    .btn-add:hover { background: #6d28d9; }
+    .btn-add:active { transform: scale(0.97); }
+
+    .tasks-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,0.08); }
+
+    .tasks-header {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
       border-bottom: 1px solid #e2e8f0;
-      transition: background 0.15s;
+      flex-wrap: wrap; gap: 10px;
     }
-    tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: #f7faff; }
-
-    tbody tr.urgente { background: #fff1f2; }
-    tbody tr.urgente:hover { background: #ffe4e6; }
-
-    tbody tr.done { background: #f0fff4 !important; }
-    tbody tr.done:hover { background: #e6ffed !important; }
-
-    td {
-      padding: 14px 16px;
-      font-size: 0.95rem;
-      vertical-align: middle;
+    .tasks-header h2 { font-size: 1rem; font-weight: 700; }
+    .count-badge {
+      background: #ede9fe; color: #5b21b6;
+      border-radius: 20px; padding: 2px 10px;
+      font-size: 0.8rem; font-weight: 700; margin-left: 8px;
     }
 
-    .produto-name { font-weight: 600; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #f8f5ff; }
+    thead th {
+      padding: 11px 16px; text-align: left;
+      font-size: 0.8rem; font-weight: 700;
+      color: #5b21b6; text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    tbody tr { border-top: 1px solid #e2e8f0; }
+    tbody tr:hover { background: #fdf8ff; }
+    tbody tr.urgente-row { background: #fff5f5; }
+    tbody tr.urgente-row:hover { background: #fee2e2; }
+    td { padding: 13px 16px; font-size: 0.95rem; vertical-align: middle; }
+    .produto-cell { font-weight: 600; }
 
     .urgente-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      background: #fee2e2;
-      color: #dc2626;
-      border: 1px solid #fca5a5;
-      border-radius: 20px;
-      padding: 2px 8px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.3px;
-      margin-left: 7px;
-      vertical-align: middle;
+      display: inline-flex; align-items: center; gap: 3px;
+      background: #fee2e2; color: #dc2626;
+      border: 1px solid #fca5a5; border-radius: 20px;
+      padding: 2px 8px; font-size: 0.72rem; font-weight: 700;
+      margin-left: 6px; vertical-align: middle;
     }
+    .qtd-badge {
+      background: #eff6ff; color: #1a56db;
+      border: 1px solid #bfdbfe; padding: 3px 10px;
+      border-radius: 20px; font-weight: 600; font-size: 0.88rem;
+    }
+    .status-done    { background: #dcfce7; color: #16a34a; padding: 3px 10px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; }
+    .status-pending { background: #fef9c3; color: #854d0e; padding: 3px 10px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; }
 
-    .quantidade-badge {
-      display: inline-block;
-      background: #eff6ff;
-      color: #1a56db;
-      border: 1px solid #bfdbfe;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-weight: 600;
-      font-size: 0.88rem;
+    .btn-del {
+      background: none; border: 1px solid #fca5a5;
+      color: #dc2626; border-radius: 6px;
+      padding: 5px 12px; font-size: 0.82rem;
+      cursor: pointer; transition: all 0.2s; font-family: inherit;
     }
+    .btn-del:hover { background: #fee2e2; }
 
-    .check-wrap {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-    }
-    .check-wrap input[type="checkbox"] {
-      width: 22px;
-      height: 22px;
-      cursor: pointer;
-      accent-color: #16a34a;
-      flex-shrink: 0;
-    }
-    .check-wrap input[type="checkbox"]:disabled {
-      cursor: not-allowed;
-      opacity: 0.55;
-    }
-    .check-label { font-size: 0.85rem; color: #64748b; }
-    .check-label.done-label { color: #16a34a; font-weight: 600; }
-
-    .hora-badge {
-      background: #fef9c3;
-      color: #854d0e;
-      border: 1px solid #fde68a;
-      padding: 3px 8px;
-      border-radius: 20px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      white-space: nowrap;
-    }
+    .empty-state { text-align: center; padding: 50px 20px; color: #a0aec0; }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 10px; }
 
     .toast {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: #1e293b;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-      opacity: 0;
-      transform: translateY(10px);
-      transition: all 0.3s;
-      z-index: 100;
+      position: fixed; bottom: 24px; right: 24px;
+      background: #1e293b; color: white;
+      padding: 12px 20px; border-radius: 8px;
+      font-size: 0.9rem; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      opacity: 0; transform: translateY(10px);
+      transition: all 0.3s; z-index: 100;
     }
     .toast.show { opacity: 1; transform: translateY(0); }
 
-    @media (max-width: 640px) {
+    @media (max-width: 600px) {
+      .header-actions { width: 100%; }
       table { display: block; overflow-x: auto; }
-      .date-nav { gap: 7px; }
     }
 
-    /* ── Estilos de impressão / PDF ───────────────────────────────────── */
+    /* ── Impressão ── */
     @media print {
       * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       body { background: white; }
-      header, .readonly-notice, .toast, .no-print { display: none !important; }
+      header, .date-bar, .add-card, .toast,
+      .btn-del, .tasks-header .btn, .no-print { display: none !important; }
       .container { max-width: 100%; margin: 0; padding: 0; }
-      table {
-        box-shadow: none;
-        border: 1px solid #e2e8f0;
-        border-radius: 0;
-      }
-      .print-header {
-        display: block !important;
-        text-align: center;
-        margin-bottom: 6px;
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: #1a56db;
-      }
-      .print-company {
-        display: block !important;
-        text-align: center;
-        font-size: 1rem;
-        font-weight: 600;
-        color: #374151;
-        margin-bottom: 4px;
-      }
-      .print-date {
-        display: block !important;
-        text-align: center;
-        font-size: 0.9rem;
-        color: #64748b;
-        margin-bottom: 16px;
-      }
-      thead { background: #1a56db !important; }
+      .tasks-card { box-shadow: none; border: 1px solid #e2e8f0; border-radius: 0; }
+      .tasks-header { border-bottom: 2px solid #5b21b6; padding: 10px 16px; }
+      table { width: 100%; }
+      thead { background: #7c3aed !important; }
       thead th { color: white !important; padding: 10px 12px; font-size: 0.82rem; }
       td { padding: 10px 12px; font-size: 0.9rem; }
-      tbody tr.urgente { background: #fff1f2 !important; }
-      tbody tr.done { background: #f0fff4 !important; }
-      /* Oculta coluna de checkbox na impressão, mostra status como texto */
-      th:nth-child(4), td:nth-child(4) { display: none; }
+      tbody tr.urgente-row { background: #fff5f5 !important; }
+      .print-header { display: block !important; text-align: center; margin-bottom: 20px; font-size: 1.3rem; font-weight: 700; color: #5b21b6; }
+      .print-date   { display: block !important; text-align: center; font-size: 0.95rem; color: #64748b; margin-bottom: 14px; }
     }
-    .print-header, .print-company, .print-date { display: none; }
+    .print-header, .print-date { display: none; }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="header-top no-print">
+  <!-- Linha 1: Logo + subtítulo + nav + sair -->
+  <div class="header-top">
     <div class="header-brand">
-      <div class="header-logo">🎆</div>
+      <div class="header-logo">
+        <img src="/static/logo.png" alt="Piromax Fogos">
+      </div>
       <div class="header-brand-text">
-        <h1>Fogos Piromax</h1>
-        <div class="app-name">Gestão da Produção</div>
+        <div class="app-name">Gestão da Produção · Área do Gestor</div>
       </div>
     </div>
-    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+    <div class="header-right">
       <nav class="header-nav">
-        <a href="/" class="active">📋 Produção</a>
-        <a href="/requests">📨 Solicitações</a>
+        <a href="/admin" class="active">📋 Produção</a>
+        <a href="/admin/requests">📨 Solicitações</a>
       </nav>
-      <button class="nav-btn" onclick="printPDF()" style="white-space:nowrap;">🖨️ Imprimir</button>
+      <a href="/admin/logout" class="btn-logout">🚪 Sair</a>
     </div>
   </div>
-  <div class="date-nav">
-    <button class="nav-btn" onclick="navegarDia(-1)">◀ Anterior</button>
 
-    <span class="date-display" id="dateLabel"></span>
-
-    <div class="cal-wrap" title="Escolher data no calendário">
-      <button class="cal-btn">📅</button>
-      <input type="date" class="cal-input" id="datePicker"
-             value="{{ date }}"
-             onchange="irParaData(this.value)">
-    </div>
-
-    {% if date != today %}
-    <a href="/" class="today-link">↩ Hoje</a>
-    {% if date > today %}
-    <span class="future-badge">📅 Agenda futura</span>
-    {% else %}
-    <span class="past-badge">Consulta histórica</span>
-    {% endif %}
-    {% endif %}
-
-    <button class="nav-btn" onclick="navegarDia(1)">Próximo ▶</button>
+  <!-- Linha 2: Ações rápidas -->
+  <div class="header-actions">
+    <button class="btn btn-white" onclick="copyLastDay()">📋 Copiar último dia</button>
+    <button class="btn btn-white" onclick="printPDF()">🖨️ Imprimir PDF</button>
+    <button class="btn btn-danger" onclick="confirmClear()">🗑️ Limpar dia</button>
   </div>
-
-  {% if total > 0 %}
-  <div class="progress-bar-wrap">
-    <div class="progress-bar-fill" id="progressFill"
-         style="width: {{ (concluidos / total * 100)|round|int }}%"></div>
-  </div>
-  <p class="progress-label" id="progressLabel">
-    {{ concluidos }} de {{ total }} itens concluídos
-  </p>
-  {% endif %}
 </header>
 
-<!-- Cabeçalho visível somente no PDF / impressão -->
-<div class="print-company">🎆 Fogos Piromax</div>
-<div class="print-header">📋 Produção do Dia</div>
+<div class="print-header">Fogos Piromax — Produção do Dia</div>
 <div class="print-date" id="printDateLabel"></div>
 
 <div class="container">
 
-  {% if date != today %}
-  <div class="readonly-notice {{ 'future' if date > today else 'past' }}">
-    {% if date > today %}
-    📅 Visualizando agenda de <strong>{{ date }}</strong> — modo somente leitura.
-    {% else %}
-    ⚠️ Visualizando a produção de <strong>{{ date }}</strong> — modo somente leitura.
-    {% endif %}
+  <div class="date-bar">
+    <label for="datePicker">📅 Data:</label>
+    <input type="date" id="datePicker" value="{{ date }}"
+           onchange="changeDate(this.value)">
+    <a href="/" class="worker-link" target="_blank">👁️ Ver tela dos funcionários ↗</a>
   </div>
-  {% endif %}
 
-  {% if tasks|length == 0 %}
-  <div class="empty-state">
-    <div class="icon">{{ '📭' if date == today else ('📅' if date > today else '📂') }}</div>
-    <p>{{ 'Nenhuma tarefa cadastrada para hoje.' if date == today else ('Nenhuma tarefa agendada para este dia.' if date > today else 'Nenhuma tarefa registrada para este dia.') }}</p>
-    {% if date == today %}
-    <p style="margin-top:8px; font-size:0.85rem;">Aguarde o gestor adicionar os itens.</p>
-    {% endif %}
+  <div class="add-card">
+    <h2>➕ Adicionar Produto</h2>
+    <div class="form-row">
+      <div class="form-group produto">
+        <label>Nome do Produto</label>
+        <input type="text" id="inputProduto" placeholder="Ex: Caixa de papelão tipo A"
+               maxlength="100" onkeydown="if(event.key==='Enter') addTask()">
+      </div>
+      <div class="form-group qtd">
+        <label>Quantidade</label>
+        <input type="number" id="inputQtd" placeholder="100" min="1" max="99999"
+               onkeydown="if(event.key==='Enter') addTask()">
+      </div>
+      <div class="form-group urgencia">
+        <label for="checkUrgente" class="urgencia-check" id="urgenciaLabel">
+          <input type="checkbox" id="checkUrgente" onchange="toggleUrgenciaStyle()">
+          <span>🔴 Urgente</span>
+        </label>
+      </div>
+      <button class="btn-add" onclick="addTask()">Adicionar</button>
+    </div>
   </div>
-  {% else %}
 
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Produto</th>
-        <th>Qtd</th>
-        <th>Concluído</th>
-        <th>Hora</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for task in tasks %}
-      <tr id="row-{{ task.id }}"
-          class="{{ 'done' if task.concluido else ('urgente' if task.urgente else '') }}"
-          data-urgente="{{ 'true' if task.urgente else 'false' }}">
-        <td style="color:#94a3b8; font-size:0.85rem;">{{ loop.index }}</td>
-        <td class="produto-name">
-          {{ task.produto }}
-          {% if task.urgente and not task.concluido %}
-          <span class="urgente-badge">🔴 URGENTE</span>
-          {% endif %}
-        </td>
-        <td><span class="quantidade-badge">{{ task.quantidade }}</span></td>
-        <td>
-          <div class="check-wrap">
-            <input type="checkbox"
-                   id="check-{{ task.id }}"
-                   {{ 'checked' if task.concluido else '' }}
-                   {{ 'disabled' if date != today else '' }}
-                   onchange="autoSave('{{ task.id }}')">
-            <span class="check-label {{ 'done-label' if task.concluido else '' }}"
-                  id="chklabel-{{ task.id }}">
-              {{ 'Feito!' if task.concluido else 'Pendente' }}
-            </span>
-          </div>
-        </td>
-        <td>
-          {% if task.concluido_em %}
-          <span class="hora-badge" id="hora-{{ task.id }}">{{ task.concluido_em }}</span>
-          {% else %}
-          <span id="hora-{{ task.id }}">—</span>
-          {% endif %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  {% endif %}
+  <div class="tasks-card">
+    <div class="tasks-header">
+      <div>
+        <h2 style="display:inline">Tarefas do Dia</h2>
+        <span class="count-badge" id="countBadge">{{ tasks|length }}</span>
+      </div>
+    </div>
+    <div id="tableWrap">
+      {% if tasks|length == 0 %}
+      <div class="empty-state" id="emptyState">
+        <div class="icon">📭</div>
+        <p>Nenhuma tarefa adicionada ainda.</p>
+      </div>
+      {% else %}
+      <table id="taskTable">
+        <thead>
+          <tr>
+            <th>#</th><th>Produto</th><th>Quantidade</th>
+            <th>Status</th><th>Hora</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="taskBody">
+          {% for task in tasks %}
+          <tr id="row-{{ task.id }}" class="{{ 'urgente-row' if task.urgente and not task.concluido else '' }}">
+            <td style="color:#94a3b8; font-size:0.85rem;">{{ loop.index }}</td>
+            <td class="produto-cell">
+              {{ task.produto }}
+              {% if task.urgente %}<span class="urgente-badge">🔴 URGENTE</span>{% endif %}
+            </td>
+            <td><span class="qtd-badge">{{ task.quantidade }}</span></td>
+            <td>
+              {% if task.concluido %}
+              <span class="status-done">✅ Concluído</span>
+              {% else %}
+              <span class="status-pending">⏳ Pendente</span>
+              {% endif %}
+            </td>
+            <td>{{ task.concluido_em if task.concluido_em else '—' }}</td>
+            <td><button class="btn-del" onclick="deleteTask('{{ task.id }}')">Excluir</button></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </div>
+  </div>
 
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-  const TODAY        = "{{ today }}";
-  const CURRENT_DATE = "{{ date }}";
-
-  (function() {
-    const d    = new Date(CURRENT_DATE + 'T00:00:00');
-    const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    const label = d.toLocaleDateString('pt-BR', opts).replace(/^\w/, c => c.toUpperCase());
-    document.getElementById('dateLabel').textContent = label;
-    const printLbl = document.getElementById('printDateLabel');
-    if (printLbl) printLbl.textContent = label;
-  })();
-
-  function navegarDia(delta) {
-    const d = new Date(CURRENT_DATE + 'T00:00:00');
-    d.setDate(d.getDate() + delta);
-    window.location.href = '/?date=' + d.toISOString().split('T')[0];
-  }
-
-  function irParaData(val) {
-    if (!val) return;
-    window.location.href = '/?date=' + val;
-  }
-
-  function printPDF() {
-    window.print();
-  }
+  let CURRENT_DATE = "{{ date }}";
 
   function showToast(msg, isError = false) {
     const t = document.getElementById('toast');
     t.textContent = msg;
     t.style.background = isError ? '#dc2626' : '#1e293b';
     t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500);
+    setTimeout(() => t.classList.remove('show'), 2800);
   }
 
-  async function autoSave(id) {
-    const cb       = document.getElementById('check-' + id);
-    const concluido = cb.checked;
-    cb.disabled    = true;
+  function toggleUrgenciaStyle() {
+    const cb    = document.getElementById('checkUrgente');
+    const label = document.getElementById('urgenciaLabel');
+    label.classList.toggle('active', cb.checked);
+  }
 
-    try {
-      const res = await fetch('/worker/update', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ id, date: CURRENT_DATE, concluido, assinatura: '' })
-      });
+  function changeDate(val) {
+    CURRENT_DATE = val;
+    window.location.href = '/admin?date=' + val;
+  }
 
-      if (res.ok) {
-        const data = await res.json();
-        const row  = document.getElementById('row-' + id);
-        const lbl  = document.getElementById('chklabel-' + id);
+  async function addTask() {
+    const produto = document.getElementById('inputProduto').value.trim();
+    const qtd     = parseInt(document.getElementById('inputQtd').value);
+    const urgente = document.getElementById('checkUrgente').checked;
+    if (!produto) { showToast('Digite o nome do produto.', true); document.getElementById('inputProduto').focus(); return; }
+    if (!qtd || qtd < 1) { showToast('Digite uma quantidade válida.', true); document.getElementById('inputQtd').focus(); return; }
+    const res = await fetch('/admin/add', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ produto, quantidade: qtd, date: CURRENT_DATE, urgente })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      appendRow(data.task);
+      document.getElementById('inputProduto').value = '';
+      document.getElementById('inputQtd').value     = '';
+      document.getElementById('checkUrgente').checked = false;
+      toggleUrgenciaStyle();
+      document.getElementById('inputProduto').focus();
+      updateCount(1);
+      showToast(urgente ? '🔴 Produto urgente adicionado!' : '✅ Produto adicionado!');
+    } else { showToast('Erro ao adicionar.', true); }
+  }
 
-        if (concluido) {
-          row.classList.remove('urgente');
-          row.classList.add('done');
-          lbl.textContent = 'Feito!';
-          lbl.className   = 'check-label done-label';
-          const badge = row.querySelector('.urgente-badge');
-          if (badge) badge.style.display = 'none';
-          const hora = data.concluido_em ||
-            new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-          document.getElementById('hora-' + id).outerHTML =
-            `<span class="hora-badge" id="hora-${id}">${hora}</span>`;
-          showToast('✅ Concluído!');
-        } else {
-          row.classList.remove('done');
-          if (row.dataset.urgente === 'true') row.classList.add('urgente');
-          lbl.textContent = 'Pendente';
-          lbl.className   = 'check-label';
-          const badge = row.querySelector('.urgente-badge');
-          if (badge) badge.style.display = '';
-          document.getElementById('hora-' + id).outerHTML =
-            `<span id="hora-${id}">—</span>`;
-          showToast('Tarefa reaberta.');
-        }
-        updateProgress();
-      } else {
-        throw new Error('server');
+  function appendRow(task) {
+    const empty = document.getElementById('emptyState');
+    if (empty) empty.remove();
+    let table = document.getElementById('taskTable');
+    if (!table) {
+      document.getElementById('tableWrap').innerHTML = `
+        <table id="taskTable">
+          <thead><tr><th>#</th><th>Produto</th><th>Quantidade</th><th>Status</th><th>Hora</th><th></th></tr></thead>
+          <tbody id="taskBody"></tbody>
+        </table>`;
+    }
+    const tbody    = document.getElementById('taskBody');
+    const idx      = tbody.querySelectorAll('tr').length + 1;
+    const urgBadge = task.urgente ? '<span class="urgente-badge">🔴 URGENTE</span>' : '';
+    const tr       = document.createElement('tr');
+    tr.id          = 'row-' + task.id;
+    tr.className   = task.urgente ? 'urgente-row' : '';
+    tr.innerHTML   = `
+      <td style="color:#94a3b8; font-size:0.85rem;">${idx}</td>
+      <td class="produto-cell">${task.produto}${urgBadge}</td>
+      <td><span class="qtd-badge">${task.quantidade}</span></td>
+      <td><span class="status-pending">⏳ Pendente</span></td>
+      <td>—</td>
+      <td><button class="btn-del" onclick="deleteTask('${task.id}')">Excluir</button></td>`;
+    tbody.appendChild(tr);
+  }
+
+  async function deleteTask(id) {
+    if (!confirm('Excluir esta tarefa?')) return;
+    const res = await fetch('/admin/delete/' + id, {
+      method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date: CURRENT_DATE })
+    });
+    if (res.ok) {
+      document.getElementById('row-' + id).remove();
+      updateCount(-1);
+      showToast('Tarefa excluída.');
+      const tbody = document.getElementById('taskBody');
+      if (tbody && tbody.querySelectorAll('tr').length === 0) {
+        document.getElementById('tableWrap').innerHTML = `<div class="empty-state" id="emptyState"><div class="icon">📭</div><p>Nenhuma tarefa adicionada ainda.</p></div>`;
       }
-    } catch (e) {
-      showToast('Erro ao salvar. Tente novamente.', true);
-      cb.checked = !concluido;
-    } finally {
-      cb.disabled = false;
+    } else { showToast('Erro ao excluir.', true); }
+  }
+
+  async function confirmClear() {
+    const rows = document.querySelectorAll('#taskBody tr');
+    if (rows.length === 0) { showToast('Nenhuma tarefa para limpar.'); return; }
+    if (!confirm('Limpar TODAS as tarefas deste dia?')) return;
+    const res = await fetch('/admin/clear', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date: CURRENT_DATE })
+    });
+    if (res.ok) {
+      document.getElementById('tableWrap').innerHTML = `<div class="empty-state" id="emptyState"><div class="icon">📭</div><p>Nenhuma tarefa adicionada ainda.</p></div>`;
+      document.getElementById('countBadge').textContent = '0';
+      showToast('Tarefas removidas.');
     }
   }
 
-  function updateProgress() {
-    const checks = document.querySelectorAll('input[type="checkbox"]');
-    const total  = checks.length;
-    const done   = [...checks].filter(c => c.checked).length;
-    const pct    = total > 0 ? Math.round(done / total * 100) : 0;
-    const fill   = document.getElementById('progressFill');
-    const lbl    = document.getElementById('progressLabel');
-    if (fill) fill.style.width = pct + '%';
-    if (lbl)  lbl.textContent  = done + ' de ' + total + ' itens concluídos';
+  async function copyLastDay() {
+    if (!confirm('Copiar as tarefas do último dia lançado para este dia?')) return;
+    const res = await fetch('/admin/copy-yesterday', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date: CURRENT_DATE })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('✅ Tarefas copiadas de ' + data.copied_from + '!');
+      setTimeout(() => location.reload(), 1200);
+    } else {
+      showToast(data.message || 'Nenhum dia anterior com tarefas encontrado.', true);
+    }
   }
 
-  {% if date == today %}
-  setTimeout(() => location.reload(), 60000);
-  {% endif %}
+  function updateCount(delta) {
+    const badge = document.getElementById('countBadge');
+    badge.textContent = parseInt(badge.textContent || '0') + delta;
+  }
+
+  function printPDF() {
+    const d = new Date(CURRENT_DATE + 'T00:00:00');
+    const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const label = document.getElementById('printDateLabel');
+    if (label) label.textContent = d.toLocaleDateString('pt-BR', opts).replace(/^\w/, c => c.toUpperCase());
+    window.print();
+  }
+
+  (function() {
+    const d = new Date(CURRENT_DATE + 'T00:00:00');
+    const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const label = document.getElementById('printDateLabel');
+    if (label) label.textContent = d.toLocaleDateString('pt-BR', opts).replace(/^\w/, c => c.toUpperCase());
+  })();
 </script>
 
 </body>
