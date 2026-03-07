@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestor — Produção</title>
+  <title>Gestor â ProduÃ§Ã£o</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -42,17 +42,13 @@
       font-family: inherit;
     }
     .btn:active { transform: scale(0.97); }
-
     .btn-white  { background: white; color: #5b21b6; }
     .btn-white:hover { background: #f3e8ff; }
     .btn-danger { background: #fee2e2; color: #dc2626; }
     .btn-danger:hover { background: #fecaca; }
-    .btn-success { background: #dcfce7; color: #16a34a; }
-    .btn-success:hover { background: #bbf7d0; }
 
     .container { max-width: 900px; margin: 28px auto; padding: 0 16px; }
 
-    /* Date picker */
     .date-bar {
       background: white;
       border-radius: 10px;
@@ -92,7 +88,6 @@
     }
     .worker-link:hover { background: #dbeafe; }
 
-    /* Add form */
     .add-card {
       background: white;
       border-radius: 12px;
@@ -110,10 +105,12 @@
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
+      align-items: flex-end;
     }
     .form-group { display: flex; flex-direction: column; gap: 5px; }
     .form-group label { font-size: 0.8rem; font-weight: 600; color: #64748b; text-transform: uppercase; }
-    .form-group input {
+    .form-group input[type="text"],
+    .form-group input[type="number"] {
       border: 1px solid #cbd5e0;
       border-radius: 7px;
       padding: 9px 12px;
@@ -129,6 +126,41 @@
     .form-group.produto { flex: 1; min-width: 200px; }
     .form-group.qtd { width: 130px; }
 
+    /* UrgÃªncia checkbox group */
+    .form-group.urgencia {
+      justify-content: flex-end;
+      padding-bottom: 2px;
+    }
+    .urgencia-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 9px 14px;
+      border: 1px solid #fca5a5;
+      border-radius: 7px;
+      background: #fff5f5;
+      transition: background 0.2s, border-color 0.2s;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .urgencia-check:hover { background: #fee2e2; border-color: #f87171; }
+    .urgencia-check input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      accent-color: #dc2626;
+      cursor: pointer;
+    }
+    .urgencia-check span {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #dc2626;
+    }
+    .urgencia-check.active {
+      background: #fee2e2;
+      border-color: #ef4444;
+    }
+
     .btn-add {
       background: #7c3aed;
       color: white;
@@ -138,14 +170,13 @@
       font-size: 0.95rem;
       font-weight: 600;
       cursor: pointer;
-      align-self: flex-end;
       transition: background 0.2s;
       font-family: inherit;
+      height: 42px;
     }
     .btn-add:hover { background: #6d28d9; }
     .btn-add:active { transform: scale(0.97); }
 
-    /* Tasks table */
     .tasks-card {
       background: white;
       border-radius: 12px;
@@ -186,9 +217,27 @@
     }
     tbody tr { border-top: 1px solid #e2e8f0; }
     tbody tr:hover { background: #fdf8ff; }
+    tbody tr.urgente-row { background: #fff5f5; }
+    tbody tr.urgente-row:hover { background: #fee2e2; }
     td { padding: 13px 16px; font-size: 0.95rem; vertical-align: middle; }
 
     .produto-cell { font-weight: 600; }
+
+    .urgente-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: #fee2e2;
+      color: #dc2626;
+      border: 1px solid #fca5a5;
+      border-radius: 20px;
+      padding: 2px 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
     .qtd-badge {
       background: #eff6ff;
       color: #1a56db;
@@ -199,20 +248,14 @@
       font-size: 0.88rem;
     }
     .status-done {
-      background: #dcfce7;
-      color: #16a34a;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 0.82rem;
-      font-weight: 600;
+      background: #dcfce7; color: #16a34a;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 0.82rem; font-weight: 600;
     }
     .status-pending {
-      background: #fef9c3;
-      color: #854d0e;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 0.82rem;
-      font-weight: 600;
+      background: #fef9c3; color: #854d0e;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 0.82rem; font-weight: 600;
     }
 
     .btn-del {
@@ -256,38 +299,88 @@
       .header-actions { width: 100%; }
       table { display: block; overflow-x: auto; }
     }
+
+    /* ââ Estilos de impressÃ£o / PDF âââââââââââââââââââââââââââââââââââââââ */
+    @media print {
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+      body { background: white; }
+
+      header, .date-bar, .add-card, .toast,
+      .btn-del, .tasks-header .btn,
+      .no-print { display: none !important; }
+
+      .container { max-width: 100%; margin: 0; padding: 0; }
+
+      .tasks-card {
+        box-shadow: none;
+        border: 1px solid #e2e8f0;
+        border-radius: 0;
+      }
+
+      .tasks-header {
+        border-bottom: 2px solid #5b21b6;
+        padding: 10px 16px;
+      }
+
+      table { width: 100%; }
+      thead { background: #7c3aed !important; }
+      thead th { color: white !important; padding: 10px 12px; font-size: 0.82rem; }
+
+      td { padding: 10px 12px; font-size: 0.9rem; }
+
+      tbody tr.urgente-row { background: #fff5f5 !important; }
+
+      .print-header {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #5b21b6;
+      }
+      .print-date {
+        display: block !important;
+        text-align: center;
+        font-size: 0.95rem;
+        color: #64748b;
+        margin-bottom: 14px;
+      }
+    }
+
+    /* Ocultar elementos exclusivos de impressÃ£o na tela normal */
+    .print-header, .print-date { display: none; }
   </style>
 </head>
 <body>
 
 <header>
   <div>
-    <h1>⚙️ Área do Gestor</h1>
-    <p>Gerencie as tarefas de produção diária</p>
+    <h1>âï¸ Ãrea do Gestor</h1>
+    <p>Gerencie as tarefas de produÃ§Ã£o diÃ¡ria</p>
   </div>
   <div class="header-actions">
-    <button class="btn btn-white" onclick="copyYesterday()">📋 Copiar ontem</button>
-    <button class="btn btn-danger" onclick="confirmClear()">🗑️ Limpar dia</button>
+    <button class="btn btn-white" onclick="copyYesterday()">ð Copiar ontem</button>
+    <button class="btn btn-white" onclick="printPDF()" title="Imprimir / Salvar como PDF">ð¨ï¸ Imprimir PDF</button>
+    <button class="btn btn-danger" onclick="confirmClear()">ðï¸ Limpar dia</button>
   </div>
 </header>
 
 <div class="container">
 
-  <!-- Seletor de data -->
   <div class="date-bar">
-    <label for="datePicker">📅 Data:</label>
+    <label for="datePicker">ð Data:</label>
     <input type="date" id="datePicker" value="{{ date }}"
            onchange="changeDate(this.value)">
-    <a href="/" class="worker-link" target="_blank">👁️ Ver tela dos funcionários ↗</a>
+    <a href="/" class="worker-link" target="_blank">ðï¸ Ver tela dos funcionÃ¡rios â</a>
   </div>
 
-  <!-- Formulário de adição -->
   <div class="add-card">
-    <h2>➕ Adicionar Produto</h2>
+    <h2>â Adicionar Produto</h2>
     <div class="form-row">
       <div class="form-group produto">
         <label>Nome do Produto</label>
-        <input type="text" id="inputProduto" placeholder="Ex: Caixa de papelão tipo A"
+        <input type="text" id="inputProduto" placeholder="Ex: Caixa de papelÃ£o tipo A"
                maxlength="100" onkeydown="if(event.key==='Enter') addTask()">
       </div>
       <div class="form-group qtd">
@@ -295,11 +388,21 @@
         <input type="number" id="inputQtd" placeholder="100" min="1" max="99999"
                onkeydown="if(event.key==='Enter') addTask()">
       </div>
+      <div class="form-group urgencia">
+        <label for="checkUrgente" class="urgencia-check" id="urgenciaLabel">
+          <input type="checkbox" id="checkUrgente"
+                 onchange="toggleUrgenciaStyle()">
+          <span>ð´ Urgente</span>
+        </label>
+      </div>
       <button class="btn-add" onclick="addTask()">Adicionar</button>
     </div>
   </div>
 
-  <!-- Lista de tarefas -->
+  <!-- CabeÃ§alho visÃ­vel somente no PDF / impressÃ£o -->
+  <div class="print-header">ð ProduÃ§Ã£o do Dia</div>
+  <div class="print-date" id="printDateLabel"></div>
+
   <div class="tasks-card">
     <div class="tasks-header">
       <div>
@@ -311,7 +414,7 @@
     <div id="tableWrap">
       {% if tasks|length == 0 %}
       <div class="empty-state" id="emptyState">
-        <div class="icon">📭</div>
+        <div class="icon">ð­</div>
         <p>Nenhuma tarefa adicionada ainda.</p>
       </div>
       {% else %}
@@ -322,26 +425,29 @@
             <th>Produto</th>
             <th>Quantidade</th>
             <th>Status</th>
-            <th>Responsável</th>
             <th>Hora</th>
             <th></th>
           </tr>
         </thead>
         <tbody id="taskBody">
           {% for task in tasks %}
-          <tr id="row-{{ task.id }}">
+          <tr id="row-{{ task.id }}" class="{{ 'urgente-row' if task.urgente and not task.concluido else '' }}">
             <td style="color:#94a3b8; font-size:0.85rem;">{{ loop.index }}</td>
-            <td class="produto-cell">{{ task.produto }}</td>
+            <td class="produto-cell">
+              {{ task.produto }}
+              {% if task.urgente %}
+              <span class="urgente-badge">ð´ URGENTE</span>
+              {% endif %}
+            </td>
             <td><span class="qtd-badge">{{ task.quantidade }}</span></td>
             <td>
               {% if task.concluido %}
-              <span class="status-done">✅ Concluído</span>
+              <span class="status-done">â ConcluÃ­do</span>
               {% else %}
-              <span class="status-pending">⏳ Pendente</span>
+              <span class="status-pending">â³ Pendente</span>
               {% endif %}
             </td>
-            <td>{{ task.assinatura if task.assinatura else '—' }}</td>
-            <td>{{ task.concluido_em if task.concluido_em else '—' }}</td>
+            <td>{{ task.concluido_em if task.concluido_em else 'â' }}</td>
             <td>
               <button class="btn-del" onclick="deleteTask('{{ task.id }}')">Excluir</button>
             </td>
@@ -368,14 +474,21 @@
     setTimeout(() => t.classList.remove('show'), 2800);
   }
 
+  function toggleUrgenciaStyle() {
+    const cb    = document.getElementById('checkUrgente');
+    const label = document.getElementById('urgenciaLabel');
+    label.classList.toggle('active', cb.checked);
+  }
+
   function changeDate(val) {
     CURRENT_DATE = val;
     window.location.href = '/admin?date=' + val;
   }
 
   async function addTask() {
-    const produto = document.getElementById('inputProduto').value.trim();
-    const qtd = parseInt(document.getElementById('inputQtd').value);
+    const produto  = document.getElementById('inputProduto').value.trim();
+    const qtd      = parseInt(document.getElementById('inputQtd').value);
+    const urgente  = document.getElementById('checkUrgente').checked;
 
     if (!produto) {
       showToast('Digite o nome do produto.', true);
@@ -383,61 +496,65 @@
       return;
     }
     if (!qtd || qtd < 1) {
-      showToast('Digite uma quantidade válida.', true);
+      showToast('Digite uma quantidade vÃ¡lida.', true);
       document.getElementById('inputQtd').focus();
       return;
     }
 
     const res = await fetch('/admin/add', {
-      method: 'POST',
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ produto, quantidade: qtd, date: CURRENT_DATE })
+      body:    JSON.stringify({ produto, quantidade: qtd, date: CURRENT_DATE, urgente })
     });
 
     if (res.ok) {
       const data = await res.json();
       appendRow(data.task);
       document.getElementById('inputProduto').value = '';
-      document.getElementById('inputQtd').value = '';
+      document.getElementById('inputQtd').value     = '';
+      document.getElementById('checkUrgente').checked = false;
+      toggleUrgenciaStyle();
       document.getElementById('inputProduto').focus();
       updateCount(1);
-      showToast('✅ Produto adicionado!');
+      showToast(urgente ? 'ð´ Produto urgente adicionado!' : 'â Produto adicionado!');
     } else {
       showToast('Erro ao adicionar.', true);
     }
   }
 
   function appendRow(task) {
-    // Remover empty state se existir
     const empty = document.getElementById('emptyState');
     if (empty) empty.remove();
 
     let table = document.getElementById('taskTable');
     if (!table) {
-      const wrap = document.getElementById('tableWrap');
-      wrap.innerHTML = `
+      document.getElementById('tableWrap').innerHTML = `
         <table id="taskTable">
           <thead>
             <tr>
               <th>#</th><th>Produto</th><th>Quantidade</th>
-              <th>Status</th><th>Responsável</th><th>Hora</th><th></th>
+              <th>Status</th><th>Hora</th><th></th>
             </tr>
           </thead>
           <tbody id="taskBody"></tbody>
         </table>`;
     }
 
-    const tbody = document.getElementById('taskBody');
-    const idx = tbody.querySelectorAll('tr').length + 1;
+    const tbody  = document.getElementById('taskBody');
+    const idx    = tbody.querySelectorAll('tr').length + 1;
+    const urgBadge = task.urgente
+      ? '<span class="urgente-badge">ð´ URGENTE</span>' : '';
+    const rowClass = task.urgente ? 'urgente-row' : '';
+
     const tr = document.createElement('tr');
-    tr.id = 'row-' + task.id;
+    tr.id        = 'row-' + task.id;
+    tr.className = rowClass;
     tr.innerHTML = `
       <td style="color:#94a3b8; font-size:0.85rem;">${idx}</td>
-      <td class="produto-cell">${task.produto}</td>
+      <td class="produto-cell">${task.produto}${urgBadge}</td>
       <td><span class="qtd-badge">${task.quantidade}</span></td>
-      <td><span class="status-pending">⏳ Pendente</span></td>
-      <td>—</td>
-      <td>—</td>
+      <td><span class="status-pending">â³ Pendente</span></td>
+      <td>â</td>
       <td><button class="btn-del" onclick="deleteTask('${task.id}')">Excluir</button></td>
     `;
     tbody.appendChild(tr);
@@ -446,19 +563,19 @@
   async function deleteTask(id) {
     if (!confirm('Excluir esta tarefa?')) return;
     const res = await fetch('/admin/delete/' + id, {
-      method: 'DELETE',
+      method:  'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ date: CURRENT_DATE })
+      body:    JSON.stringify({ date: CURRENT_DATE })
     });
     if (res.ok) {
       document.getElementById('row-' + id).remove();
       updateCount(-1);
-      showToast('Tarefa excluída.');
+      showToast('Tarefa excluÃ­da.');
       const tbody = document.getElementById('taskBody');
       if (tbody && tbody.querySelectorAll('tr').length === 0) {
         document.getElementById('tableWrap').innerHTML = `
           <div class="empty-state" id="emptyState">
-            <div class="icon">📭</div>
+            <div class="icon">ð­</div>
             <p>Nenhuma tarefa adicionada ainda.</p>
           </div>`;
       }
@@ -472,14 +589,14 @@
     if (rows.length === 0) { showToast('Nenhuma tarefa para limpar.'); return; }
     if (!confirm('Limpar TODAS as tarefas deste dia?')) return;
     const res = await fetch('/admin/clear', {
-      method: 'POST',
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ date: CURRENT_DATE })
+      body:    JSON.stringify({ date: CURRENT_DATE })
     });
     if (res.ok) {
       document.getElementById('tableWrap').innerHTML = `
         <div class="empty-state" id="emptyState">
-          <div class="icon">📭</div>
+          <div class="icon">ð­</div>
           <p>Nenhuma tarefa adicionada ainda.</p>
         </div>`;
       document.getElementById('countBadge').textContent = '0';
@@ -490,9 +607,9 @@
   async function copyYesterday() {
     if (!confirm('Copiar as tarefas de ontem para este dia?')) return;
     const res = await fetch('/admin/copy-yesterday', {
-      method: 'POST',
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ date: CURRENT_DATE })
+      body:    JSON.stringify({ date: CURRENT_DATE })
     });
     const data = await res.json();
     if (data.success) {
@@ -506,6 +623,29 @@
     const badge = document.getElementById('countBadge');
     badge.textContent = parseInt(badge.textContent || '0') + delta;
   }
+
+  function printPDF() {
+    // Preenche data formatada no cabeÃ§alho de impressÃ£o
+    const d    = new Date(CURRENT_DATE + 'T00:00:00');
+    const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const label = document.getElementById('printDateLabel');
+    if (label) {
+      label.textContent = d.toLocaleDateString('pt-BR', opts)
+        .replace(/^\w/, c => c.toUpperCase());
+    }
+    window.print();
+  }
+
+  // Inicializa data no campo
+  (function() {
+    const d    = new Date(CURRENT_DATE + 'T00:00:00');
+    const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const label = document.getElementById('printDateLabel');
+    if (label) {
+      label.textContent = d.toLocaleDateString('pt-BR', opts)
+        .replace(/^\w/, c => c.toUpperCase());
+    }
+  })();
 </script>
 
 </body>
