@@ -1,12 +1,14 @@
 import os
 import uuid
 from datetime import datetime, date, timedelta
+from functools import wraps
 from zoneinfo import ZoneInfo
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'fogospiromax-dev-secret')
 
 SAO_PAULO = ZoneInfo('America/Sao_Paulo')
 
@@ -70,6 +72,37 @@ def get_tasks(date_str):
     return tasks
 
 
+# ── Login ──────────────────────────────────────────────────────────────────────
+
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not session.get('admin_logged_in'):
+            return redirect(url_for('admin_login'))
+        return f(*args, **kwargs)
+    return decorated
+
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    error = None
+    if request.method == 'POST':
+        password = request.form.get('password', '')
+        admin_password = os.environ.get('ADMIN_PASSWORD', 'fogos2025')
+        if password == admin_password:
+            session['admin_logged_in'] = True
+            return redirect(url_for('admin_view'))
+        else:
+            error = 'Senha incorreta. Tente novamente.'
+    return render_template('login.html', error=error)
+
+
+@app.route('/admin/logout')
+def admin_logout():
+    session.pop('admin_logged_in', None)
+    return redirect(url_for('admin_login'))
+
+
 # ── Trabalhador ────────────────────────────────────────────────────────────────
 
 @app.route('/')
@@ -111,6 +144,7 @@ def worker_update():
 # ── Gestor / Admin ─────────────────────────────────────────────────────────────
 
 @app.route('/admin')
+@login_required
 def admin_view():
     date_str = request.args.get('date', today_sp())
     tasks    = get_tasks(date_str)
@@ -118,6 +152,7 @@ def admin_view():
 
 
 @app.route('/admin/add', methods=['POST'])
+@login_required
 def admin_add():
     data = request.json
     task = {
@@ -145,6 +180,7 @@ def admin_add():
 
 
 @app.route('/admin/delete/<task_id>', methods=['DELETE'])
+@login_required
 def admin_delete(task_id):
     data = request.json
     conn = get_db()
@@ -158,6 +194,7 @@ def admin_delete(task_id):
 
 
 @app.route('/admin/clear', methods=['POST'])
+@login_required
 def admin_clear():
     data = request.json
     conn = get_db()
@@ -170,6 +207,7 @@ def admin_clear():
 
 
 @app.route('/admin/copy-yesterday', methods=['POST'])
+@login_required
 def admin_copy_yesterday():
     data      = request.json
     today_str = data['date']
