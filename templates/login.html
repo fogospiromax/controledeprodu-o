@@ -54,6 +54,7 @@
       margin-bottom: 6px;
     }
 
+    input[type="text"],
     input[type="password"] {
       width: 100%;
       padding: 12px 16px;
@@ -66,6 +67,7 @@
       margin-bottom: 20px;
     }
 
+    input[type="text"]:focus,
     input[type="password"]:focus {
       border-color: #7c3aed;
     }
@@ -114,9 +116,13 @@
     {% endif %}
 
     <form method="POST" action="/admin/login">
+      <label for="username">Usuário</label>
+      <input type="text" id="username" name="username"
+             placeholder="Digite o usuário" autofocus autocomplete="username"
+             style="margin-bottom:16px;">
       <label for="password">Senha</label>
       <input type="password" id="password" name="password"
-             placeholder="Digite a senha" autofocus autocomplete="current-password">
+             placeholder="Digite a senha" autocomplete="current-password">
       <button type="submit">Entrar</button>
     </form>
   </div>
