@@ -12,12 +12,12 @@ SAO_PAULO = ZoneInfo('America/Sao_Paulo')
 
 
 def now_sp():
-    """Retorna o datetime atual no fuso de SÃ£o Paulo."""
+    """Retorna o datetime atual no fuso de São Paulo."""
     return datetime.now(SAO_PAULO)
 
 
 def today_sp():
-    """Retorna a data de hoje em SÃ£o Paulo como string ISO (YYYY-MM-DD)."""
+    """Retorna a data de hoje em São Paulo como string ISO (YYYY-MM-DD)."""
     return now_sp().date().isoformat()
 
 
@@ -44,7 +44,7 @@ def init_db():
             urgente      BOOLEAN DEFAULT FALSE
         )
     ''')
-    # Garante coluna urgente mesmo em tabelas criadas antes desta versÃ£o
+    # Garante coluna urgente mesmo em tabelas criadas antes desta versão
     cur.execute('''
         ALTER TABLE tasks ADD COLUMN IF NOT EXISTS urgente BOOLEAN DEFAULT FALSE
     ''')
@@ -70,16 +70,12 @@ def get_tasks(date_str):
     return tasks
 
 
-# ââ Trabalhador ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+# ── Trabalhador ────────────────────────────────────────────────────────────────
 
 @app.route('/')
 def worker_view():
     today    = today_sp()
     date_str = request.args.get('date', today)
-
-    # NÃ£o permite datas futuras
-    if date_str > today:
-        date_str = today
 
     tasks      = get_tasks(date_str)
     total      = len(tasks)
@@ -112,7 +108,7 @@ def worker_update():
     return jsonify({'success': True, 'concluido_em': concluido_em})
 
 
-# ââ Gestor / Admin âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+# ── Gestor / Admin ─────────────────────────────────────────────────────────────
 
 @app.route('/admin')
 def admin_view():
@@ -177,13 +173,29 @@ def admin_clear():
 def admin_copy_yesterday():
     data      = request.json
     today_str = data['date']
-    yesterday = (datetime.strptime(today_str, '%Y-%m-%d') - timedelta(days=1)).strftime('%Y-%m-%d')
-    yesterday_tasks = get_tasks(yesterday)
-    if not yesterday_tasks:
-        return jsonify({'success': False, 'message': 'Nenhuma tarefa encontrada para ontem.'})
+
+    # Encontra o último dia com tarefas ANTES de today_str (qualquer dia, não só ontem)
+    conn = get_db()
+    cur  = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute(
+        "SELECT DISTINCT date FROM tasks WHERE date < %s ORDER BY date DESC LIMIT 1",
+        (today_str,)
+    )
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    if not row:
+        return jsonify({'success': False, 'message': 'Nenhum dia anterior com tarefas encontrado.'})
+
+    last_date  = row['date']
+    last_tasks = get_tasks(last_date)
+    if not last_tasks:
+        return jsonify({'success': False, 'message': 'Nenhuma tarefa encontrada no último dia.'})
+
     conn = get_db()
     cur  = conn.cursor()
-    for t in yesterday_tasks:
+    for t in last_tasks:
         cur.execute(
             'INSERT INTO tasks (id, date, produto, quantidade, concluido, assinatura, concluido_em, urgente) '
             'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
@@ -193,7 +205,7 @@ def admin_copy_yesterday():
     conn.commit()
     cur.close()
     conn.close()
-    return jsonify({'success': True})
+    return jsonify({'success': True, 'copied_from': last_date})
 
 
 @app.route('/api/tasks')
