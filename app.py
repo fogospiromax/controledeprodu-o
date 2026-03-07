@@ -25,7 +25,7 @@ def today_sp():
 
 def now_sp_str():
     """Retorna datetime atual formatado como string legível."""
-    return now_sp().strftime('%Y-%m-%d %H:%M')
+    return now_sp().strftime('%d/%m/%Y %H:%M')
 
 
 def get_db():
