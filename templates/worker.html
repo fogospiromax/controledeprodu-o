@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Produção do Dia</title>
+  <title>Produção do Dia — Fogos Piromax</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -21,7 +21,22 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
     header h1 { font-size: 1.5rem; font-weight: 700; }
+    .company-name {
+      font-size: 0.82rem;
+      opacity: 0.85;
+      margin-top: 3px;
+      font-weight: 500;
+      letter-spacing: 0.4px;
+    }
 
     .date-nav {
       display: flex;
@@ -43,8 +58,7 @@
       transition: background 0.2s;
       font-family: inherit;
     }
-    .nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.35); }
-    .nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .nav-btn:hover { background: rgba(255,255,255,0.35); }
 
     .date-display {
       font-size: 0.95rem;
@@ -99,6 +113,15 @@
       opacity: 0.85;
     }
 
+    .future-badge {
+      background: rgba(255,230,0,0.18);
+      border: 1px solid rgba(255,230,0,0.35);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      opacity: 0.9;
+    }
+
     .progress-bar-wrap {
       background: rgba(255,255,255,0.25);
       border-radius: 20px;
@@ -125,16 +148,23 @@
     }
 
     .readonly-notice {
-      background: #fffbeb;
-      border: 1px solid #fde68a;
       border-radius: 8px;
       padding: 10px 16px;
       font-size: 0.875rem;
-      color: #92400e;
       margin-bottom: 20px;
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+    .readonly-notice.past {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+    }
+    .readonly-notice.future {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
     }
 
     .empty-state {
@@ -263,12 +293,62 @@
       table { display: block; overflow-x: auto; }
       .date-nav { gap: 7px; }
     }
+
+    /* ── Estilos de impressão / PDF ───────────────────────────────────── */
+    @media print {
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body { background: white; }
+      header, .readonly-notice, .toast, .no-print { display: none !important; }
+      .container { max-width: 100%; margin: 0; padding: 0; }
+      table {
+        box-shadow: none;
+        border: 1px solid #e2e8f0;
+        border-radius: 0;
+      }
+      .print-header {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 6px;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #1a56db;
+      }
+      .print-company {
+        display: block !important;
+        text-align: center;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 4px;
+      }
+      .print-date {
+        display: block !important;
+        text-align: center;
+        font-size: 0.9rem;
+        color: #64748b;
+        margin-bottom: 16px;
+      }
+      thead { background: #1a56db !important; }
+      thead th { color: white !important; padding: 10px 12px; font-size: 0.82rem; }
+      td { padding: 10px 12px; font-size: 0.9rem; }
+      tbody tr.urgente { background: #fff1f2 !important; }
+      tbody tr.done { background: #f0fff4 !important; }
+      /* Oculta coluna de checkbox na impressão, mostra status como texto */
+      th:nth-child(4), td:nth-child(4) { display: none; }
+    }
+    .print-header, .print-company, .print-date { display: none; }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>📋 Produção do Dia</h1>
+  <div class="header-top">
+    <div>
+      <h1>📋 Produção do Dia</h1>
+      <p class="company-name">🎆 Fogos Piromax</p>
+    </div>
+    <button class="nav-btn no-print" onclick="printPDF()" style="white-space:nowrap; margin-top:4px;">🖨️ Imprimir PDF</button>
+  </div>
   <div class="date-nav">
     <button class="nav-btn" onclick="navegarDia(-1)">◀ Anterior</button>
 
@@ -277,20 +357,20 @@
     <div class="cal-wrap" title="Escolher data no calendário">
       <button class="cal-btn">📅</button>
       <input type="date" class="cal-input" id="datePicker"
-             value="{{ date }}" max="{{ today }}"
+             value="{{ date }}"
              onchange="irParaData(this.value)">
     </div>
 
     {% if date != today %}
     <a href="/" class="today-link">↩ Hoje</a>
+    {% if date > today %}
+    <span class="future-badge">📅 Agenda futura</span>
+    {% else %}
     <span class="past-badge">Consulta histórica</span>
     {% endif %}
+    {% endif %}
 
-    <button class="nav-btn"
-            onclick="navegarDia(1)"
-            {% if date >= today %}disabled{% endif %}>
-      Próximo ▶
-    </button>
+    <button class="nav-btn" onclick="navegarDia(1)">Próximo ▶</button>
   </div>
 
   {% if total > 0 %}
@@ -304,18 +384,27 @@
   {% endif %}
 </header>
 
+<!-- Cabeçalho visível somente no PDF / impressão -->
+<div class="print-company">🎆 Fogos Piromax</div>
+<div class="print-header">📋 Produção do Dia</div>
+<div class="print-date" id="printDateLabel"></div>
+
 <div class="container">
 
   {% if date != today %}
-  <div class="readonly-notice">
+  <div class="readonly-notice {{ 'future' if date > today else 'past' }}">
+    {% if date > today %}
+    📅 Visualizando agenda de <strong>{{ date }}</strong> — modo somente leitura.
+    {% else %}
     ⚠️ Visualizando a produção de <strong>{{ date }}</strong> — modo somente leitura.
+    {% endif %}
   </div>
   {% endif %}
 
   {% if tasks|length == 0 %}
   <div class="empty-state">
-    <div class="icon">{{ '📭' if date == today else '📂' }}</div>
-    <p>{{ 'Nenhuma tarefa cadastrada para hoje.' if date == today else 'Nenhuma tarefa registrada para este dia.' }}</p>
+    <div class="icon">{{ '📭' if date == today else ('📅' if date > today else '📂') }}</div>
+    <p>{{ 'Nenhuma tarefa cadastrada para hoje.' if date == today else ('Nenhuma tarefa agendada para este dia.' if date > today else 'Nenhuma tarefa registrada para este dia.') }}</p>
     {% if date == today %}
     <p style="margin-top:8px; font-size:0.85rem;">Aguarde o gestor adicionar os itens.</p>
     {% endif %}
@@ -383,20 +472,25 @@
   (function() {
     const d    = new Date(CURRENT_DATE + 'T00:00:00');
     const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById('dateLabel').textContent =
-      d.toLocaleDateString('pt-BR', opts).replace(/^\w/, c => c.toUpperCase());
+    const label = d.toLocaleDateString('pt-BR', opts).replace(/^\w/, c => c.toUpperCase());
+    document.getElementById('dateLabel').textContent = label;
+    const printLbl = document.getElementById('printDateLabel');
+    if (printLbl) printLbl.textContent = label;
   })();
 
   function navegarDia(delta) {
     const d = new Date(CURRENT_DATE + 'T00:00:00');
     d.setDate(d.getDate() + delta);
-    if (d > new Date(TODAY + 'T00:00:00')) return;
     window.location.href = '/?date=' + d.toISOString().split('T')[0];
   }
 
   function irParaData(val) {
-    if (!val || val > TODAY) return;
+    if (!val) return;
     window.location.href = '/?date=' + val;
+  }
+
+  function printPDF() {
+    window.print();
   }
 
   function showToast(msg, isError = false) {
