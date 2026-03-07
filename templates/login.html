@@ -28,8 +28,13 @@
     }
 
     .login-logo {
-      font-size: 2.2rem;
-      margin-bottom: 6px;
+      display: flex; justify-content: center;
+      margin-bottom: 14px;
+    }
+    .login-logo img {
+      height: 44px; width: auto;
+      max-width: 160px;
+      object-fit: contain;
     }
 
     .login-title {
@@ -107,7 +112,9 @@
 </head>
 <body>
   <div class="login-card">
-    <div class="login-logo">🎆</div>
+    <div class="login-logo">
+      <img src="/static/logo.png" alt="Piromax Fogos">
+    </div>
     <div class="login-title">Fogos Piromax</div>
     <div class="login-subtitle">Área do Gestor — acesso restrito</div>
 
