@@ -87,13 +87,15 @@ def login_required(f):
 def admin_login():
     error = None
     if request.method == 'POST':
+        username = request.form.get('username', '')
         password = request.form.get('password', '')
+        admin_username = os.environ.get('ADMIN_USERNAME', 'admin')
         admin_password = os.environ.get('ADMIN_PASSWORD', 'fogos2025')
-        if password == admin_password:
+        if username == admin_username and password == admin_password:
             session['admin_logged_in'] = True
             return redirect(url_for('admin_view'))
         else:
-            error = 'Senha incorreta. Tente novamente.'
+            error = 'Usuário ou senha incorretos. Tente novamente.'
     return render_template('login.html', error=error)
 
 
