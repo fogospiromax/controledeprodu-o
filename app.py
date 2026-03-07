@@ -6,7 +6,7 @@ from flask import Flask, render_template, request, jsonify
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-app = Flash(__name__)
+app = Flask(__name__)
 
 SAO_PAULO = ZoneInfo('America/Sao_Paulo')
 
