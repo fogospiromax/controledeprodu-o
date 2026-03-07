@@ -3,497 +3,135 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Solicitações — Gestor · Fogos Piromax</title>
+  <title>Gestor — Login</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f5f3ff;
+      background: #f0f4f8;
       color: #2d3748;
       min-height: 100vh;
-    }
-
-    /* ── Header ── */
-    header {
-      background: linear-gradient(135deg, #7c3aed, #5b21b6);
-      color: white;
-      padding: 16px 24px 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-
-    .header-top {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding-bottom: 14px;
+      justify-content: center;
     }
 
-    .header-brand { display: flex; align-items: center; gap: 12px; }
-
-    .header-logo {
-      width: 46px; height: 46px;
-      background: rgba(255,255,255,0.15);
-      border: 2px solid rgba(255,255,255,0.4);
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.5rem; flex-shrink: 0;
+    .login-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+      padding: 48px 40px 40px;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
     }
 
-    .header-brand-text h1 {
-      font-size: 1.5rem; font-weight: 800;
-      letter-spacing: -0.3px; line-height: 1.1;
+    .login-logo {
+      display: flex; justify-content: center;
+      margin-bottom: 14px;
+    }
+    .login-logo img {
+      height: 44px; width: auto;
+      max-width: 160px;
+      object-fit: contain;
     }
 
-    .header-brand-text .app-name {
-      font-size: 0.8rem; opacity: 0.8;
-      font-weight: 500; margin-top: 2px; letter-spacing: 0.3px;
+    .login-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 4px;
     }
 
-    .header-right {
-      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    .login-subtitle {
+      font-size: 0.9rem;
+      color: #718096;
+      margin-bottom: 32px;
     }
 
-    .header-nav {
-      display: flex; gap: 4px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 10px; padding: 4px;
+    label {
+      display: block;
+      text-align: left;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 6px;
     }
 
-    .header-nav a {
-      color: white; text-decoration: none;
-      padding: 7px 14px; border-radius: 7px;
-      font-size: 0.85rem; font-weight: 600;
-      transition: background 0.2s; opacity: 0.75;
-    }
-
-    .header-nav a:hover  { background: rgba(255,255,255,0.15); opacity: 1; }
-    .header-nav a.active { background: rgba(255,255,255,0.25); opacity: 1; }
-
-    .btn-logout {
-      background: rgba(255,255,255,0.12);
-      color: white; text-decoration: none;
-      border: 1.5px solid rgba(255,255,255,0.3);
-      border-radius: 8px; padding: 7px 14px;
-      font-size: 0.82rem; font-weight: 600;
-      transition: background 0.2s; white-space: nowrap;
-    }
-
-    .btn-logout:hover { background: rgba(255,255,255,0.22); }
-
-    /* ── Layout ── */
-    .container { max-width: 860px; margin: 28px auto; padding: 0 16px; }
-
-    /* ── Abas ── */
-    .tabs {
-      display: flex;
-      gap: 0;
-      border-bottom: 2px solid #e2e8f0;
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 1rem;
+      color: #2d3748;
+      outline: none;
+      transition: border-color 0.2s;
       margin-bottom: 20px;
     }
 
-    .tab-btn {
-      background: none;
-      border: none;
-      padding: 10px 22px;
-      font-size: 0.92rem;
-      font-weight: 600;
-      color: #718096;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-      margin-bottom: -2px;
-      transition: all 0.2s;
-      font-family: inherit;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-    }
-
-    .tab-btn.active { color: #7c3aed; border-bottom-color: #7c3aed; }
-    .tab-btn:hover  { color: #2d3748; }
-
-    .tab-badge {
-      background: #e2e8f0;
-      color: #4a5568;
-      border-radius: 20px;
-      padding: 1px 8px;
-      font-size: 0.75rem;
-      font-weight: 700;
-    }
-
-    .tab-btn.active .tab-badge {
-      background: #ede9fe;
-      color: #5b21b6;
-    }
-
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-
-    /* ── Cards de solicitação ── */
-    .req-list { display: flex; flex-direction: column; gap: 14px; }
-
-    .req-card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-      padding: 18px 20px;
-      border-left: 4px solid #cbd5e0;
-    }
-
-    .req-card.urgente  { border-left-color: #dc2626; }
-    .req-card.concluida { border-left-color: #16a34a; opacity: 0.9; }
-
-    .req-card-top {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      margin-bottom: 10px;
-    }
-
-    .req-tipo-badge {
-      background: #ede9fe;
-      color: #5b21b6;
-      border-radius: 7px;
-      padding: 5px 10px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .req-body { flex: 1; }
-
-    .req-desc {
-      font-size: 0.95rem;
-      color: #1a202c;
-      font-weight: 500;
-      margin-bottom: 6px;
-      line-height: 1.4;
-    }
-
-    .req-meta {
-      font-size: 0.78rem;
-      color: #718096;
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .badge-urgente {
-      background: #fee2e2;
-      color: #dc2626;
-      border-radius: 5px;
-      padding: 2px 8px;
-      font-size: 0.72rem;
-      font-weight: 700;
-    }
-
-    .badge-concluida {
-      background: #dcfce7;
-      color: #16a34a;
-      border-radius: 5px;
-      padding: 2px 8px;
-      font-size: 0.72rem;
-      font-weight: 700;
-    }
-
-    /* ── Área de resposta ── */
-    .req-resposta-existente {
-      margin-top: 8px;
-      background: #f0fdf4;
-      border-radius: 7px;
-      padding: 8px 12px;
-      font-size: 0.82rem;
-      color: #166534;
-      border-left: 3px solid #16a34a;
-    }
-
-    .req-actions {
-      border-top: 1px solid #f1f5f9;
-      padding-top: 12px;
-      margin-top: 4px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .resposta-input {
-      width: 100%;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 9px 12px;
-      font-size: 0.88rem;
-      font-family: inherit;
-      color: #2d3748;
-      resize: vertical;
-      min-height: 70px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .resposta-input:focus {
+    input[type="text"]:focus,
+    input[type="password"]:focus {
       border-color: #7c3aed;
-      box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
     }
 
-    .req-actions-btns {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
+    .error-msg {
+      background: #fff5f5;
+      border: 1px solid #feb2b2;
+      color: #c53030;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      margin-bottom: 16px;
+      text-align: left;
     }
 
-    .btn {
-      border: none; border-radius: 8px;
-      padding: 8px 16px;
-      font-size: 0.85rem; font-weight: 600;
-      cursor: pointer; transition: opacity 0.2s, transform 0.1s;
-      font-family: inherit;
-    }
-
-    .btn:hover  { opacity: 0.88; }
-    .btn:active { transform: scale(0.97); }
-
-    .btn-concluir {
-      background: linear-gradient(135deg, #16a34a, #15803d);
+    button[type="submit"] {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, #7c3aed, #5b21b6);
       color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
     }
 
-    .btn-excluir {
-      background: #fee2e2;
-      color: #dc2626;
+    button[type="submit"]:hover {
+      opacity: 0.92;
     }
 
-    .empty-state {
-      text-align: center;
-      padding: 48px 24px;
-      color: #a0aec0;
-      font-size: 0.95rem;
+    button[type="submit"]:active {
+      transform: scale(0.98);
     }
-
-    .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
-
-    /* ── Toast ── */
-    #toast {
-      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-      background: #5b21b6; color: white;
-      padding: 12px 24px; border-radius: 10px;
-      font-size: 0.9rem; font-weight: 600;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-      opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999;
-      white-space: nowrap;
-    }
-
-    #toast.show { opacity: 1; }
   </style>
 </head>
 <body>
-
-<header>
-  <div class="header-top">
-    <div class="header-brand">
-      <div class="header-logo">🎆</div>
-      <div class="header-brand-text">
-        <h1>Fogos Piromax</h1>
-        <div class="app-name">Gestão da Produção · Área do Gestor</div>
-      </div>
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="/static/logo.png" alt="Piromax Fogos">
     </div>
-    <div class="header-right">
-      <nav class="header-nav">
-        <a href="/admin">📋 Produção</a>
-        <a href="/admin/requests" class="active">📨 Solicitações</a>
-      </nav>
-      <a href="/admin/logout" class="btn-logout">🚪 Sair</a>
-    </div>
+    <div class="login-title">Fogos Piromax</div>
+    <div class="login-subtitle">Área do Gestor — acesso restrito</div>
+
+    {% if error %}
+    <div class="error-msg">🔒 {{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/admin/login">
+      <label for="username">Usuário</label>
+      <input type="text" id="username" name="username"
+             placeholder="Digite o usuário" autofocus autocomplete="username"
+             style="margin-bottom:16px;">
+      <label for="password">Senha</label>
+      <input type="password" id="password" name="password"
+             placeholder="Digite a senha" autocomplete="current-password">
+      <button type="submit">Entrar</button>
+    </form>
   </div>
-</header>
-
-<div class="container">
-
-  <!-- Abas -->
-  <div class="tabs">
-    <button class="tab-btn active" onclick="trocarAba('pendentes', this)">
-      🕐 Pendentes
-      <span class="tab-badge" id="badge-pendentes">{{ pendentes|length }}</span>
-    </button>
-    <button class="tab-btn" onclick="trocarAba('concluidas', this)">
-      ✅ Concluídas
-      <span class="tab-badge" id="badge-concluidas">{{ concluidas|length }}</span>
-    </button>
-  </div>
-
-  <!-- Pendentes -->
-  <div class="tab-panel active" id="panel-pendentes">
-    <div class="req-list" id="lista-pendentes">
-      {% if pendentes %}
-        {% for r in pendentes %}
-        <div class="req-card {% if r.urgente %}urgente{% endif %}" id="req-{{ r.id }}">
-          <div class="req-card-top">
-            <span class="req-tipo-badge">
-              {% if r.tipo == 'material' %}🧱 Material
-              {% elif r.tipo == 'equipamento' %}🔧 Equipamento
-              {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
-              {% else %}📝 Outro{% endif %}
-            </span>
-            <div class="req-body">
-              <div class="req-desc">{{ r.descricao }}</div>
-              <div class="req-meta">
-                <span>🕐 {{ r.created_at }}</span>
-                {% if r.urgente %}<span class="badge-urgente">⚠️ URGENTE</span>{% endif %}
-              </div>
-            </div>
-          </div>
-          <div class="req-actions">
-            <textarea class="resposta-input" id="resp-{{ r.id }}"
-                      placeholder="Resposta opcional (ex: pedido feito, chegará amanhã)..."></textarea>
-            <div class="req-actions-btns">
-              <button class="btn btn-concluir"
-                      onclick="concluirSolicitacao('{{ r.id }}')">
-                ✅ Marcar como concluída
-              </button>
-              <button class="btn btn-excluir"
-                      onclick="excluirSolicitacao('{{ r.id }}', 'pendente')">
-                🗑️ Excluir
-              </button>
-            </div>
-          </div>
-        </div>
-        {% endfor %}
-      {% else %}
-        <div class="empty-state" id="empty-pendentes">
-          <div class="empty-icon">📭</div>
-          Nenhuma solicitação pendente.
-        </div>
-      {% endif %}
-    </div>
-  </div>
-
-  <!-- Concluídas -->
-  <div class="tab-panel" id="panel-concluidas">
-    <div class="req-list" id="lista-concluidas">
-      {% if concluidas %}
-        {% for r in concluidas %}
-        <div class="req-card concluida" id="req-{{ r.id }}">
-          <div class="req-card-top">
-            <span class="req-tipo-badge">
-              {% if r.tipo == 'material' %}🧱 Material
-              {% elif r.tipo == 'equipamento' %}🔧 Equipamento
-              {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
-              {% else %}📝 Outro{% endif %}
-            </span>
-            <div class="req-body">
-              <div class="req-desc">{{ r.descricao }}</div>
-              <div class="req-meta">
-                <span>📅 {{ r.created_at }}</span>
-                <span class="badge-concluida">✅ Concluída</span>
-                {% if r.respondido_em %}<span>· respondido em {{ r.respondido_em }}</span>{% endif %}
-              </div>
-              {% if r.resposta %}
-              <div class="req-resposta-existente">💬 {{ r.resposta }}</div>
-              {% endif %}
-            </div>
-          </div>
-          <div class="req-actions">
-            <div class="req-actions-btns">
-              <button class="btn btn-excluir"
-                      onclick="excluirSolicitacao('{{ r.id }}', 'concluida')">
-                🗑️ Excluir
-              </button>
-            </div>
-          </div>
-        </div>
-        {% endfor %}
-      {% else %}
-        <div class="empty-state" id="empty-concluidas">
-          <div class="empty-icon">✅</div>
-          Nenhuma solicitação concluída ainda.
-        </div>
-      {% endif %}
-    </div>
-  </div>
-
-</div>
-
-<div id="toast"></div>
-
-<script>
-  function trocarAba(aba, btn) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('panel-' + aba).classList.add('active');
-  }
-
-  async function concluirSolicitacao(id) {
-    const resposta = document.getElementById('resp-' + id)?.value.trim() || '';
-
-    const res  = await fetch('/admin/requests/update', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ id, status: 'concluida', resposta })
-    });
-    const data = await res.json();
-
-    if (data.success) {
-      showToast('✅ Solicitação concluída!');
-
-      // Remove card da lista de pendentes
-      const card = document.getElementById('req-' + id);
-      if (card) card.remove();
-
-      // Atualiza badges
-      const bPend = document.getElementById('badge-pendentes');
-      const bConc = document.getElementById('badge-concluidas');
-      bPend.textContent = Math.max(0, parseInt(bPend.textContent || '0') - 1);
-      bConc.textContent = parseInt(bConc.textContent || '0') + 1;
-
-      // Remove empty-state de pendentes se lista ficou vazia
-      checkEmpty('pendentes');
-    } else {
-      showToast('Erro ao concluir.', true);
-    }
-  }
-
-  async function excluirSolicitacao(id, painel) {
-    if (!confirm('Excluir esta solicitação?')) return;
-
-    const res  = await fetch('/admin/requests/delete/' + id, { method: 'DELETE' });
-    const data = await res.json();
-
-    if (data.success) {
-      showToast('🗑️ Solicitação excluída.');
-      const card = document.getElementById('req-' + id);
-      if (card) card.remove();
-
-      const badge = document.getElementById('badge-' + (painel === 'pendente' ? 'pendentes' : 'concluidas'));
-      if (badge) badge.textContent = Math.max(0, parseInt(badge.textContent || '0') - 1);
-
-      checkEmpty(painel === 'pendente' ? 'pendentes' : 'concluidas');
-    } else {
-      showToast('Erro ao excluir.', true);
-    }
-  }
-
-  function checkEmpty(painel) {
-    const lista = document.getElementById('lista-' + painel);
-    if (!lista) return;
-    const cards = lista.querySelectorAll('.req-card');
-    if (cards.length === 0 && !lista.querySelector('.empty-state')) {
-      const emptyMsg = painel === 'pendentes'
-        ? '<div class="empty-icon">📭</div>Nenhuma solicitação pendente.'
-        : '<div class="empty-icon">✅</div>Nenhuma solicitação concluída ainda.';
-      lista.innerHTML = `<div class="empty-state">${emptyMsg}</div>`;
-    }
-  }
-
-  function showToast(msg, erro = false) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.style.background = erro ? '#dc2626' : '#5b21b6';
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
-  }
-</script>
 </body>
 </html>
