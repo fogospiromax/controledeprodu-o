@@ -1,370 +1,501 @@
-import os
-import uuid
-from datetime import datetime, date, timedelta
-from functools import wraps
-from zoneinfo import ZoneInfo
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
-import psycopg2
-from psycopg2.extras import RealDictCursor
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solicitações — Gestor · Fogos Piromax</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'fogospiromax-dev-secret')
-
-SAO_PAULO = ZoneInfo('America/Sao_Paulo')
-
-
-def now_sp():
-    """Retorna o datetime atual no fuso de São Paulo."""
-    return datetime.now(SAO_PAULO)
-
-
-def today_sp():
-    """Retorna a data de hoje em São Paulo como string ISO (YYYY-MM-DD)."""
-    return now_sp().date().isoformat()
-
-
-def now_sp_str():
-    """Retorna datetime atual formatado como string legível."""
-    return now_sp().strftime('%d/%m/%Y %H:%M')
-
-
-def get_db():
-    database_url = os.environ.get('DATABASE_URL', '')
-    # Render usa "postgres://" mas psycopg2 precisa de "postgresql://"
-    if database_url.startswith('postgres://'):
-        database_url = database_url.replace('postgres://', 'postgresql://', 1)
-    return psycopg2.connect(database_url)
-
-
-def init_db():
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute('''
-        CREATE TABLE IF NOT EXISTS tasks (
-            id           TEXT PRIMARY KEY,
-            date         TEXT NOT NULL,
-            produto      TEXT NOT NULL,
-            quantidade   TEXT NOT NULL,
-            concluido    BOOLEAN DEFAULT FALSE,
-            assinatura   TEXT DEFAULT '',
-            concluido_em TEXT DEFAULT '',
-            urgente      BOOLEAN DEFAULT FALSE
-        )
-    ''')
-    cur.execute('''
-        ALTER TABLE tasks ADD COLUMN IF NOT EXISTS urgente BOOLEAN DEFAULT FALSE
-    ''')
-    cur.execute('''
-        CREATE TABLE IF NOT EXISTS requests (
-            id            TEXT PRIMARY KEY,
-            created_at    TEXT NOT NULL,
-            tipo          TEXT NOT NULL,
-            descricao     TEXT NOT NULL,
-            urgente       BOOLEAN DEFAULT FALSE,
-            status        TEXT DEFAULT 'pendente',
-            resposta      TEXT DEFAULT '',
-            respondido_em TEXT DEFAULT ''
-        )
-    ''')
-    conn.commit()
-    cur.close()
-    conn.close()
-
-
-# Cria / migra tabelas na primeira vez que o app sobe
-try:
-    init_db()
-except Exception as e:
-    print(f"[init_db] Aviso: {e}")
-
-
-def get_tasks(date_str):
-    conn = get_db()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute('SELECT * FROM tasks WHERE date = %s ORDER BY id', (date_str,))
-    tasks = [dict(t) for t in cur.fetchall()]
-    cur.close()
-    conn.close()
-    return tasks
-
-
-# ── Login ──────────────────────────────────────────────────────────────────────
-
-def login_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if not session.get('admin_logged_in'):
-            return redirect(url_for('admin_login'))
-        return f(*args, **kwargs)
-    return decorated
-
-
-@app.route('/admin/login', methods=['GET', 'POST'])
-def admin_login():
-    error = None
-    if request.method == 'POST':
-        username = request.form.get('username', '')
-        password = request.form.get('password', '')
-        admin_username = os.environ.get('ADMIN_USERNAME', 'admin')
-        admin_password = os.environ.get('ADMIN_PASSWORD', 'fogos2025')
-        if username == admin_username and password == admin_password:
-            session['admin_logged_in'] = True
-            return redirect(url_for('admin_view'))
-        else:
-            error = 'Usuário ou senha incorretos. Tente novamente.'
-    return render_template('login.html', error=error)
-
-
-@app.route('/admin/logout')
-def admin_logout():
-    session.pop('admin_logged_in', None)
-    return redirect(url_for('admin_login'))
-
-
-# ── Trabalhador — Produção ─────────────────────────────────────────────────────
-
-@app.route('/')
-def worker_view():
-    today    = today_sp()
-    date_str = request.args.get('date', today)
-
-    tasks      = get_tasks(date_str)
-    total      = len(tasks)
-    concluidos = sum(1 for t in tasks if t['concluido'])
-    return render_template('worker.html',
-                           tasks=tasks,
-                           date=date_str,
-                           today=today,
-                           total=total,
-                           concluidos=concluidos)
-
-
-@app.route('/worker/update', methods=['POST'])
-def worker_update():
-    data         = request.json
-    concluido_em = ''
-    if data.get('concluido'):
-        concluido_em = now_sp().strftime('%H:%M')
-    conn = get_db()
-    cur  = conn.cursor()
-    cur.execute(
-        'UPDATE tasks SET concluido=%s, assinatura=%s, concluido_em=%s '
-        'WHERE id=%s AND date=%s',
-        (data['concluido'], data.get('assinatura', ''),
-         concluido_em, data['id'], data['date'])
-    )
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'success': True, 'concluido_em': concluido_em})
-
-
-# ── Trabalhador — Solicitações ─────────────────────────────────────────────────
-
-@app.route('/requests')
-def requests_view():
-    conn = get_db()
-    cur  = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute("SELECT * FROM requests ORDER BY created_at DESC")
-    reqs = [dict(r) for r in cur.fetchall()]
-    cur.close()
-    conn.close()
-    pendentes  = [r for r in reqs if r['status'] == 'pendente']
-    concluidas = [r for r in reqs if r['status'] == 'concluida']
-    return render_template('requests.html',
-                           pendentes=pendentes,
-                           concluidas=concluidas)
-
-
-@app.route('/requests/add', methods=['POST'])
-def requests_add():
-    data = request.json
-    req  = {
-        'id':         str(uuid.uuid4()),
-        'created_at': now_sp_str(),
-        'tipo':       data.get('tipo', 'outro'),
-        'descricao':  data.get('descricao', '').strip(),
-        'urgente':    bool(data.get('urgente', False)),
-        'status':     'pendente',
-        'resposta':   '',
-        'respondido_em': ''
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f3ff;
+      color: #2d3748;
+      min-height: 100vh;
     }
-    conn = get_db()
-    cur  = conn.cursor()
-    cur.execute(
-        'INSERT INTO requests (id, created_at, tipo, descricao, urgente, status, resposta, respondido_em) '
-        'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-        (req['id'], req['created_at'], req['tipo'], req['descricao'],
-         req['urgente'], req['status'], req['resposta'], req['respondido_em'])
-    )
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'success': True, 'request': req})
 
-
-# ── Gestor / Admin — Produção ──────────────────────────────────────────────────
-
-@app.route('/admin')
-@login_required
-def admin_view():
-    date_str = request.args.get('date', today_sp())
-    tasks    = get_tasks(date_str)
-    return render_template('admin.html', tasks=tasks, date=date_str, today=today_sp())
-
-
-@app.route('/admin/add', methods=['POST'])
-@login_required
-def admin_add():
-    data = request.json
-    task = {
-        'id':           str(uuid.uuid4()),
-        'date':         data['date'],
-        'produto':      data['produto'].strip(),
-        'quantidade':   str(data['quantidade']),
-        'concluido':    False,
-        'assinatura':   '',
-        'concluido_em': '',
-        'urgente':      bool(data.get('urgente', False))
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, #7c3aed, #5b21b6);
+      color: white;
+      padding: 16px 24px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
-    conn = get_db()
-    cur  = conn.cursor()
-    cur.execute(
-        'INSERT INTO tasks (id, date, produto, quantidade, concluido, assinatura, concluido_em, urgente) '
-        'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-        (task['id'], task['date'], task['produto'], task['quantidade'],
-         task['concluido'], task['assinatura'], task['concluido_em'], task['urgente'])
-    )
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'success': True, 'task': task})
 
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-bottom: 14px;
+    }
 
-@app.route('/admin/delete/<task_id>', methods=['DELETE'])
-@login_required
-def admin_delete(task_id):
-    data = request.json
-    conn = get_db()
-    cur  = conn.cursor()
-    cur.execute('DELETE FROM tasks WHERE id=%s AND date=%s',
-                (task_id, data['date']))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'success': True})
+    .header-brand { display: flex; align-items: center; gap: 12px; }
 
+    .header-logo {
+      height: 38px; width: 110px;
+      background: white;
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; flex-shrink: 0;
+      padding: 4px 6px;
+    }
+    .header-logo img { height: 100%; width: 100%; object-fit: contain; }
 
-@app.route('/admin/clear', methods=['POST'])
-@login_required
-def admin_clear():
-    data = request.json
-    conn = get_db()
-    cur  = conn.cursor()
-    cur.execute('DELETE FROM tasks WHERE date=%s', (data['date'],))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'success': True})
+    .header-brand-text h1 {
+      font-size: 1.5rem; font-weight: 800;
+      letter-spacing: -0.3px; line-height: 1.1;
+    }
 
+    .header-brand-text .app-name {
+      font-size: 0.8rem; opacity: 0.8;
+      font-weight: 500; margin-top: 2px; letter-spacing: 0.3px;
+    }
 
-@app.route('/admin/copy-yesterday', methods=['POST'])
-@login_required
-def admin_copy_yesterday():
-    data      = request.json
-    today_str = data['date']
+    .header-right {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
 
-    conn = get_db()
-    cur  = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute(
-        "SELECT DISTINCT date FROM tasks WHERE date < %s ORDER BY date DESC LIMIT 1",
-        (today_str,)
-    )
-    row = cur.fetchone()
-    cur.close()
-    conn.close()
+    .header-nav {
+      display: flex; gap: 4px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px; padding: 4px;
+    }
 
-    if not row:
-        return jsonify({'success': False, 'message': 'Nenhum dia anterior com tarefas encontrado.'})
+    .header-nav a {
+      color: white; text-decoration: none;
+      padding: 7px 14px; border-radius: 7px;
+      font-size: 0.85rem; font-weight: 600;
+      transition: background 0.2s; opacity: 0.75;
+    }
 
-    last_date  = row['date']
-    last_tasks = get_tasks(last_date)
-    if not last_tasks:
-        return jsonify({'success': False, 'message': 'Nenhuma tarefa encontrada no último dia.'})
+    .header-nav a:hover  { background: rgba(255,255,255,0.15); opacity: 1; }
+    .header-nav a.active { background: rgba(255,255,255,0.25); opacity: 1; }
 
-    conn = get_db()
-    cur  = conn.cursor()
-    for t in last_tasks:
-        cur.execute(
-            'INSERT INTO tasks (id, date, produto, quantidade, concluido, assinatura, concluido_em, urgente) '
-            'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-            (str(uuid.uuid4()), today_str, t['produto'], t['quantidade'],
-             False, '', '', t.get('urgente', False))
-        )
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'success': True, 'copied_from': last_date})
+    .btn-logout {
+      background: rgba(255,255,255,0.12);
+      color: white; text-decoration: none;
+      border: 1.5px solid rgba(255,255,255,0.3);
+      border-radius: 8px; padding: 7px 14px;
+      font-size: 0.82rem; font-weight: 600;
+      transition: background 0.2s; white-space: nowrap;
+    }
 
+    .btn-logout:hover { background: rgba(255,255,255,0.22); }
 
-# ── Gestor / Admin — Solicitações ─────────────────────────────────────────────
+    /* ── Layout ── */
+    .container { max-width: 860px; margin: 28px auto; padding: 0 16px; }
 
-@app.route('/admin/requests')
-@login_required
-def admin_requests_view():
-    conn = get_db()
-    cur  = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute("SELECT * FROM requests ORDER BY created_at DESC")
-    reqs = [dict(r) for r in cur.fetchall()]
-    cur.close()
-    conn.close()
-    pendentes  = [r for r in reqs if r['status'] == 'pendente']
-    concluidas = [r for r in reqs if r['status'] == 'concluida']
-    return render_template('admin_requests.html',
-                           pendentes=pendentes,
-                           concluidas=concluidas)
+    /* ── Abas ── */
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid #e2e8f0;
+      margin-bottom: 20px;
+    }
 
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 10px 22px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #718096;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
 
-@app.route('/admin/requests/update', methods=['POST'])
-@login_required
-def admin_requests_update():
-    data   = request.json
-    req_id = data['id']
-    status = data.get('status', 'concluida')
-    resp   = data.get('resposta', '').strip()
-    resp_em = now_sp_str() if status == 'concluida' else ''
-    conn = get_db()
-    cur  = conn.cursor()
-    cur.execute(
-        'UPDATE requests SET status=%s, resposta=%s, respondido_em=%s WHERE id=%s',
-        (status, resp, resp_em, req_id)
-    )
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'success': True})
+    .tab-btn.active { color: #7c3aed; border-bottom-color: #7c3aed; }
+    .tab-btn:hover  { color: #2d3748; }
 
+    .tab-badge {
+      background: #e2e8f0;
+      color: #4a5568;
+      border-radius: 20px;
+      padding: 1px 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
 
-@app.route('/admin/requests/delete/<req_id>', methods=['DELETE'])
-@login_required
-def admin_requests_delete(req_id):
-    conn = get_db()
-    cur  = conn.cursor()
-    cur.execute('DELETE FROM requests WHERE id=%s', (req_id,))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'success': True})
+    .tab-btn.active .tab-badge {
+      background: #ede9fe;
+      color: #5b21b6;
+    }
 
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
 
-# ── API ────────────────────────────────────────────────────────────────────────
+    /* ── Cards de solicitação ── */
+    .req-list { display: flex; flex-direction: column; gap: 14px; }
 
-@app.route('/api/tasks')
-def api_tasks():
-    date_str = request.args.get('date', today_sp())
-    return jsonify(get_tasks(date_str))
+    .req-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      padding: 18px 20px;
+      border-left: 4px solid #cbd5e0;
+    }
 
+    .req-card.urgente  { border-left-color: #dc2626; }
+    .req-card.concluida { border-left-color: #16a34a; opacity: 0.9; }
 
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    .req-card-top {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .req-tipo-badge {
+      background: #ede9fe;
+      color: #5b21b6;
+      border-radius: 7px;
+      padding: 5px 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .req-body { flex: 1; }
+
+    .req-desc {
+      font-size: 0.95rem;
+      color: #1a202c;
+      font-weight: 500;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .req-meta {
+      font-size: 0.78rem;
+      color: #718096;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .badge-urgente {
+      background: #fee2e2;
+      color: #dc2626;
+      border-radius: 5px;
+      padding: 2px 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .badge-concluida {
+      background: #dcfce7;
+      color: #16a34a;
+      border-radius: 5px;
+      padding: 2px 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    /* ── Área de resposta ── */
+    .req-resposta-existente {
+      margin-top: 8px;
+      background: #f0fdf4;
+      border-radius: 7px;
+      padding: 8px 12px;
+      font-size: 0.82rem;
+      color: #166534;
+      border-left: 3px solid #16a34a;
+    }
+
+    .req-actions {
+      border-top: 1px solid #f1f5f9;
+      padding-top: 12px;
+      margin-top: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .resposta-input {
+      width: 100%;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 0.88rem;
+      font-family: inherit;
+      color: #2d3748;
+      resize: vertical;
+      min-height: 70px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .resposta-input:focus {
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+    }
+
+    .req-actions-btns {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none; border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; transition: opacity 0.2s, transform 0.1s;
+      font-family: inherit;
+    }
+
+    .btn:hover  { opacity: 0.88; }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-concluir {
+      background: linear-gradient(135deg, #16a34a, #15803d);
+      color: white;
+    }
+
+    .btn-excluir {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: #a0aec0;
+      font-size: 0.95rem;
+    }
+
+    .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #5b21b6; color: white;
+      padding: 12px 24px; border-radius: 10px;
+      font-size: 0.9rem; font-weight: 600;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999;
+      white-space: nowrap;
+    }
+
+    #toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="header-brand">
+      <div class="header-logo">
+        <img src="/static/logo.png" alt="Piromax Fogos">
+      </div>
+      <div class="header-brand-text">
+        <div class="app-name">Gestão da Produção · Área do Gestor</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <nav class="header-nav">
+        <a href="/admin">📋 Produção</a>
+        <a href="/admin/requests" class="active">📨 Solicitações</a>
+      </nav>
+      <a href="/admin/logout" class="btn-logout">🚪 Sair</a>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Abas -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="trocarAba('pendentes', this)">
+      🕐 Pendentes
+      <span class="tab-badge" id="badge-pendentes">{{ pendentes|length }}</span>
+    </button>
+    <button class="tab-btn" onclick="trocarAba('concluidas', this)">
+      ✅ Concluídas
+      <span class="tab-badge" id="badge-concluidas">{{ concluidas|length }}</span>
+    </button>
+  </div>
+
+  <!-- Pendentes -->
+  <div class="tab-panel active" id="panel-pendentes">
+    <div class="req-list" id="lista-pendentes">
+      {% if pendentes %}
+        {% for r in pendentes %}
+        <div class="req-card {% if r.urgente %}urgente{% endif %}" id="req-{{ r.id }}">
+          <div class="req-card-top">
+            <span class="req-tipo-badge">
+              {% if r.tipo == 'material' %}🧱 Material
+              {% elif r.tipo == 'equipamento' %}🔧 Equipamento
+              {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
+              {% else %}📝 Outro{% endif %}
+            </span>
+            <div class="req-body">
+              <div class="req-desc">{{ r.descricao }}</div>
+              <div class="req-meta">
+                <span>🕐 {{ r.created_at }}</span>
+                {% if r.urgente %}<span class="badge-urgente">⚠️ URGENTE</span>{% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="req-actions">
+            <textarea class="resposta-input" id="resp-{{ r.id }}"
+                      placeholder="Resposta opcional (ex: pedido feito, chegará amanhã)..."></textarea>
+            <div class="req-actions-btns">
+              <button class="btn btn-concluir"
+                      onclick="concluirSolicitacao('{{ r.id }}')">
+                ✅ Marcar como concluída
+              </button>
+              <button class="btn btn-excluir"
+                      onclick="excluirSolicitacao('{{ r.id }}', 'pendente')">
+                🗑️ Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state" id="empty-pendentes">
+          <div class="empty-icon">📭</div>
+          Nenhuma solicitação pendente.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Concluídas -->
+  <div class="tab-panel" id="panel-concluidas">
+    <div class="req-list" id="lista-concluidas">
+      {% if concluidas %}
+        {% for r in concluidas %}
+        <div class="req-card concluida" id="req-{{ r.id }}">
+          <div class="req-card-top">
+            <span class="req-tipo-badge">
+              {% if r.tipo == 'material' %}🧱 Material
+              {% elif r.tipo == 'equipamento' %}🔧 Equipamento
+              {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
+              {% else %}📝 Outro{% endif %}
+            </span>
+            <div class="req-body">
+              <div class="req-desc">{{ r.descricao }}</div>
+              <div class="req-meta">
+                <span>📅 {{ r.created_at }}</span>
+                <span class="badge-concluida">✅ Concluída</span>
+                {% if r.respondido_em %}<span>· respondido em {{ r.respondido_em }}</span>{% endif %}
+              </div>
+              {% if r.resposta %}
+              <div class="req-resposta-existente">💬 {{ r.resposta }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="req-actions">
+            <div class="req-actions-btns">
+              <button class="btn btn-excluir"
+                      onclick="excluirSolicitacao('{{ r.id }}', 'concluida')">
+                🗑️ Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state" id="empty-concluidas">
+          <div class="empty-icon">✅</div>
+          Nenhuma solicitação concluída ainda.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+  function trocarAba(aba, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + aba).classList.add('active');
+  }
+
+  async function concluirSolicitacao(id) {
+    const resposta = document.getElementById('resp-' + id)?.value.trim() || '';
+
+    const res  = await fetch('/admin/requests/update', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ id, status: 'concluida', resposta })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      showToast('✅ Solicitação concluída!');
+
+      // Remove card da lista de pendentes
+      const card = document.getElementById('req-' + id);
+      if (card) card.remove();
+
+      // Atualiza badges
+      const bPend = document.getElementById('badge-pendentes');
+      const bConc = document.getElementById('badge-concluidas');
+      bPend.textContent = Math.max(0, parseInt(bPend.textContent || '0') - 1);
+      bConc.textContent = parseInt(bConc.textContent || '0') + 1;
+
+      // Remove empty-state de pendentes se lista ficou vazia
+      checkEmpty('pendentes');
+    } else {
+      showToast('Erro ao concluir.', true);
+    }
+  }
+
+  async function excluirSolicitacao(id, painel) {
+    if (!confirm('Excluir esta solicitação?')) return;
+
+    const res  = await fetch('/admin/requests/delete/' + id, { method: 'DELETE' });
+    const data = await res.json();
+
+    if (data.success) {
+      showToast('🗑️ Solicitação excluída.');
+      const card = document.getElementById('req-' + id);
+      if (card) card.remove();
+
+      const badge = document.getElementById('badge-' + (painel === 'pendente' ? 'pendentes' : 'concluidas'));
+      if (badge) badge.textContent = Math.max(0, parseInt(badge.textContent || '0') - 1);
+
+      checkEmpty(painel === 'pendente' ? 'pendentes' : 'concluidas');
+    } else {
+      showToast('Erro ao excluir.', true);
+    }
+  }
+
+  function checkEmpty(painel) {
+    const lista = document.getElementById('lista-' + painel);
+    if (!lista) return;
+    const cards = lista.querySelectorAll('.req-card');
+    if (cards.length === 0 && !lista.querySelector('.empty-state')) {
+      const emptyMsg = painel === 'pendentes'
+        ? '<div class="empty-icon">📭</div>Nenhuma solicitação pendente.'
+        : '<div class="empty-icon">✅</div>Nenhuma solicitação concluída ainda.';
+      lista.innerHTML = `<div class="empty-state">${emptyMsg}</div>`;
+    }
+  }
+
+  function showToast(msg, erro = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.background = erro ? '#dc2626' : '#5b21b6';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+</body>
+</html>
