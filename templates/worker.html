@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ProduÃ§Ã£o do Dia</title>
+  <title>Produção do Dia</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -268,28 +268,28 @@
 <body>
 
 <header>
-  <h1>ð ProduÃ§Ã£o do Dia</h1>
+  <h1>📋 Produção do Dia</h1>
   <div class="date-nav">
-    <button class="nav-btn" onclick="navegarDia(-1)">â Anterior</button>
+    <button class="nav-btn" onclick="navegarDia(-1)">◀ Anterior</button>
 
     <span class="date-display" id="dateLabel"></span>
 
-    <div class="cal-wrap" title="Escolher data no calendÃ¡rio">
-      <button class="cal-btn">ð</button>
+    <div class="cal-wrap" title="Escolher data no calendário">
+      <button class="cal-btn">📅</button>
       <input type="date" class="cal-input" id="datePicker"
              value="{{ date }}" max="{{ today }}"
              onchange="irParaData(this.value)">
     </div>
 
     {% if date != today %}
-    <a href="/" class="today-link">â© Hoje</a>
-    <span class="past-badge">Consulta histÃ³rica</span>
+    <a href="/" class="today-link">↩ Hoje</a>
+    <span class="past-badge">Consulta histórica</span>
     {% endif %}
 
     <button class="nav-btn"
             onclick="navegarDia(1)"
             {% if date >= today %}disabled{% endif %}>
-      PrÃ³ximo â¶
+      Próximo ▶
     </button>
   </div>
 
@@ -299,7 +299,7 @@
          style="width: {{ (concluidos / total * 100)|round|int }}%"></div>
   </div>
   <p class="progress-label" id="progressLabel">
-    {{ concluidos }} de {{ total }} itens concluÃ­dos
+    {{ concluidos }} de {{ total }} itens concluídos
   </p>
   {% endif %}
 </header>
@@ -308,13 +308,13 @@
 
   {% if date != today %}
   <div class="readonly-notice">
-    â ï¸ Visualizando a produÃ§Ã£o de <strong>{{ date }}</strong> â modo somente leitura.
+    ⚠️ Visualizando a produção de <strong>{{ date }}</strong> — modo somente leitura.
   </div>
   {% endif %}
 
   {% if tasks|length == 0 %}
   <div class="empty-state">
-    <div class="icon">{{ 'ð­' if date == today else 'ð' }}</div>
+    <div class="icon">{{ '📭' if date == today else '📂' }}</div>
     <p>{{ 'Nenhuma tarefa cadastrada para hoje.' if date == today else 'Nenhuma tarefa registrada para este dia.' }}</p>
     {% if date == today %}
     <p style="margin-top:8px; font-size:0.85rem;">Aguarde o gestor adicionar os itens.</p>
@@ -328,7 +328,7 @@
         <th>#</th>
         <th>Produto</th>
         <th>Qtd</th>
-        <th>ConcluÃ­do</th>
+        <th>Concluído</th>
         <th>Hora</th>
       </tr>
     </thead>
@@ -341,7 +341,7 @@
         <td class="produto-name">
           {{ task.produto }}
           {% if task.urgente and not task.concluido %}
-          <span class="urgente-badge">ð´ URGENTE</span>
+          <span class="urgente-badge">🔴 URGENTE</span>
           {% endif %}
         </td>
         <td><span class="quantidade-badge">{{ task.quantidade }}</span></td>
@@ -362,7 +362,7 @@
           {% if task.concluido_em %}
           <span class="hora-badge" id="hora-{{ task.id }}">{{ task.concluido_em }}</span>
           {% else %}
-          <span id="hora-{{ task.id }}">â</span>
+          <span id="hora-{{ task.id }}">—</span>
           {% endif %}
         </td>
       </tr>
@@ -435,7 +435,7 @@
             new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
           document.getElementById('hora-' + id).outerHTML =
             `<span class="hora-badge" id="hora-${id}">${hora}</span>`;
-          showToast('â ConcluÃ­do!');
+          showToast('✅ Concluído!');
         } else {
           row.classList.remove('done');
           if (row.dataset.urgente === 'true') row.classList.add('urgente');
@@ -444,7 +444,7 @@
           const badge = row.querySelector('.urgente-badge');
           if (badge) badge.style.display = '';
           document.getElementById('hora-' + id).outerHTML =
-            `<span id="hora-${id}">â</span>`;
+            `<span id="hora-${id}">—</span>`;
           showToast('Tarefa reaberta.');
         }
         updateProgress();
@@ -467,7 +467,7 @@
     const fill   = document.getElementById('progressFill');
     const lbl    = document.getElementById('progressLabel');
     if (fill) fill.style.width = pct + '%';
-    if (lbl)  lbl.textContent  = done + ' de ' + total + ' itens concluÃ­dos';
+    if (lbl)  lbl.textContent  = done + ' de ' + total + ' itens concluídos';
   }
 
   {% if date == today %}
