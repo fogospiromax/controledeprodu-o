@@ -357,10 +357,10 @@
 <header>
   <div>
     <h1>⚙️ Área do Gestor</h1>
-    <p>Gerencie as tarefas de produção diária</p>
+    <p>🎆 Fogos Piromax — Produção diária</p>
   </div>
   <div class="header-actions">
-    <button class="btn btn-white" onclick="copyYesterday()">📋 Copiar ontem</button>
+    <button class="btn btn-white" onclick="copyLastDay()">📋 Copiar último dia</button>
     <button class="btn btn-white" onclick="printPDF()" title="Imprimir / Salvar como PDF">🖨️ Imprimir PDF</button>
     <button class="btn btn-danger" onclick="confirmClear()">🗑️ Limpar dia</button>
   </div>
@@ -400,7 +400,7 @@
   </div>
 
   <!-- Cabeçalho visível somente no PDF / impressão -->
-  <div class="print-header">📋 Produção do Dia</div>
+  <div class="print-header">🎆 Fogos Piromax — Produção do Dia</div>
   <div class="print-date" id="printDateLabel"></div>
 
   <div class="tasks-card">
@@ -604,8 +604,8 @@
     }
   }
 
-  async function copyYesterday() {
-    if (!confirm('Copiar as tarefas de ontem para este dia?')) return;
+  async function copyLastDay() {
+    if (!confirm('Copiar as tarefas do último dia lançado para este dia?')) return;
     const res = await fetch('/admin/copy-yesterday', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -613,9 +613,10 @@
     });
     const data = await res.json();
     if (data.success) {
-      location.reload();
+      showToast('✅ Tarefas copiadas de ' + data.copied_from + '!');
+      setTimeout(() => location.reload(), 1200);
     } else {
-      showToast(data.message || 'Nenhuma tarefa ontem.', true);
+      showToast(data.message || 'Nenhum dia anterior com tarefas encontrado.', true);
     }
   }
 
