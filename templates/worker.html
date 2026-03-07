@@ -1,370 +1,508 @@
-import os
-import uuid
-from datetime import datetime, date, timedelta
-from functools import wraps
-from zoneinfo import ZoneInfo
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
-import psycopg2
-from psycopg2.extras import RealDictCursor
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Produção do Dia — Fogos Piromax</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'fogospiromax-dev-secret')
-
-SAO_PAULO = ZoneInfo('America/Sao_Paulo')
-
-
-def now_sp():
-    """Retorna o datetime atual no fuso de São Paulo."""
-    return datetime.now(SAO_PAULO)
-
-
-def today_sp():
-    """Retorna a data de hoje em São Paulo como string ISO (YYYY-MM-DD)."""
-    return now_sp().date().isoformat()
-
-
-def now_sp_str():
-    """Retorna datetime atual formatado como string legível."""
-    return now_sp().strftime('%d/%m/%Y %H:%M')
-
-
-def get_db():
-    database_url = os.environ.get('DATABASE_URL', '')
-    # Render usa "postgres://" mas psycopg2 precisa de "postgresql://"
-    if database_url.startswith('postgres://'):
-        database_url = database_url.replace('postgres://', 'postgresql://', 1)
-    return psycopg2.connect(database_url)
-
-
-def init_db():
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute('''
-        CREATE TABLE IF NOT EXISTS tasks (
-            id           TEXT PRIMARY KEY,
-            date         TEXT NOT NULL,
-            produto      TEXT NOT NULL,
-            quantidade   TEXT NOT NULL,
-            concluido    BOOLEAN DEFAULT FALSE,
-            assinatura   TEXT DEFAULT '',
-            concluido_em TEXT DEFAULT '',
-            urgente      BOOLEAN DEFAULT FALSE
-        )
-    ''')
-    cur.execute('''
-        ALTER TABLE tasks ADD COLUMN IF NOT EXISTS urgente BOOLEAN DEFAULT FALSE
-    ''')
-    cur.execute('''
-        CREATE TABLE IF NOT EXISTS requests (
-            id            TEXT PRIMARY KEY,
-            created_at    TEXT NOT NULL,
-            tipo          TEXT NOT NULL,
-            descricao     TEXT NOT NULL,
-            urgente       BOOLEAN DEFAULT FALSE,
-            status        TEXT DEFAULT 'pendente',
-            resposta      TEXT DEFAULT '',
-            respondido_em TEXT DEFAULT ''
-        )
-    ''')
-    conn.commit()
-    cur.close()
-    conn.close()
-
-
-# Cria / migra tabelas na primeira vez que o app sobe
-try:
-    init_db()
-except Exception as e:
-    print(f"[init_db] Aviso: {e}")
-
-
-def get_tasks(date_str):
-    conn = get_db()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute('SELECT * FROM tasks WHERE date = %s ORDER BY id', (date_str,))
-    tasks = [dict(t) for t in cur.fetchall()]
-    cur.close()
-    conn.close()
-    return tasks
-
-
-# ── Login ──────────────────────────────────────────────────────────────────────
-
-def login_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if not session.get('admin_logged_in'):
-            return redirect(url_for('admin_login'))
-        return f(*args, **kwargs)
-    return decorated
-
-
-@app.route('/admin/login', methods=['GET', 'POST'])
-def admin_login():
-    error = None
-    if request.method == 'POST':
-        username = request.form.get('username', '')
-        password = request.form.get('password', '')
-        admin_username = os.environ.get('ADMIN_USERNAME', 'admin')
-        admin_password = os.environ.get('ADMIN_PASSWORD', 'fogos2025')
-        if username == admin_username and password == admin_password:
-            session['admin_logged_in'] = True
-            return redirect(url_for('admin_view'))
-        else:
-            error = 'Usuário ou senha incorretos. Tente novamente.'
-    return render_template('login.html', error=error)
-
-
-@app.route('/admin/logout')
-def admin_logout():
-    session.pop('admin_logged_in', None)
-    return redirect(url_for('admin_login'))
-
-
-# ── Trabalhador — Produção ─────────────────────────────────────────────────────
-
-@app.route('/')
-def worker_view():
-    today    = today_sp()
-    date_str = request.args.get('date', today)
-
-    tasks      = get_tasks(date_str)
-    total      = len(tasks)
-    concluidos = sum(1 for t in tasks if t['concluido'])
-    return render_template('worker.html',
-                           tasks=tasks,
-                           date=date_str,
-                           today=today,
-                           total=total,
-                           concluidos=concluidos)
-
-
-@app.route('/worker/update', methods=['POST'])
-def worker_update():
-    data         = request.json
-    concluido_em = ''
-    if data.get('concluido'):
-        concluido_em = now_sp().strftime('%H:%M')
-    conn = get_db()
-    cur  = conn.cursor()
-    cur.execute(
-        'UPDATE tasks SET concluido=%s, assinatura=%s, concluido_em=%s '
-        'WHERE id=%s AND date=%s',
-        (data['concluido'], data.get('assinatura', ''),
-         concluido_em, data['id'], data['date'])
-    )
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'success': True, 'concluido_em': concluido_em})
-
-
-# ── Trabalhador — Solicitações ─────────────────────────────────────────────────
-
-@app.route('/requests')
-def requests_view():
-    conn = get_db()
-    cur  = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute("SELECT * FROM requests ORDER BY created_at DESC")
-    reqs = [dict(r) for r in cur.fetchall()]
-    cur.close()
-    conn.close()
-    pendentes  = [r for r in reqs if r['status'] == 'pendente']
-    concluidas = [r for r in reqs if r['status'] == 'concluida']
-    return render_template('requests.html',
-                           pendentes=pendentes,
-                           concluidas=concluidas)
-
-
-@app.route('/requests/add', methods=['POST'])
-def requests_add():
-    data = request.json
-    req  = {
-        'id':         str(uuid.uuid4()),
-        'created_at': now_sp_str(),
-        'tipo':       data.get('tipo', 'outro'),
-        'descricao':  data.get('descricao', '').strip(),
-        'urgente':    bool(data.get('urgente', False)),
-        'status':     'pendente',
-        'resposta':   '',
-        'respondido_em': ''
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f4f8;
+      color: #2d3748;
+      min-height: 100vh;
     }
-    conn = get_db()
-    cur  = conn.cursor()
-    cur.execute(
-        'INSERT INTO requests (id, created_at, tipo, descricao, urgente, status, resposta, respondido_em) '
-        'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-        (req['id'], req['created_at'], req['tipo'], req['descricao'],
-         req['urgente'], req['status'], req['resposta'], req['respondido_em'])
-    )
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'success': True, 'request': req})
 
-
-# ── Gestor / Admin — Produção ──────────────────────────────────────────────────
-
-@app.route('/admin')
-@login_required
-def admin_view():
-    date_str = request.args.get('date', today_sp())
-    tasks    = get_tasks(date_str)
-    return render_template('admin.html', tasks=tasks, date=date_str, today=today_sp())
-
-
-@app.route('/admin/add', methods=['POST'])
-@login_required
-def admin_add():
-    data = request.json
-    task = {
-        'id':           str(uuid.uuid4()),
-        'date':         data['date'],
-        'produto':      data['produto'].strip(),
-        'quantidade':   str(data['quantidade']),
-        'concluido':    False,
-        'assinatura':   '',
-        'concluido_em': '',
-        'urgente':      bool(data.get('urgente', False))
+    header {
+      background: linear-gradient(135deg, #1a56db, #1e40af);
+      color: white;
+      padding: 14px 20px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
-    conn = get_db()
-    cur  = conn.cursor()
-    cur.execute(
-        'INSERT INTO tasks (id, date, produto, quantidade, concluido, assinatura, concluido_em, urgente) '
-        'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-        (task['id'], task['date'], task['produto'], task['quantidade'],
-         task['concluido'], task['assinatura'], task['concluido_em'], task['urgente'])
-    )
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'success': True, 'task': task})
 
+    /* ── Linha 1: marca + navegação ── */
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-bottom: 12px;
+    }
 
-@app.route('/admin/delete/<task_id>', methods=['DELETE'])
-@login_required
-def admin_delete(task_id):
-    data = request.json
-    conn = get_db()
-    cur  = conn.cursor()
-    cur.execute('DELETE FROM tasks WHERE id=%s AND date=%s',
-                (task_id, data['date']))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'success': True})
+    .header-brand { display: flex; align-items: center; gap: 10px; }
 
+    .header-logo {
+      width: 44px; height: 44px;
+      background: white;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; flex-shrink: 0;
+      padding: 3px;
+    }
+    .header-logo img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+    }
 
-@app.route('/admin/clear', methods=['POST'])
-@login_required
-def admin_clear():
-    data = request.json
-    conn = get_db()
-    cur  = conn.cursor()
-    cur.execute('DELETE FROM tasks WHERE date=%s', (data['date'],))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'success': True})
+    .header-brand-text h1 {
+      font-size: 1.4rem; font-weight: 800;
+      letter-spacing: -0.3px; line-height: 1.1;
+    }
+    .header-brand-text .app-name {
+      font-size: 0.78rem; opacity: 0.8;
+      font-weight: 500; margin-top: 2px;
+    }
 
+    /* ── Navegação + Imprimir ── */
+    .header-right {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .header-nav {
+      display: flex; gap: 3px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 9px; padding: 3px;
+    }
+    .header-nav a {
+      color: white; text-decoration: none;
+      padding: 6px 12px; border-radius: 7px;
+      font-size: 0.82rem; font-weight: 600;
+      transition: background 0.2s; opacity: 0.75;
+    }
+    .header-nav a:hover  { background: rgba(255,255,255,0.15); opacity: 1; }
+    .header-nav a.active { background: rgba(255,255,255,0.25); opacity: 1; }
 
-@app.route('/admin/copy-yesterday', methods=['POST'])
-@login_required
-def admin_copy_yesterday():
-    data      = request.json
-    today_str = data['date']
+    .nav-btn {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 7px;
+      padding: 6px 12px;
+      font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: background 0.2s;
+      font-family: inherit; white-space: nowrap;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.35); }
 
-    conn = get_db()
-    cur  = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute(
-        "SELECT DISTINCT date FROM tasks WHERE date < %s ORDER BY date DESC LIMIT 1",
-        (today_str,)
-    )
-    row = cur.fetchone()
-    cur.close()
-    conn.close()
+    /* ── Linha 2: navegação de data ── */
+    .date-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 10px;
+    }
 
-    if not row:
-        return jsonify({'success': False, 'message': 'Nenhum dia anterior com tarefas encontrado.'})
+    .nav-btn-arrow {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 7px;
+      padding: 7px 12px;
+      font-size: 0.85rem; font-weight: 700;
+      cursor: pointer; transition: background 0.2s;
+      font-family: inherit; white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .nav-btn-arrow:hover { background: rgba(255,255,255,0.35); }
 
-    last_date  = row['date']
-    last_tasks = get_tasks(last_date)
-    if not last_tasks:
-        return jsonify({'success': False, 'message': 'Nenhuma tarefa encontrada no último dia.'})
+    .date-center {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center;
+      gap: 7px; min-width: 0;
+    }
 
-    conn = get_db()
-    cur  = conn.cursor()
-    for t in last_tasks:
-        cur.execute(
-            'INSERT INTO tasks (id, date, produto, quantidade, concluido, assinatura, concluido_em, urgente) '
-            'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-            (str(uuid.uuid4()), today_str, t['produto'], t['quantidade'],
-             False, '', '', t.get('urgente', False))
-        )
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'success': True, 'copied_from': last_date})
+    .date-display {
+      font-size: 0.88rem; font-weight: 700;
+      opacity: 0.97; text-align: center;
+    }
 
+    .cal-wrap {
+      position: relative; display: inline-flex; align-items: center;
+      flex-shrink: 0;
+    }
+    .cal-btn {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 7px;
+      padding: 5px 9px;
+      font-size: 0.95rem; cursor: pointer; line-height: 1;
+      font-family: inherit;
+    }
+    .cal-input {
+      position: absolute; inset: 0; opacity: 0;
+      cursor: pointer; width: 100%; height: 100%;
+    }
 
-# ── Gestor / Admin — Solicitações ─────────────────────────────────────────────
+    /* ── Linha 3: badges extras (só quando não é hoje) ── */
+    .date-extra {
+      display: flex; align-items: center; gap: 7px;
+      flex-wrap: wrap; padding-bottom: 8px;
+    }
+    .today-link {
+      background: rgba(255,255,255,0.15);
+      color: white; border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 7px; padding: 5px 11px;
+      font-size: 0.8rem; font-weight: 600;
+      text-decoration: none; white-space: nowrap;
+    }
+    .today-link:hover { background: rgba(255,255,255,0.28); }
+    .past-badge {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 20px; padding: 3px 10px;
+      font-size: 0.73rem; opacity: 0.85;
+    }
+    .future-badge {
+      background: rgba(255,230,0,0.18);
+      border: 1px solid rgba(255,230,0,0.35);
+      border-radius: 20px; padding: 3px 10px;
+      font-size: 0.73rem; opacity: 0.9;
+    }
 
-@app.route('/admin/requests')
-@login_required
-def admin_requests_view():
-    conn = get_db()
-    cur  = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute("SELECT * FROM requests ORDER BY created_at DESC")
-    reqs = [dict(r) for r in cur.fetchall()]
-    cur.close()
-    conn.close()
-    pendentes  = [r for r in reqs if r['status'] == 'pendente']
-    concluidas = [r for r in reqs if r['status'] == 'concluida']
-    return render_template('admin_requests.html',
-                           pendentes=pendentes,
-                           concluidas=concluidas)
+    /* ── Barra de progresso ── */
+    .progress-bar-wrap {
+      background: rgba(255,255,255,0.25);
+      border-radius: 20px; height: 7px;
+      margin-top: 4px; overflow: hidden;
+    }
+    .progress-bar-fill {
+      background: #86efac; height: 100%;
+      border-radius: 20px; transition: width 0.4s ease;
+    }
+    .progress-label { font-size: 0.76rem; opacity: 0.9; margin-top: 4px; padding-bottom: 10px; }
 
+    /* ── Container ── */
+    .container { max-width: 900px; margin: 24px auto; padding: 0 16px; }
 
-@app.route('/admin/requests/update', methods=['POST'])
-@login_required
-def admin_requests_update():
-    data   = request.json
-    req_id = data['id']
-    status = data.get('status', 'concluida')
-    resp   = data.get('resposta', '').strip()
-    resp_em = now_sp_str() if status == 'concluida' else ''
-    conn = get_db()
-    cur  = conn.cursor()
-    cur.execute(
-        'UPDATE requests SET status=%s, resposta=%s, respondido_em=%s WHERE id=%s',
-        (status, resp, resp_em, req_id)
-    )
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'success': True})
+    .readonly-notice {
+      border-radius: 8px; padding: 10px 16px;
+      font-size: 0.875rem; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .readonly-notice.past  { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+    .readonly-notice.future{ background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
 
+    .empty-state { text-align: center; padding: 60px 20px; color: #718096; }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+    .empty-state p { font-size: 1rem; }
 
-@app.route('/admin/requests/delete/<req_id>', methods=['DELETE'])
-@login_required
-def admin_requests_delete(req_id):
-    conn = get_db()
-    cur  = conn.cursor()
-    cur.execute('DELETE FROM requests WHERE id=%s', (req_id,))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'success': True})
+    table {
+      width: 100%; border-collapse: collapse;
+      background: white; border-radius: 12px;
+      overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    }
+    thead { background: #1a56db; color: white; }
+    thead th {
+      padding: 14px 16px; text-align: left;
+      font-size: 0.85rem; font-weight: 600;
+      letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    tbody tr { border-bottom: 1px solid #e2e8f0; transition: background 0.15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #f7faff; }
+    tbody tr.urgente { background: #fff1f2; }
+    tbody tr.urgente:hover { background: #ffe4e6; }
+    tbody tr.done { background: #f0fff4 !important; }
+    tbody tr.done:hover { background: #e6ffed !important; }
 
+    td { padding: 14px 16px; font-size: 0.95rem; vertical-align: middle; }
+    .produto-name { font-weight: 600; }
 
-# ── API ────────────────────────────────────────────────────────────────────────
+    .urgente-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      background: #fee2e2; color: #dc2626;
+      border: 1px solid #fca5a5; border-radius: 20px;
+      padding: 2px 8px; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.3px; margin-left: 7px; vertical-align: middle;
+    }
+    .quantidade-badge {
+      display: inline-block; background: #eff6ff; color: #1a56db;
+      border: 1px solid #bfdbfe; padding: 3px 10px;
+      border-radius: 20px; font-weight: 600; font-size: 0.88rem;
+    }
+    .check-wrap { display: flex; align-items: center; gap: 9px; }
+    .check-wrap input[type="checkbox"] {
+      width: 22px; height: 22px; cursor: pointer;
+      accent-color: #16a34a; flex-shrink: 0;
+    }
+    .check-wrap input[type="checkbox"]:disabled { cursor: not-allowed; opacity: 0.55; }
+    .check-label { font-size: 0.85rem; color: #64748b; }
+    .check-label.done-label { color: #16a34a; font-weight: 600; }
 
-@app.route('/api/tasks')
-def api_tasks():
-    date_str = request.args.get('date', today_sp())
-    return jsonify(get_tasks(date_str))
+    .hora-badge {
+      background: #fef9c3; color: #854d0e;
+      border: 1px solid #fde68a; padding: 3px 8px;
+      border-radius: 20px; font-size: 0.78rem;
+      font-weight: 600; white-space: nowrap;
+    }
 
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #1e293b; color: white;
+      padding: 12px 20px; border-radius: 8px;
+      font-size: 0.9rem; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      opacity: 0; transform: translateY(10px);
+      transition: all 0.3s; z-index: 100;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
 
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    @media (max-width: 640px) {
+      table { display: block; overflow-x: auto; }
+    }
+
+    /* ── Impressão ── */
+    @media print {
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body { background: white; }
+      header, .readonly-notice, .toast, .no-print { display: none !important; }
+      .container { max-width: 100%; margin: 0; padding: 0; }
+      table { box-shadow: none; border: 1px solid #e2e8f0; border-radius: 0; }
+      .print-header  { display: block !important; text-align: center; margin-bottom: 6px; font-size: 1.4rem; font-weight: 700; color: #1a56db; }
+      .print-company { display: block !important; text-align: center; font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 4px; }
+      .print-date    { display: block !important; text-align: center; font-size: 0.9rem; color: #64748b; margin-bottom: 16px; }
+      thead { background: #1a56db !important; }
+      thead th { color: white !important; padding: 10px 12px; font-size: 0.82rem; }
+      td { padding: 10px 12px; font-size: 0.9rem; }
+      tbody tr.urgente { background: #fff1f2 !important; }
+      tbody tr.done    { background: #f0fff4 !important; }
+      th:nth-child(4), td:nth-child(4) { display: none; }
+    }
+    .print-header, .print-company, .print-date { display: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <!-- Linha 1: Marca + Nav + Imprimir -->
+  <div class="header-top no-print">
+    <div class="header-brand">
+      <div class="header-logo">
+        <img src="/static/logo.png" alt="Piromax">
+      </div>
+      <div class="header-brand-text">
+        <h1>Fogos Piromax</h1>
+        <div class="app-name">Gestão da Produção</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <nav class="header-nav">
+        <a href="/" class="active">📋 Produção</a>
+        <a href="/requests">📨 Solicitações</a>
+      </nav>
+      <button class="nav-btn" onclick="printPDF()">🖨️ Imprimir</button>
+    </div>
+  </div>
+
+  <!-- Linha 2: ◀ Anterior | Data + Calendário | Próximo ▶ -->
+  <div class="date-nav no-print">
+    <button class="nav-btn-arrow" onclick="navegarDia(-1)">◀ Anterior</button>
+    <div class="date-center">
+      <span class="date-display" id="dateLabel"></span>
+      <div class="cal-wrap" title="Escolher data">
+        <button class="cal-btn">📅</button>
+        <input type="date" class="cal-input" id="datePicker"
+               value="{{ date }}" onchange="irParaData(this.value)">
+      </div>
+    </div>
+    <button class="nav-btn-arrow" onclick="navegarDia(1)">Próximo ▶</button>
+  </div>
+
+  <!-- Linha 3: Hoje / badges (só quando não é hoje) -->
+  {% if date != today %}
+  <div class="date-extra no-print">
+    <a href="/" class="today-link">↩ Hoje</a>
+    {% if date > today %}
+    <span class="future-badge">📅 Agenda futura</span>
+    {% else %}
+    <span class="past-badge">Consulta histórica</span>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if total > 0 %}
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressFill"
+         style="width: {{ (concluidos / total * 100)|round|int }}%"></div>
+  </div>
+  <p class="progress-label" id="progressLabel">
+    {{ concluidos }} de {{ total }} itens concluídos
+  </p>
+  {% endif %}
+</header>
+
+<!-- Cabeçalho visível somente no PDF -->
+<div class="print-company">Fogos Piromax</div>
+<div class="print-header">📋 Produção do Dia</div>
+<div class="print-date" id="printDateLabel"></div>
+
+<div class="container">
+
+  {% if date != today %}
+  {% set dp = date.split('-') %}
+  <div class="readonly-notice {{ 'future' if date > today else 'past' }}">
+    {% if date > today %}
+    📅 Visualizando agenda de <strong>{{ dp[2] }}/{{ dp[1] }}/{{ dp[0] }}</strong> — modo somente leitura.
+    {% else %}
+    ⚠️ Visualizando a produção de <strong>{{ dp[2] }}/{{ dp[1] }}/{{ dp[0] }}</strong> — modo somente leitura.
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if tasks|length == 0 %}
+  <div class="empty-state">
+    <div class="icon">{{ '📭' if date == today else ('📅' if date > today else '📂') }}</div>
+    <p>{{ 'Nenhuma tarefa cadastrada para hoje.' if date == today else ('Nenhuma tarefa agendada para este dia.' if date > today else 'Nenhuma tarefa registrada para este dia.') }}</p>
+    {% if date == today %}
+    <p style="margin-top:8px; font-size:0.85rem;">Aguarde o gestor adicionar os itens.</p>
+    {% endif %}
+  </div>
+  {% else %}
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Produto</th>
+        <th>Qtd</th>
+        <th>Concluído</th>
+        <th>Hora</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for task in tasks %}
+      <tr id="row-{{ task.id }}"
+          class="{{ 'done' if task.concluido else ('urgente' if task.urgente else '') }}"
+          data-urgente="{{ 'true' if task.urgente else 'false' }}">
+        <td style="color:#94a3b8; font-size:0.85rem;">{{ loop.index }}</td>
+        <td class="produto-name">
+          {{ task.produto }}
+          {% if task.urgente and not task.concluido %}
+          <span class="urgente-badge">🔴 URGENTE</span>
+          {% endif %}
+        </td>
+        <td><span class="quantidade-badge">{{ task.quantidade }}</span></td>
+        <td>
+          <div class="check-wrap">
+            <input type="checkbox"
+                   id="check-{{ task.id }}"
+                   {{ 'checked' if task.concluido else '' }}
+                   {{ 'disabled' if date != today else '' }}
+                   onchange="autoSave('{{ task.id }}')">
+            <span class="check-label {{ 'done-label' if task.concluido else '' }}"
+                  id="chklabel-{{ task.id }}">
+              {{ 'Feito!' if task.concluido else 'Pendente' }}
+            </span>
+          </div>
+        </td>
+        <td>
+          {% if task.concluido_em %}
+          <span class="hora-badge" id="hora-{{ task.id }}">{{ task.concluido_em }}</span>
+          {% else %}
+          <span id="hora-{{ task.id }}">—</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const TODAY        = "{{ today }}";
+  const CURRENT_DATE = "{{ date }}";
+
+  (function() {
+    const d    = new Date(CURRENT_DATE + 'T00:00:00');
+    const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const label = d.toLocaleDateString('pt-BR', opts).replace(/^\w/, c => c.toUpperCase());
+    document.getElementById('dateLabel').textContent = label;
+    const printLbl = document.getElementById('printDateLabel');
+    if (printLbl) printLbl.textContent = label;
+  })();
+
+  function navegarDia(delta) {
+    const d = new Date(CURRENT_DATE + 'T00:00:00');
+    d.setDate(d.getDate() + delta);
+    window.location.href = '/?date=' + d.toISOString().split('T')[0];
+  }
+
+  function irParaData(val) {
+    if (!val) return;
+    window.location.href = '/?date=' + val;
+  }
+
+  function printPDF() { window.print(); }
+
+  function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.background = isError ? '#dc2626' : '#1e293b';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  async function autoSave(id) {
+    const cb        = document.getElementById('check-' + id);
+    const concluido = cb.checked;
+    cb.disabled     = true;
+    try {
+      const res = await fetch('/worker/update', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ id, date: CURRENT_DATE, concluido, assinatura: '' })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const row  = document.getElementById('row-' + id);
+        const lbl  = document.getElementById('chklabel-' + id);
+        if (concluido) {
+          row.classList.remove('urgente'); row.classList.add('done');
+          lbl.textContent = 'Feito!'; lbl.className = 'check-label done-label';
+          const badge = row.querySelector('.urgente-badge');
+          if (badge) badge.style.display = 'none';
+          const hora = data.concluido_em ||
+            new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          document.getElementById('hora-' + id).outerHTML =
+            `<span class="hora-badge" id="hora-${id}">${hora}</span>`;
+          showToast('✅ Concluído!');
+        } else {
+          row.classList.remove('done');
+          if (row.dataset.urgente === 'true') row.classList.add('urgente');
+          lbl.textContent = 'Pendente'; lbl.className = 'check-label';
+          const badge = row.querySelector('.urgente-badge');
+          if (badge) badge.style.display = '';
+          document.getElementById('hora-' + id).outerHTML = `<span id="hora-${id}">—</span>`;
+          showToast('Tarefa reaberta.');
+        }
+        updateProgress();
+      } else { throw new Error('server'); }
+    } catch (e) {
+      showToast('Erro ao salvar. Tente novamente.', true);
+      cb.checked = !concluido;
+    } finally { cb.disabled = false; }
+  }
+
+  function updateProgress() {
+    const checks = document.querySelectorAll('input[type="checkbox"]');
+    const total  = checks.length;
+    const done   = [...checks].filter(c => c.checked).length;
+    const pct    = total > 0 ? Math.round(done / total * 100) : 0;
+    const fill   = document.getElementById('progressFill');
+    const lbl    = document.getElementById('progressLabel');
+    if (fill) fill.style.width = pct + '%';
+    if (lbl)  lbl.textContent  = done + ' de ' + total + ' itens concluídos';
+  }
+
+  {% if date == today %}
+  setTimeout(() => location.reload(), 60000);
+  {% endif %}
+</script>
+
+</body>
+</html>
