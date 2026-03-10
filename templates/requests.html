@@ -4,160 +4,262 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Solicitações — Fogos Piromax</title>
+<link rel="manifest" href="/static/manifest.json">
+<link rel="apple-touch-icon" href="/static/logo.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Piromax">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#7c3aed">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8f7ff; color: #2d3748; min-height: 100vh; }
 
 /* ── Header ── */
-header { background: linear-gradient(135deg, #1a56db, #1e40af); color: white; padding: 16px 24px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-.header-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding-bottom: 14px; }
-.header-brand { display: flex; align-items: center; gap: 12px; }
-.header-logo {
-  width: 44px; height: 44px;
-  background: white;
-  border-radius: 10px;
+header {
+  background: white; border-bottom: 1px solid #ede9fe;
+  box-shadow: 0 1px 8px rgba(124,58,237,0.07);
+  position: sticky; top: 0; z-index: 50;
+  padding: 12px 20px; display: flex; align-items: center; gap: 8px;
+}
+.header-left { display: flex; align-items: center; gap: 8px; flex: 1; }
+.back-btn {
+  width: 34px; height: 34px; background: #f5f3ff; border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
-  overflow: hidden; flex-shrink: 0;
-  padding: 3px;
+  color: #7c3aed; font-size: 1.1rem; cursor: pointer;
+  border: 1.5px solid #ede9fe; font-family: inherit;
+  flex-shrink: 0; text-decoration: none; font-weight: 700; line-height: 1;
+}
+.back-btn:hover { background: #ede9fe; }
+.header-logo {
+  width: 40px; height: 40px; background: white; border-radius: 10px;
+  overflow: hidden; padding: 3px; border: 1px solid #ede9fe; flex-shrink: 0;
 }
 .header-logo img { width: 100%; height: 100%; object-fit: contain; }
-.header-brand-text h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.3px; line-height: 1.1; }
-.header-brand-text .app-name { font-size: 0.8rem; opacity: 0.8; font-weight: 500; margin-top: 2px; letter-spacing: 0.3px; }
-.header-nav { display: flex; gap: 4px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 4px; }
-.header-nav a { color: white; text-decoration: none; padding: 7px 14px; border-radius: 7px; font-size: 0.85rem; font-weight: 600; transition: background 0.2s; opacity: 0.75; }
-.header-nav a:hover { background: rgba(255,255,255,0.15); opacity: 1; }
-.header-nav a.active { background: rgba(255,255,255,0.25); opacity: 1; }
+.header-brand-text .title { font-size: 0.98rem; font-weight: 700; color: #1e1b4b; }
+.header-brand-text .sub { font-size: 0.7rem; color: #9ca3af; }
 
 /* ── Layout ── */
-.container { max-width: 860px; margin: 28px auto; padding: 0 16px; }
+.container { max-width: 860px; margin: 24px auto; padding: 0 16px 40px; }
 
-/* ── Formulário ── */
-.form-card { background: white; border-radius: 14px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); padding: 24px; margin-bottom: 28px; }
-.form-card h2 { font-size: 1.05rem; font-weight: 700; color: #1e40af; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
-.form-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
-.form-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 180px; }
-label { font-size: 0.82rem; font-weight: 600; color: #4a5568; }
-select, textarea, input[type="text"] { border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 9px 12px; font-size: 0.92rem; font-family: inherit; color: #2d3748; outline: none; transition: border-color 0.2s; background: white; }
-select:focus, textarea:focus, input[type="text"]:focus { border-color: #1a56db; box-shadow: 0 0 0 3px rgba(26,86,219,0.1); }
-textarea { resize: vertical; min-height: 80px; }
-.urgente-row { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
-.urgente-row input[type="checkbox"] { width: 17px; height: 17px; accent-color: #dc2626; cursor: pointer; }
-.urgente-row label { font-size: 0.9rem; color: #dc2626; font-weight: 600; cursor: pointer; }
-.btn-submit { background: linear-gradient(135deg, #1a56db, #1e40af); color: white; border: none; border-radius: 9px; padding: 11px 28px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s, transform 0.1s; font-family: inherit; }
-.btn-submit:hover { opacity: 0.9; }
-.btn-submit:active { transform: scale(0.97); }
+/* ── Formulário nova solicitação ── */
+.form-card {
+  background: white; border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(124,58,237,0.05); border: 1.5px solid #ede9fe;
+  padding: 20px; margin-bottom: 24px;
+}
+.form-card h2 {
+  font-size: 0.9rem; font-weight: 700; color: #7c3aed; margin-bottom: 14px;
+}
+.tipo-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px;
+}
+.tipo-btn {
+  background: #f5f3ff; border: 1.5px solid #ede9fe; border-radius: 8px;
+  padding: 8px 6px; font-size: 0.78rem; font-weight: 600; color: #6b7280;
+  cursor: pointer; font-family: inherit; text-align: center; transition: all 0.15s;
+}
+.tipo-btn:hover { border-color: #c4b5fd; color: #7c3aed; }
+.tipo-btn.active { background: #7c3aed; border-color: #7c3aed; color: white; }
+.form-textarea {
+  width: 100%; border: 1.5px solid #e5e7eb; border-radius: 9px;
+  padding: 10px 13px; font-size: 0.92rem; font-family: inherit;
+  color: #1e1b4b; resize: vertical; min-height: 80px; outline: none;
+  transition: border-color 0.2s; margin-bottom: 12px;
+}
+.form-textarea:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.08); }
+.form-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.urgente-toggle {
+  display: flex; align-items: center; gap: 7px; cursor: pointer;
+  padding: 8px 12px; border: 1.5px solid #fca5a5; border-radius: 8px;
+  background: #fff5f5; user-select: none; font-size: 0.85rem;
+  font-weight: 700; color: #dc2626;
+}
+.urgente-toggle input { width: 16px; height: 16px; accent-color: #dc2626; cursor: pointer; }
+.btn-submit {
+  background: #7c3aed; color: white; border: none; border-radius: 9px;
+  padding: 10px 22px; font-size: 0.9rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.btn-submit:hover { background: #6d28d9; }
 
 /* ── Abas ── */
-.tabs { display: flex; gap: 0; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px; }
-.tab-btn { background: none; border: none; padding: 10px 22px; font-size: 0.92rem; font-weight: 600; color: #718096; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 7px; }
-.tab-btn.active { color: #1a56db; border-bottom-color: #1a56db; }
-.tab-btn:hover { color: #2d3748; }
-.tab-badge { background: #e2e8f0; color: #4a5568; border-radius: 20px; padding: 1px 8px; font-size: 0.75rem; font-weight: 700; }
-.tab-btn.active .tab-badge { background: #dbeafe; color: #1e40af; }
+.tabs {
+  display: flex; gap: 0; border-bottom: 2px solid #ede9fe; margin-bottom: 18px;
+}
+.tab-btn {
+  background: none; border: none; padding: 10px 20px;
+  font-size: 0.9rem; font-weight: 600; color: #9ca3af; cursor: pointer;
+  border-bottom: 3px solid transparent; margin-bottom: -2px;
+  transition: all 0.2s; font-family: inherit;
+  display: flex; align-items: center; gap: 6px;
+}
+.tab-btn.active { color: #7c3aed; border-bottom-color: #7c3aed; }
+.tab-btn:hover { color: #374151; }
+.tab-badge {
+  background: #ede9fe; color: #7c3aed; border-radius: 20px;
+  padding: 1px 8px; font-size: 0.73rem; font-weight: 700;
+}
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
+/* ── Divisores urgente / normal ── */
+.urgente-divider {
+  font-size: 0.68rem; font-weight: 700; color: #dc2626; letter-spacing: 0.5px;
+  padding: 6px 4px 8px; border-top: 2px solid #fecaca; margin-top: 4px;
+}
+.normal-divider {
+  font-size: 0.68rem; font-weight: 700; color: #9ca3af; letter-spacing: 0.5px;
+  padding: 10px 4px 8px; border-top: 1px solid #f3f4f6; margin-top: 4px;
+}
+
 /* ── Cards de solicitação ── */
-.req-list { display: flex; flex-direction: column; gap: 12px; }
-.req-card { background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); padding: 16px 20px; border-left: 4px solid #cbd5e0; display: flex; gap: 14px; align-items: flex-start; }
-.req-card.urgente { border-left-color: #dc2626; }
-.req-card.concluida { border-left-color: #16a34a; opacity: 0.85; }
-.req-tipo-badge { background: #eff6ff; color: #1e40af; border-radius: 7px; padding: 5px 10px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+.req-list { display: flex; flex-direction: column; gap: 10px; }
+.req-card {
+  background: white; border-radius: 12px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.06); padding: 14px 18px;
+  border-left: 4px solid #e5e7eb;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.req-card.urgente { border-left-color: #ef4444; }
+.req-card.pendente { border-left-color: #f59e0b; }
+.req-card.concluida { border-left-color: #22c55e; opacity: 0.85; }
+.req-tipo-badge {
+  background: #f5f3ff; color: #7c3aed; border-radius: 7px;
+  padding: 4px 9px; font-size: 0.73rem; font-weight: 700;
+  white-space: nowrap; flex-shrink: 0;
+}
 .req-body { flex: 1; }
-.req-desc { font-size: 0.95rem; color: #1a202c; font-weight: 500; margin-bottom: 6px; line-height: 1.4; }
-.req-meta { font-size: 0.78rem; color: #718096; display: flex; gap: 12px; flex-wrap: wrap; }
-.badge-urgente { background: #fee2e2; color: #dc2626; border-radius: 5px; padding: 2px 8px; font-size: 0.72rem; font-weight: 700; }
-.badge-concluida { background: #dcfce7; color: #16a34a; border-radius: 5px; padding: 2px 8px; font-size: 0.72rem; font-weight: 700; }
-.req-resposta { margin-top: 8px; background: #f0fdf4; border-radius: 7px; padding: 8px 12px; font-size: 0.82rem; color: #166534; border-left: 3px solid #16a34a; }
-.empty-state { text-align: center; padding: 48px 24px; color: #a0aec0; font-size: 0.95rem; }
-.empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
+.req-desc { font-size: 0.93rem; color: #111827; font-weight: 500; margin-bottom: 5px; line-height: 1.4; }
+.req-meta { font-size: 0.77rem; color: #9ca3af; display: flex; gap: 10px; flex-wrap: wrap; }
+.badge-urgente {
+  background: #fee2e2; color: #dc2626; border-radius: 5px;
+  padding: 1px 7px; font-size: 0.7rem; font-weight: 700;
+}
+.badge-concluida {
+  background: #dcfce7; color: #16a34a; border-radius: 5px;
+  padding: 1px 7px; font-size: 0.7rem; font-weight: 700;
+}
+.req-resposta {
+  margin-top: 8px; background: #f0fdf4; border-radius: 7px;
+  padding: 8px 12px; font-size: 0.82rem; color: #166534;
+  border-left: 3px solid #16a34a;
+}
+.empty-state { text-align: center; padding: 40px 20px; color: #9ca3af; font-size: 0.93rem; }
+.empty-state .empty-icon { font-size: 2.2rem; margin-bottom: 10px; }
 
 /* ── Toast ── */
-#toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1e40af; color: white; padding: 12px 24px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; box-shadow: 0 4px 16px rgba(0,0,0,0.2); opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; white-space: nowrap; }
+#toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: #7c3aed; color: white; padding: 12px 24px;
+  border-radius: 10px; font-size: 0.9rem; font-weight: 600;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999;
+  white-space: nowrap;
+}
 #toast.show { opacity: 1; }
+
+@media (max-width: 480px) {
+  .tipo-grid { grid-template-columns: repeat(2, 1fr); }
+}
 </style>
 </head>
 <body>
+
 <header>
-  <div class="header-top">
-    <div class="header-brand">
-      <div class="header-logo"><img src="/static/logo.png" alt="Piromax"></div>
-      <div class="header-brand-text">
-        <h1>Fogos Piromax</h1>
-        <div class="app-name">Gestão da Produção</div>
-      </div>
+  <div class="header-left">
+    <a href="/" class="back-btn" title="Voltar ao início">‹</a>
+    <div class="header-logo">
+      <img src="/static/logo.png" alt="Piromax">
     </div>
-    <nav class="header-nav">
-      <a href="/">📋 Produção</a>
-      <a href="/requests" class="active">📨 Solicitações</a>
-    </nav>
+    <div class="header-brand-text">
+      <div class="title">Fogos Piromax</div>
+      <div class="sub">Solicitações</div>
+    </div>
   </div>
 </header>
 
 <div class="container">
+
   <!-- Formulário nova solicitação -->
   <div class="form-card">
     <h2>➕ Nova Solicitação</h2>
-    <div class="form-row">
-      <div class="form-group" style="max-width: 200px;">
-        <label for="tipo">Tipo</label>
-        <select id="tipo">
-          <option value="material">🧱 Material</option>
-          <option value="equipamento">🔧 Equipamento</option>
-          <option value="manutencao">🛠️ Manutenção</option>
-          <option value="outro">📝 Outro</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="descricao">Descrição</label>
-        <textarea id="descricao" placeholder="Descreva o que está sendo solicitado..."></textarea>
-      </div>
+    <div class="tipo-grid" id="tipoGrid">
+      <button class="tipo-btn active" data-value="material" onclick="selecionarTipo(this)">🧱 Material</button>
+      <button class="tipo-btn" data-value="equipamento" onclick="selecionarTipo(this)">🔧 Equipamento</button>
+      <button class="tipo-btn" data-value="manutencao" onclick="selecionarTipo(this)">🛠️ Manutenção</button>
+      <button class="tipo-btn" data-value="outro" onclick="selecionarTipo(this)">📝 Outro</button>
     </div>
-    <div class="urgente-row">
-      <input type="checkbox" id="urgente">
-      <label for="urgente">⚠️ Urgente</label>
+    <textarea class="form-textarea" id="descricao" placeholder="Descreva o que está sendo solicitado..."></textarea>
+    <div class="form-footer">
+      <label class="urgente-toggle">
+        <input type="checkbox" id="urgente"> ⚠ Urgente
+      </label>
+      <button class="btn-submit" onclick="enviarSolicitacao()">📤 Enviar</button>
     </div>
-    <button class="btn-submit" onclick="enviarSolicitacao()">📤 Enviar Solicitação</button>
   </div>
 
   <!-- Abas -->
   <div class="tabs">
     <button class="tab-btn active" onclick="trocarAba('pendentes', this)">
-      🕐 Pendentes
-      <span class="tab-badge" id="badge-pendentes">{{ pendentes|length }}</span>
+      ⏳ Pendentes <span class="tab-badge" id="badge-pendentes">{{ pendentes|length }}</span>
     </button>
     <button class="tab-btn" onclick="trocarAba('concluidas', this)">
-      ✅ Concluídas
-      <span class="tab-badge" id="badge-concluidas">{{ concluidas|length }}</span>
+      ✅ Concluídas <span class="tab-badge" id="badge-concluidas">{{ concluidas|length }}</span>
     </button>
   </div>
 
-  <!-- Pendentes -->
+  <!-- Pendentes: urgentes primeiro -->
   <div class="tab-panel active" id="panel-pendentes">
     <div class="req-list" id="lista-pendentes">
-      {% if pendentes %}
-        {% for r in pendentes %}
-        <div class="req-card {% if r.urgente %}urgente{% endif %}" data-id="{{ r.id }}">
-          <span class="req-tipo-badge">
-            {% if r.tipo == 'material' %}🧱 Material
-            {% elif r.tipo == 'equipamento' %}🔧 Equipamento
-            {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
-            {% else %}📝 Outro{% endif %}
-          </span>
-          <div class="req-body">
-            <div class="req-desc">{{ r.descricao }}</div>
-            <div class="req-meta">
-              <span>🕐 {{ r.created_at }}</span>
-              {% if r.urgente %}<span class="badge-urgente">⚠️ URGENTE</span>{% endif %}
-            </div>
+      {% set urgentes = pendentes | selectattr('urgente') | list %}
+      {% set normais = pendentes | rejectattr('urgente') | list %}
+
+      {% if urgentes %}
+      <div class="urgente-divider">⚠ URGENTE</div>
+      {% for r in urgentes %}
+      <div class="req-card urgente" data-id="{{ r.id }}">
+        <span class="req-tipo-badge">
+          {% if r.tipo == 'material' %}🧱 Material
+          {% elif r.tipo == 'equipamento' %}🔧 Equipamento
+          {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
+          {% else %}📝 Outro{% endif %}
+        </span>
+        <div class="req-body">
+          <div class="req-desc">{{ r.descricao }}</div>
+          <div class="req-meta">
+            <span>🕐 {{ r.created_at }}</span>
+            <span class="badge-urgente">⚠️ URGENTE</span>
           </div>
         </div>
-        {% endfor %}
-      {% else %}
-        <div class="empty-state">
-          <div class="empty-icon">📭</div>
-          Nenhuma solicitação pendente.
+      </div>
+      {% endfor %}
+      {% endif %}
+
+      {% if normais %}
+      <div class="normal-divider">OUTRAS PENDÊNCIAS</div>
+      {% for r in normais %}
+      <div class="req-card pendente" data-id="{{ r.id }}">
+        <span class="req-tipo-badge">
+          {% if r.tipo == 'material' %}🧱 Material
+          {% elif r.tipo == 'equipamento' %}🔧 Equipamento
+          {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
+          {% else %}📝 Outro{% endif %}
+        </span>
+        <div class="req-body">
+          <div class="req-desc">{{ r.descricao }}</div>
+          <div class="req-meta">
+            <span>🕐 {{ r.created_at }}</span>
+          </div>
         </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+
+      {% if not urgentes and not normais %}
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        Nenhuma solicitação pendente.
+      </div>
       {% endif %}
     </div>
   </div>
@@ -166,39 +268,49 @@ textarea { resize: vertical; min-height: 80px; }
   <div class="tab-panel" id="panel-concluidas">
     <div class="req-list">
       {% if concluidas %}
-        {% for r in concluidas %}
-        <div class="req-card concluida">
-          <span class="req-tipo-badge">
-            {% if r.tipo == 'material' %}🧱 Material
-            {% elif r.tipo == 'equipamento' %}🔧 Equipamento
-            {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
-            {% else %}📝 Outro{% endif %}
-          </span>
-          <div class="req-body">
-            <div class="req-desc">{{ r.descricao }}</div>
-            <div class="req-meta">
-              <span>📅 {{ r.created_at }}</span>
-              <span class="badge-concluida">✅ Concluída</span>
-              {% if r.respondido_em %}<span>· respondido em {{ r.respondido_em }}</span>{% endif %}
-            </div>
-            {% if r.resposta %}
-            <div class="req-resposta">💬 {{ r.resposta }}</div>
-            {% endif %}
+      {% for r in concluidas %}
+      <div class="req-card concluida">
+        <span class="req-tipo-badge">
+          {% if r.tipo == 'material' %}🧱 Material
+          {% elif r.tipo == 'equipamento' %}🔧 Equipamento
+          {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
+          {% else %}📝 Outro{% endif %}
+        </span>
+        <div class="req-body">
+          <div class="req-desc">{{ r.descricao }}</div>
+          <div class="req-meta">
+            <span>📅 {{ r.created_at }}</span>
+            <span class="badge-concluida">✅ Concluída</span>
+            {% if r.respondido_em %}<span>· respondido em {{ r.respondido_em }}</span>{% endif %}
           </div>
+          {% if r.resposta %}
+          <div class="req-resposta">💬 {{ r.resposta }}</div>
+          {% endif %}
         </div>
-        {% endfor %}
+      </div>
+      {% endfor %}
       {% else %}
-        <div class="empty-state">
-          <div class="empty-icon">✅</div>
-          Nenhuma solicitação concluída ainda.
-        </div>
+      <div class="empty-state">
+        <div class="empty-icon">✅</div>
+        Nenhuma solicitação concluída ainda.
+      </div>
       {% endif %}
     </div>
   </div>
+
 </div>
 
 <div id="toast"></div>
+
 <script>
+let tipoSelecionado = 'material';
+
+function selecionarTipo(btn) {
+  document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  tipoSelecionado = btn.dataset.value;
+}
+
 function trocarAba(aba, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -209,8 +321,9 @@ function trocarAba(aba, btn) {
 async function enviarSolicitacao() {
   const desc = document.getElementById('descricao').value.trim();
   if (!desc) { showToast('⚠️ Preencha a descrição.', true); return; }
+
   const payload = {
-    tipo: document.getElementById('tipo').value,
+    tipo: tipoSelecionado,
     descricao: desc,
     urgente: document.getElementById('urgente').checked
   };
@@ -230,7 +343,7 @@ async function enviarSolicitacao() {
     if (empty) empty.remove();
     const tipoLabels = { material: '🧱 Material', equipamento: '🔧 Equipamento', manutencao: '🛠️ Manutenção', outro: '📝 Outro' };
     const card = document.createElement('div');
-    card.className = 'req-card' + (r.urgente ? ' urgente' : '');
+    card.className = 'req-card ' + (r.urgente ? 'urgente' : 'pendente');
     card.dataset.id = r.id;
     card.innerHTML = `
       <span class="req-tipo-badge">${tipoLabels[r.tipo] || r.tipo}</span>
@@ -241,7 +354,26 @@ async function enviarSolicitacao() {
           ${r.urgente ? '<span class="badge-urgente">⚠️ URGENTE</span>' : ''}
         </div>
       </div>`;
-    lista.prepend(card);
+    // Inserir no lugar certo (urgentes no topo, normais após o divisor)
+    if (r.urgente) {
+      let divider = lista.querySelector('.urgente-divider');
+      if (!divider) {
+        divider = document.createElement('div');
+        divider.className = 'urgente-divider';
+        divider.textContent = '⚠ URGENTE';
+        lista.prepend(divider);
+      }
+      divider.after(card);
+    } else {
+      let divider = lista.querySelector('.normal-divider');
+      if (!divider) {
+        divider = document.createElement('div');
+        divider.className = 'normal-divider';
+        divider.textContent = 'OUTRAS PENDÊNCIAS';
+        lista.appendChild(divider);
+      }
+      lista.appendChild(card);
+    }
     const badge = document.getElementById('badge-pendentes');
     badge.textContent = parseInt(badge.textContent || '0') + 1;
   } else {
@@ -252,7 +384,7 @@ async function enviarSolicitacao() {
 function showToast(msg, erro = false) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.style.background = erro ? '#dc2626' : '#1e40af';
+  t.style.background = erro ? '#dc2626' : '#7c3aed';
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
 }
