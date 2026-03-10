@@ -1,279 +1,113 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Produção do Dia — Fogos Piromax</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Produção do Dia — Fogos Piromax</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; }
+header { background: linear-gradient(135deg, #1a56db, #1e40af); color: white; padding: 14px 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f0f4f8;
-      color: #2d3748;
-      min-height: 100vh;
-    }
+/* ── Linha 1: marca + navegação ── */
+.header-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding-bottom: 12px; }
+.header-brand { display: flex; align-items: center; gap: 10px; }
+.header-logo {
+  width: 44px; height: 44px;
+  background: white;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; flex-shrink: 0;
+  padding: 3px;
+}
+.header-logo img { width: 100%; height: 100%; object-fit: contain; }
+.header-brand-text h1 { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.3px; line-height: 1.1; }
+.header-brand-text .app-name { font-size: 0.78rem; opacity: 0.8; font-weight: 500; margin-top: 2px; }
 
-    header {
-      background: linear-gradient(135deg, #1a56db, #1e40af);
-      color: white;
-      padding: 14px 20px 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
+/* ── Navegação + Imprimir ── */
+.header-right { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.header-nav { display: flex; gap: 3px; background: rgba(255,255,255,0.1); border-radius: 9px; padding: 3px; }
+.header-nav a { color: white; text-decoration: none; padding: 6px 12px; border-radius: 7px; font-size: 0.82rem; font-weight: 600; transition: background 0.2s; opacity: 0.75; }
+.header-nav a:hover { background: rgba(255,255,255,0.15); opacity: 1; }
+.header-nav a.active { background: rgba(255,255,255,0.25); opacity: 1; }
+.nav-btn { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.35); border-radius: 7px; padding: 6px 12px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: background 0.2s; font-family: inherit; white-space: nowrap; }
+.nav-btn:hover { background: rgba(255,255,255,0.35); }
 
-    /* ── Linha 1: marca + navegação ── */
-    .header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding-bottom: 12px;
-    }
+/* ── Linha 2: navegação de data ── */
+.date-nav { display: flex; align-items: center; gap: 8px; padding-bottom: 10px; }
+.nav-btn-arrow { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.35); border-radius: 7px; padding: 7px 12px; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: background 0.2s; font-family: inherit; white-space: nowrap; flex-shrink: 0; }
+.nav-btn-arrow:hover { background: rgba(255,255,255,0.35); }
+.date-center { flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px; min-width: 0; }
+.date-display { font-size: 0.88rem; font-weight: 700; opacity: 0.97; text-align: center; }
+.cal-wrap { position: relative; display: inline-flex; align-items: center; flex-shrink: 0; }
+.cal-btn { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.35); border-radius: 7px; padding: 5px 9px; font-size: 0.95rem; cursor: pointer; line-height: 1; font-family: inherit; }
+.cal-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
 
-    .header-brand { display: flex; align-items: center; gap: 10px; }
+/* ── Linha 3: badges extras (só quando não é hoje) ── */
+.date-extra { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; padding-bottom: 8px; }
+.today-link { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 7px; padding: 5px 11px; font-size: 0.8rem; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.today-link:hover { background: rgba(255,255,255,0.28); }
+.past-badge { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 3px 10px; font-size: 0.73rem; opacity: 0.85; }
+.future-badge { background: rgba(255,230,0,0.18); border: 1px solid rgba(255,230,0,0.35); border-radius: 20px; padding: 3px 10px; font-size: 0.73rem; opacity: 0.9; }
 
-    .header-logo {
-      width: 44px; height: 44px;
-      background: white;
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden; flex-shrink: 0;
-      padding: 3px;
-    }
-    .header-logo img {
-      width: 100%; height: 100%;
-      object-fit: contain;
-    }
+/* ── Barra de progresso ── */
+.progress-bar-wrap { background: rgba(255,255,255,0.25); border-radius: 20px; height: 7px; margin-top: 4px; overflow: hidden; }
+.progress-bar-fill { background: #86efac; height: 100%; border-radius: 20px; transition: width 0.4s ease; }
+.progress-label { font-size: 0.76rem; opacity: 0.9; margin-top: 4px; padding-bottom: 10px; }
 
-    .header-brand-text h1 {
-      font-size: 1.4rem; font-weight: 800;
-      letter-spacing: -0.3px; line-height: 1.1;
-    }
-    .header-brand-text .app-name {
-      font-size: 0.78rem; opacity: 0.8;
-      font-weight: 500; margin-top: 2px;
-    }
+/* ── Container ── */
+.container { max-width: 900px; margin: 24px auto; padding: 0 16px; }
+.readonly-notice { border-radius: 8px; padding: 10px 16px; font-size: 0.875rem; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+.readonly-notice.past { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+.readonly-notice.future{ background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+.empty-state { text-align: center; padding: 60px 20px; color: #718096; }
+.empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+.empty-state p { font-size: 1rem; }
+table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,0.08); }
+thead { background: #1a56db; color: white; }
+thead th { padding: 14px 16px; text-align: left; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+tbody tr { border-bottom: 1px solid #e2e8f0; transition: background 0.15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #f7faff; }
+tbody tr.urgente { background: #fff1f2; }
+tbody tr.urgente:hover { background: #ffe4e6; }
+tbody tr.done { background: #f0fff4 !important; }
+tbody tr.done:hover { background: #e6ffed !important; }
+td { padding: 14px 16px; font-size: 0.95rem; vertical-align: middle; }
+.produto-name { font-weight: 600; }
+.urgente-badge { display: inline-flex; align-items: center; gap: 3px; background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; border-radius: 20px; padding: 2px 8px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.3px; margin-left: 7px; vertical-align: middle; }
+.quantidade-badge { display: inline-block; background: #eff6ff; color: #1a56db; border: 1px solid #bfdbfe; padding: 3px 10px; border-radius: 20px; font-weight: 600; font-size: 0.88rem; }
+.check-wrap { display: flex; align-items: center; gap: 9px; }
+.check-wrap input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; accent-color: #16a34a; flex-shrink: 0; }
+.check-wrap input[type="checkbox"]:disabled { cursor: not-allowed; opacity: 0.55; }
+.check-label { font-size: 0.85rem; color: #64748b; }
+.check-label.done-label { color: #16a34a; font-weight: 600; }
+.hora-badge { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; padding: 3px 8px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+.toast { position: fixed; bottom: 24px; right: 24px; background: #1e293b; color: white; padding: 12px 20px; border-radius: 8px; font-size: 0.9rem; box-shadow: 0 4px 12px rgba(0,0,0,0.25); opacity: 0; transform: translateY(10px); transition: all 0.3s; z-index: 100; }
+.toast.show { opacity: 1; transform: translateY(0); }
+@media (max-width: 640px) { table { display: block; overflow-x: auto; } }
 
-    /* ── Navegação + Imprimir ── */
-    .header-right {
-      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-    }
-    .header-nav {
-      display: flex; gap: 3px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 9px; padding: 3px;
-    }
-    .header-nav a {
-      color: white; text-decoration: none;
-      padding: 6px 12px; border-radius: 7px;
-      font-size: 0.82rem; font-weight: 600;
-      transition: background 0.2s; opacity: 0.75;
-    }
-    .header-nav a:hover  { background: rgba(255,255,255,0.15); opacity: 1; }
-    .header-nav a.active { background: rgba(255,255,255,0.25); opacity: 1; }
-
-    .nav-btn {
-      background: rgba(255,255,255,0.2);
-      color: white;
-      border: 1px solid rgba(255,255,255,0.35);
-      border-radius: 7px;
-      padding: 6px 12px;
-      font-size: 0.82rem; font-weight: 600;
-      cursor: pointer; transition: background 0.2s;
-      font-family: inherit; white-space: nowrap;
-    }
-    .nav-btn:hover { background: rgba(255,255,255,0.35); }
-
-    /* ── Linha 2: navegação de data ── */
-    .date-nav {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding-bottom: 10px;
-    }
-
-    .nav-btn-arrow {
-      background: rgba(255,255,255,0.2);
-      color: white;
-      border: 1px solid rgba(255,255,255,0.35);
-      border-radius: 7px;
-      padding: 7px 12px;
-      font-size: 0.85rem; font-weight: 700;
-      cursor: pointer; transition: background 0.2s;
-      font-family: inherit; white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .nav-btn-arrow:hover { background: rgba(255,255,255,0.35); }
-
-    .date-center {
-      flex: 1;
-      display: flex; align-items: center; justify-content: center;
-      gap: 7px; min-width: 0;
-    }
-
-    .date-display {
-      font-size: 0.88rem; font-weight: 700;
-      opacity: 0.97; text-align: center;
-    }
-
-    .cal-wrap {
-      position: relative; display: inline-flex; align-items: center;
-      flex-shrink: 0;
-    }
-    .cal-btn {
-      background: rgba(255,255,255,0.2);
-      color: white;
-      border: 1px solid rgba(255,255,255,0.35);
-      border-radius: 7px;
-      padding: 5px 9px;
-      font-size: 0.95rem; cursor: pointer; line-height: 1;
-      font-family: inherit;
-    }
-    .cal-input {
-      position: absolute; inset: 0; opacity: 0;
-      cursor: pointer; width: 100%; height: 100%;
-    }
-
-    /* ── Linha 3: badges extras (só quando não é hoje) ── */
-    .date-extra {
-      display: flex; align-items: center; gap: 7px;
-      flex-wrap: wrap; padding-bottom: 8px;
-    }
-    .today-link {
-      background: rgba(255,255,255,0.15);
-      color: white; border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 7px; padding: 5px 11px;
-      font-size: 0.8rem; font-weight: 600;
-      text-decoration: none; white-space: nowrap;
-    }
-    .today-link:hover { background: rgba(255,255,255,0.28); }
-    .past-badge {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.25);
-      border-radius: 20px; padding: 3px 10px;
-      font-size: 0.73rem; opacity: 0.85;
-    }
-    .future-badge {
-      background: rgba(255,230,0,0.18);
-      border: 1px solid rgba(255,230,0,0.35);
-      border-radius: 20px; padding: 3px 10px;
-      font-size: 0.73rem; opacity: 0.9;
-    }
-
-    /* ── Barra de progresso ── */
-    .progress-bar-wrap {
-      background: rgba(255,255,255,0.25);
-      border-radius: 20px; height: 7px;
-      margin-top: 4px; overflow: hidden;
-    }
-    .progress-bar-fill {
-      background: #86efac; height: 100%;
-      border-radius: 20px; transition: width 0.4s ease;
-    }
-    .progress-label { font-size: 0.76rem; opacity: 0.9; margin-top: 4px; padding-bottom: 10px; }
-
-    /* ── Container ── */
-    .container { max-width: 900px; margin: 24px auto; padding: 0 16px; }
-
-    .readonly-notice {
-      border-radius: 8px; padding: 10px 16px;
-      font-size: 0.875rem; margin-bottom: 20px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .readonly-notice.past  { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
-    .readonly-notice.future{ background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
-
-    .empty-state { text-align: center; padding: 60px 20px; color: #718096; }
-    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
-    .empty-state p { font-size: 1rem; }
-
-    table {
-      width: 100%; border-collapse: collapse;
-      background: white; border-radius: 12px;
-      overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,0.08);
-    }
-    thead { background: #1a56db; color: white; }
-    thead th {
-      padding: 14px 16px; text-align: left;
-      font-size: 0.85rem; font-weight: 600;
-      letter-spacing: 0.5px; text-transform: uppercase;
-    }
-    tbody tr { border-bottom: 1px solid #e2e8f0; transition: background 0.15s; }
-    tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: #f7faff; }
-    tbody tr.urgente { background: #fff1f2; }
-    tbody tr.urgente:hover { background: #ffe4e6; }
-    tbody tr.done { background: #f0fff4 !important; }
-    tbody tr.done:hover { background: #e6ffed !important; }
-
-    td { padding: 14px 16px; font-size: 0.95rem; vertical-align: middle; }
-    .produto-name { font-weight: 600; }
-
-    .urgente-badge {
-      display: inline-flex; align-items: center; gap: 3px;
-      background: #fee2e2; color: #dc2626;
-      border: 1px solid #fca5a5; border-radius: 20px;
-      padding: 2px 8px; font-size: 0.72rem; font-weight: 700;
-      letter-spacing: 0.3px; margin-left: 7px; vertical-align: middle;
-    }
-    .quantidade-badge {
-      display: inline-block; background: #eff6ff; color: #1a56db;
-      border: 1px solid #bfdbfe; padding: 3px 10px;
-      border-radius: 20px; font-weight: 600; font-size: 0.88rem;
-    }
-    .check-wrap { display: flex; align-items: center; gap: 9px; }
-    .check-wrap input[type="checkbox"] {
-      width: 22px; height: 22px; cursor: pointer;
-      accent-color: #16a34a; flex-shrink: 0;
-    }
-    .check-wrap input[type="checkbox"]:disabled { cursor: not-allowed; opacity: 0.55; }
-    .check-label { font-size: 0.85rem; color: #64748b; }
-    .check-label.done-label { color: #16a34a; font-weight: 600; }
-
-    .hora-badge {
-      background: #fef9c3; color: #854d0e;
-      border: 1px solid #fde68a; padding: 3px 8px;
-      border-radius: 20px; font-size: 0.78rem;
-      font-weight: 600; white-space: nowrap;
-    }
-
-    .toast {
-      position: fixed; bottom: 24px; right: 24px;
-      background: #1e293b; color: white;
-      padding: 12px 20px; border-radius: 8px;
-      font-size: 0.9rem; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-      opacity: 0; transform: translateY(10px);
-      transition: all 0.3s; z-index: 100;
-    }
-    .toast.show { opacity: 1; transform: translateY(0); }
-
-    @media (max-width: 640px) {
-      table { display: block; overflow-x: auto; }
-    }
-
-    /* ── Impressão ── */
-    @media print {
-      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      body { background: white; }
-      header, .readonly-notice, .toast, .no-print { display: none !important; }
-      .container { max-width: 100%; margin: 0; padding: 0; }
-      table { box-shadow: none; border: 1px solid #e2e8f0; border-radius: 0; }
-      .print-header  { display: block !important; text-align: center; margin-bottom: 6px; font-size: 1.4rem; font-weight: 700; color: #1a56db; }
-      .print-company { display: block !important; text-align: center; font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 4px; }
-      .print-date    { display: block !important; text-align: center; font-size: 0.9rem; color: #64748b; margin-bottom: 16px; }
-      thead { background: #1a56db !important; }
-      thead th { color: white !important; padding: 10px 12px; font-size: 0.82rem; }
-      td { padding: 10px 12px; font-size: 0.9rem; }
-      tbody tr.urgente { background: #fff1f2 !important; }
-      tbody tr.done    { background: #f0fff4 !important; }
-      th:nth-child(4), td:nth-child(4) { display: none; }
-    }
-    .print-header, .print-company, .print-date { display: none; }
-  </style>
+/* ── Impressão ── */
+@media print {
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { background: white; }
+  header, .readonly-notice, .toast, .no-print { display: none !important; }
+  .container { max-width: 100%; margin: 0; padding: 0; }
+  table { box-shadow: none; border: 1px solid #e2e8f0; border-radius: 0; }
+  .print-header { display: block !important; text-align: center; margin-bottom: 6px; font-size: 1.4rem; font-weight: 700; color: #1a56db; }
+  .print-company { display: block !important; text-align: center; font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 4px; }
+  .print-date { display: block !important; text-align: center; font-size: 0.9rem; color: #64748b; margin-bottom: 16px; }
+  thead { background: #1a56db !important; }
+  thead th { color: white !important; padding: 10px 12px; font-size: 0.82rem; }
+  td { padding: 10px 12px; font-size: 0.9rem; }
+  tbody tr.urgente { background: #fff1f2 !important; }
+  tbody tr.done { background: #f0fff4 !important; }
+  th:nth-child(4), td:nth-child(4) { display: none; }
+}
+.print-header, .print-company, .print-date { display: none; }
+</style>
 </head>
 <body>
-
 <header>
   <!-- Linha 1: Marca + Nav + Imprimir -->
   <div class="header-top no-print">
@@ -302,8 +136,7 @@
       <span class="date-display" id="dateLabel"></span>
       <div class="cal-wrap" title="Escolher data">
         <button class="cal-btn">📅</button>
-        <input type="date" class="cal-input" id="datePicker"
-               value="{{ date }}" onchange="irParaData(this.value)">
+        <input type="date" class="cal-input" id="datePicker" value="{{ date }}" onchange="irParaData(this.value)">
       </div>
     </div>
     <button class="nav-btn-arrow" onclick="navegarDia(1)">Próximo ▶</button>
@@ -323,8 +156,7 @@
 
   {% if total > 0 %}
   <div class="progress-bar-wrap">
-    <div class="progress-bar-fill" id="progressFill"
-         style="width: {{ (concluidos / total * 100)|round|int }}%"></div>
+    <div class="progress-bar-fill" id="progressFill" style="width: {{ (concluidos / total * 100)|round|int }}%"></div>
   </div>
   <p class="progress-label" id="progressLabel">
     {{ concluidos }} de {{ total }} itens concluídos
@@ -338,7 +170,6 @@
 <div class="print-date" id="printDateLabel"></div>
 
 <div class="container">
-
   {% if date != today %}
   {% set dp = date.split('-') %}
   <div class="readonly-notice {{ 'future' if date > today else 'past' }}">
@@ -359,7 +190,6 @@
     {% endif %}
   </div>
   {% else %}
-
   <table>
     <thead>
       <tr>
@@ -372,9 +202,7 @@
     </thead>
     <tbody>
       {% for task in tasks %}
-      <tr id="row-{{ task.id }}"
-          class="{{ 'done' if task.concluido else ('urgente' if task.urgente else '') }}"
-          data-urgente="{{ 'true' if task.urgente else 'false' }}">
+      <tr id="row-{{ task.id }}" class="{{ 'done' if task.concluido else ('urgente' if task.urgente else '') }}" data-urgente="{{ 'true' if task.urgente else 'false' }}">
         <td style="color:#94a3b8; font-size:0.85rem;">{{ loop.index }}</td>
         <td class="produto-name">
           {{ task.produto }}
@@ -385,13 +213,11 @@
         <td><span class="quantidade-badge">{{ task.quantidade }}</span></td>
         <td>
           <div class="check-wrap">
-            <input type="checkbox"
-                   id="check-{{ task.id }}"
-                   {{ 'checked' if task.concluido else '' }}
-                   {{ 'disabled' if date != today else '' }}
-                   onchange="autoSave('{{ task.id }}')">
-            <span class="check-label {{ 'done-label' if task.concluido else '' }}"
-                  id="chklabel-{{ task.id }}">
+            <input type="checkbox" id="check-{{ task.id }}"
+              {{ 'checked' if task.concluido else '' }}
+              {{ 'disabled' if date != today else '' }}
+              onchange="autoSave('{{ task.id }}')">
+            <span class="check-label {{ 'done-label' if task.concluido else '' }}" id="chklabel-{{ task.id }}">
               {{ 'Feito!' if task.concluido else 'Pendente' }}
             </span>
           </div>
@@ -408,101 +234,107 @@
     </tbody>
   </table>
   {% endif %}
-
 </div>
 
 <div class="toast" id="toast"></div>
-
 <script>
-  const TODAY        = "{{ today }}";
-  const CURRENT_DATE = "{{ date }}";
+const TODAY = "{{ today }}";
+const CURRENT_DATE = "{{ date }}";
 
-  (function() {
-    const d    = new Date(CURRENT_DATE + 'T00:00:00');
-    const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    const label = d.toLocaleDateString('pt-BR', opts).replace(/^\w/, c => c.toUpperCase());
-    document.getElementById('dateLabel').textContent = label;
-    const printLbl = document.getElementById('printDateLabel');
-    if (printLbl) printLbl.textContent = label;
-  })();
+(function() {
+  const parts = CURRENT_DATE.split('-');
+  const label = parts[2] + '/' + parts[1] + '/' + parts[0];
+  document.getElementById('dateLabel').textContent = label;
+  const printLbl = document.getElementById('printDateLabel');
+  if (printLbl) printLbl.textContent = label;
+})();
 
-  function navegarDia(delta) {
-    const d = new Date(CURRENT_DATE + 'T00:00:00');
-    d.setDate(d.getDate() + delta);
-    window.location.href = '/?date=' + d.toISOString().split('T')[0];
+function navegarDia(delta) {
+  const d = new Date(CURRENT_DATE + 'T00:00:00');
+  d.setDate(d.getDate() + delta);
+  window.location.href = '/?date=' + d.toISOString().split('T')[0];
+}
+
+function irParaData(val) {
+  if (!val) return;
+  window.location.href = '/?date=' + val;
+}
+
+function printPDF() {
+  const parts = CURRENT_DATE.split('-');
+  const printLbl = document.getElementById('printDateLabel');
+  if (printLbl) printLbl.textContent = parts[2] + '/' + parts[1] + '/' + parts[0];
+  window.print();
+}
+
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isError ? '#dc2626' : '#1e293b';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+async function autoSave(id) {
+  const cb = document.getElementById('check-' + id);
+  const concluido = cb.checked;
+  cb.disabled = true;
+  try {
+    const res = await fetch('/worker/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, date: CURRENT_DATE, concluido, assinatura: '' })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const row = document.getElementById('row-' + id);
+      const lbl = document.getElementById('chklabel-' + id);
+      if (concluido) {
+        row.classList.remove('urgente');
+        row.classList.add('done');
+        lbl.textContent = 'Feito!';
+        lbl.className = 'check-label done-label';
+        const badge = row.querySelector('.urgente-badge');
+        if (badge) badge.style.display = 'none';
+        const hora = data.concluido_em || new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('hora-' + id).outerHTML = `<span class="hora-badge" id="hora-${id}">${hora}</span>`;
+        showToast('✅ Concluído!');
+      } else {
+        row.classList.remove('done');
+        if (row.dataset.urgente === 'true') row.classList.add('urgente');
+        lbl.textContent = 'Pendente';
+        lbl.className = 'check-label';
+        const badge = row.querySelector('.urgente-badge');
+        if (badge) badge.style.display = '';
+        document.getElementById('hora-' + id).outerHTML = `<span id="hora-${id}">—</span>`;
+        showToast('Tarefa reaberta.');
+      }
+      updateProgress();
+    } else {
+      throw new Error('server');
+    }
+  } catch (e) {
+    showToast('Erro ao salvar. Tente novamente.', true);
+    cb.checked = !concluido;
+  } finally {
+    cb.disabled = false;
   }
+}
 
-  function irParaData(val) {
-    if (!val) return;
-    window.location.href = '/?date=' + val;
-  }
+function updateProgress() {
+  const checks = document.querySelectorAll('input[type="checkbox"]');
+  const total = checks.length;
+  const done = [...checks].filter(c => c.checked).length;
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+  const fill = document.getElementById('progressFill');
+  const lbl = document.getElementById('progressLabel');
+  if (fill) fill.style.width = pct + '%';
+  if (lbl) lbl.textContent = done + ' de ' + total + ' itens concluídos';
+}
 
-  function printPDF() { window.print(); }
-
-  function showToast(msg, isError = false) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.style.background = isError ? '#dc2626' : '#1e293b';
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500);
-  }
-
-  async function autoSave(id) {
-    const cb        = document.getElementById('check-' + id);
-    const concluido = cb.checked;
-    cb.disabled     = true;
-    try {
-      const res = await fetch('/worker/update', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ id, date: CURRENT_DATE, concluido, assinatura: '' })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        const row  = document.getElementById('row-' + id);
-        const lbl  = document.getElementById('chklabel-' + id);
-        if (concluido) {
-          row.classList.remove('urgente'); row.classList.add('done');
-          lbl.textContent = 'Feito!'; lbl.className = 'check-label done-label';
-          const badge = row.querySelector('.urgente-badge');
-          if (badge) badge.style.display = 'none';
-          const hora = data.concluido_em ||
-            new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-          document.getElementById('hora-' + id).outerHTML =
-            `<span class="hora-badge" id="hora-${id}">${hora}</span>`;
-          showToast('✅ Concluído!');
-        } else {
-          row.classList.remove('done');
-          if (row.dataset.urgente === 'true') row.classList.add('urgente');
-          lbl.textContent = 'Pendente'; lbl.className = 'check-label';
-          const badge = row.querySelector('.urgente-badge');
-          if (badge) badge.style.display = '';
-          document.getElementById('hora-' + id).outerHTML = `<span id="hora-${id}">—</span>`;
-          showToast('Tarefa reaberta.');
-        }
-        updateProgress();
-      } else { throw new Error('server'); }
-    } catch (e) {
-      showToast('Erro ao salvar. Tente novamente.', true);
-      cb.checked = !concluido;
-    } finally { cb.disabled = false; }
-  }
-
-  function updateProgress() {
-    const checks = document.querySelectorAll('input[type="checkbox"]');
-    const total  = checks.length;
-    const done   = [...checks].filter(c => c.checked).length;
-    const pct    = total > 0 ? Math.round(done / total * 100) : 0;
-    const fill   = document.getElementById('progressFill');
-    const lbl    = document.getElementById('progressLabel');
-    if (fill) fill.style.width = pct + '%';
-    if (lbl)  lbl.textContent  = done + ' de ' + total + ' itens concluídos';
-  }
-
-  {% if date == today %}
-  setTimeout(() => location.reload(), 60000);
-  {% endif %}
+{% if date == today %}
+setTimeout(() => location.reload(), 60000);
+{% endif %}
 </script>
-
 </body>
 </html>
