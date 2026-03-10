@@ -1,296 +1,82 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Solicitações — Gestor · Fogos Piromax</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solicitações — Gestor · Fogos Piromax</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f3ff; color: #2d3748; min-height: 100vh; }
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f5f3ff;
-      color: #2d3748;
-      min-height: 100vh;
-    }
+/* ── Header ── */
+header { background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; padding: 16px 24px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.header-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding-bottom: 14px; }
+.header-brand { display: flex; align-items: center; gap: 12px; }
+.header-logo {
+  width: 44px; height: 44px;
+  background: white;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; flex-shrink: 0;
+  padding: 3px;
+}
+.header-logo img { width: 100%; height: 100%; object-fit: contain; }
+.header-brand-text h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.3px; line-height: 1.1; }
+.header-brand-text .app-name { font-size: 0.8rem; opacity: 0.8; font-weight: 500; margin-top: 2px; letter-spacing: 0.3px; }
+.header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.header-nav { display: flex; gap: 4px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 4px; }
+.header-nav a { color: white; text-decoration: none; padding: 7px 14px; border-radius: 7px; font-size: 0.85rem; font-weight: 600; transition: background 0.2s; opacity: 0.75; }
+.header-nav a:hover { background: rgba(255,255,255,0.15); opacity: 1; }
+.header-nav a.active { background: rgba(255,255,255,0.25); opacity: 1; }
+.btn-logout { background: rgba(255,255,255,0.12); color: white; text-decoration: none; border: 1.5px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 7px 14px; font-size: 0.82rem; font-weight: 600; transition: background 0.2s; white-space: nowrap; }
+.btn-logout:hover { background: rgba(255,255,255,0.22); }
 
-    /* ── Header ── */
-    header {
-      background: linear-gradient(135deg, #7c3aed, #5b21b6);
-      color: white;
-      padding: 16px 24px 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
+/* ── Layout ── */
+.container { max-width: 860px; margin: 28px auto; padding: 0 16px; }
 
-    .header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding-bottom: 14px;
-    }
+/* ── Abas ── */
+.tabs { display: flex; gap: 0; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px; }
+.tab-btn { background: none; border: none; padding: 10px 22px; font-size: 0.92rem; font-weight: 600; color: #718096; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 7px; }
+.tab-btn.active { color: #7c3aed; border-bottom-color: #7c3aed; }
+.tab-btn:hover { color: #2d3748; }
+.tab-badge { background: #e2e8f0; color: #4a5568; border-radius: 20px; padding: 1px 8px; font-size: 0.75rem; font-weight: 700; }
+.tab-btn.active .tab-badge { background: #ede9fe; color: #5b21b6; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
 
-    .header-brand { display: flex; align-items: center; gap: 12px; }
+/* ── Cards de solicitação ── */
+.req-list { display: flex; flex-direction: column; gap: 14px; }
+.req-card { background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); padding: 18px 20px; border-left: 4px solid #cbd5e0; }
+.req-card.urgente { border-left-color: #dc2626; }
+.req-card.concluida { border-left-color: #16a34a; opacity: 0.9; }
+.req-card-top { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; }
+.req-tipo-badge { background: #ede9fe; color: #5b21b6; border-radius: 7px; padding: 5px 10px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+.req-body { flex: 1; }
+.req-desc { font-size: 0.95rem; color: #1a202c; font-weight: 500; margin-bottom: 6px; line-height: 1.4; }
+.req-meta { font-size: 0.78rem; color: #718096; display: flex; gap: 12px; flex-wrap: wrap; }
+.badge-urgente { background: #fee2e2; color: #dc2626; border-radius: 5px; padding: 2px 8px; font-size: 0.72rem; font-weight: 700; }
+.badge-concluida { background: #dcfce7; color: #16a34a; border-radius: 5px; padding: 2px 8px; font-size: 0.72rem; font-weight: 700; }
 
-    .header-logo {
-      height: 38px; width: 110px;
-      background: white;
-      border-radius: 9px;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden; flex-shrink: 0;
-      padding: 4px 6px;
-    }
-    .header-logo img { height: 100%; width: 100%; object-fit: contain; }
+/* ── Área de resposta ── */
+.req-resposta-existente { margin-top: 8px; background: #f0fdf4; border-radius: 7px; padding: 8px 12px; font-size: 0.82rem; color: #166534; border-left: 3px solid #16a34a; }
+.req-actions { border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: 4px; display: flex; flex-direction: column; gap: 10px; }
+.resposta-input { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 9px 12px; font-size: 0.88rem; font-family: inherit; color: #2d3748; resize: vertical; min-height: 70px; outline: none; transition: border-color 0.2s; }
+.resposta-input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.1); }
+.req-actions-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s, transform 0.1s; font-family: inherit; }
+.btn:hover { opacity: 0.88; }
+.btn:active { transform: scale(0.97); }
+.btn-concluir { background: linear-gradient(135deg, #16a34a, #15803d); color: white; }
+.btn-excluir { background: #fee2e2; color: #dc2626; }
+.empty-state { text-align: center; padding: 48px 24px; color: #a0aec0; font-size: 0.95rem; }
+.empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
 
-    .header-brand-text h1 {
-      font-size: 1.5rem; font-weight: 800;
-      letter-spacing: -0.3px; line-height: 1.1;
-    }
-
-    .header-brand-text .app-name {
-      font-size: 0.8rem; opacity: 0.8;
-      font-weight: 500; margin-top: 2px; letter-spacing: 0.3px;
-    }
-
-    .header-right {
-      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-    }
-
-    .header-nav {
-      display: flex; gap: 4px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 10px; padding: 4px;
-    }
-
-    .header-nav a {
-      color: white; text-decoration: none;
-      padding: 7px 14px; border-radius: 7px;
-      font-size: 0.85rem; font-weight: 600;
-      transition: background 0.2s; opacity: 0.75;
-    }
-
-    .header-nav a:hover  { background: rgba(255,255,255,0.15); opacity: 1; }
-    .header-nav a.active { background: rgba(255,255,255,0.25); opacity: 1; }
-
-    .btn-logout {
-      background: rgba(255,255,255,0.12);
-      color: white; text-decoration: none;
-      border: 1.5px solid rgba(255,255,255,0.3);
-      border-radius: 8px; padding: 7px 14px;
-      font-size: 0.82rem; font-weight: 600;
-      transition: background 0.2s; white-space: nowrap;
-    }
-
-    .btn-logout:hover { background: rgba(255,255,255,0.22); }
-
-    /* ── Layout ── */
-    .container { max-width: 860px; margin: 28px auto; padding: 0 16px; }
-
-    /* ── Abas ── */
-    .tabs {
-      display: flex;
-      gap: 0;
-      border-bottom: 2px solid #e2e8f0;
-      margin-bottom: 20px;
-    }
-
-    .tab-btn {
-      background: none;
-      border: none;
-      padding: 10px 22px;
-      font-size: 0.92rem;
-      font-weight: 600;
-      color: #718096;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-      margin-bottom: -2px;
-      transition: all 0.2s;
-      font-family: inherit;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-    }
-
-    .tab-btn.active { color: #7c3aed; border-bottom-color: #7c3aed; }
-    .tab-btn:hover  { color: #2d3748; }
-
-    .tab-badge {
-      background: #e2e8f0;
-      color: #4a5568;
-      border-radius: 20px;
-      padding: 1px 8px;
-      font-size: 0.75rem;
-      font-weight: 700;
-    }
-
-    .tab-btn.active .tab-badge {
-      background: #ede9fe;
-      color: #5b21b6;
-    }
-
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-
-    /* ── Cards de solicitação ── */
-    .req-list { display: flex; flex-direction: column; gap: 14px; }
-
-    .req-card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-      padding: 18px 20px;
-      border-left: 4px solid #cbd5e0;
-    }
-
-    .req-card.urgente  { border-left-color: #dc2626; }
-    .req-card.concluida { border-left-color: #16a34a; opacity: 0.9; }
-
-    .req-card-top {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      margin-bottom: 10px;
-    }
-
-    .req-tipo-badge {
-      background: #ede9fe;
-      color: #5b21b6;
-      border-radius: 7px;
-      padding: 5px 10px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .req-body { flex: 1; }
-
-    .req-desc {
-      font-size: 0.95rem;
-      color: #1a202c;
-      font-weight: 500;
-      margin-bottom: 6px;
-      line-height: 1.4;
-    }
-
-    .req-meta {
-      font-size: 0.78rem;
-      color: #718096;
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .badge-urgente {
-      background: #fee2e2;
-      color: #dc2626;
-      border-radius: 5px;
-      padding: 2px 8px;
-      font-size: 0.72rem;
-      font-weight: 700;
-    }
-
-    .badge-concluida {
-      background: #dcfce7;
-      color: #16a34a;
-      border-radius: 5px;
-      padding: 2px 8px;
-      font-size: 0.72rem;
-      font-weight: 700;
-    }
-
-    /* ── Área de resposta ── */
-    .req-resposta-existente {
-      margin-top: 8px;
-      background: #f0fdf4;
-      border-radius: 7px;
-      padding: 8px 12px;
-      font-size: 0.82rem;
-      color: #166534;
-      border-left: 3px solid #16a34a;
-    }
-
-    .req-actions {
-      border-top: 1px solid #f1f5f9;
-      padding-top: 12px;
-      margin-top: 4px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .resposta-input {
-      width: 100%;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 9px 12px;
-      font-size: 0.88rem;
-      font-family: inherit;
-      color: #2d3748;
-      resize: vertical;
-      min-height: 70px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .resposta-input:focus {
-      border-color: #7c3aed;
-      box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
-    }
-
-    .req-actions-btns {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      border: none; border-radius: 8px;
-      padding: 8px 16px;
-      font-size: 0.85rem; font-weight: 600;
-      cursor: pointer; transition: opacity 0.2s, transform 0.1s;
-      font-family: inherit;
-    }
-
-    .btn:hover  { opacity: 0.88; }
-    .btn:active { transform: scale(0.97); }
-
-    .btn-concluir {
-      background: linear-gradient(135deg, #16a34a, #15803d);
-      color: white;
-    }
-
-    .btn-excluir {
-      background: #fee2e2;
-      color: #dc2626;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 48px 24px;
-      color: #a0aec0;
-      font-size: 0.95rem;
-    }
-
-    .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
-
-    /* ── Toast ── */
-    #toast {
-      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-      background: #5b21b6; color: white;
-      padding: 12px 24px; border-radius: 10px;
-      font-size: 0.9rem; font-weight: 600;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-      opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999;
-      white-space: nowrap;
-    }
-
-    #toast.show { opacity: 1; }
-  </style>
+/* ── Toast ── */
+#toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #5b21b6; color: white; padding: 12px 24px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; box-shadow: 0 4px 16px rgba(0,0,0,0.2); opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; white-space: nowrap; }
+#toast.show { opacity: 1; }
+</style>
 </head>
 <body>
-
 <header>
   <div class="header-top">
     <div class="header-brand">
@@ -312,7 +98,6 @@
 </header>
 
 <div class="container">
-
   <!-- Abas -->
   <div class="tabs">
     <button class="tab-btn active" onclick="trocarAba('pendentes', this)">
@@ -347,15 +132,12 @@
             </div>
           </div>
           <div class="req-actions">
-            <textarea class="resposta-input" id="resp-{{ r.id }}"
-                      placeholder="Resposta opcional (ex: pedido feito, chegará amanhã)..."></textarea>
+            <textarea class="resposta-input" id="resp-{{ r.id }}" placeholder="Resposta opcional (ex: pedido feito, chegará amanhã)..."></textarea>
             <div class="req-actions-btns">
-              <button class="btn btn-concluir"
-                      onclick="concluirSolicitacao('{{ r.id }}')">
+              <button class="btn btn-concluir" onclick="concluirSolicitacao('{{ r.id }}')">
                 ✅ Marcar como concluída
               </button>
-              <button class="btn btn-excluir"
-                      onclick="excluirSolicitacao('{{ r.id }}', 'pendente')">
+              <button class="btn btn-excluir" onclick="excluirSolicitacao('{{ r.id }}', 'pendente')">
                 🗑️ Excluir
               </button>
             </div>
@@ -398,8 +180,7 @@
           </div>
           <div class="req-actions">
             <div class="req-actions-btns">
-              <button class="btn btn-excluir"
-                      onclick="excluirSolicitacao('{{ r.id }}', 'concluida')">
+              <button class="btn btn-excluir" onclick="excluirSolicitacao('{{ r.id }}', 'concluida')">
                 🗑️ Excluir
               </button>
             </div>
@@ -414,88 +195,74 @@
       {% endif %}
     </div>
   </div>
-
 </div>
 
 <div id="toast"></div>
-
 <script>
-  function trocarAba(aba, btn) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('panel-' + aba).classList.add('active');
+function trocarAba(aba, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + aba).classList.add('active');
+}
+
+async function concluirSolicitacao(id) {
+  const resposta = document.getElementById('resp-' + id)?.value.trim() || '';
+  const res = await fetch('/admin/requests/update', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, status: 'concluida', resposta })
+  });
+  const data = await res.json();
+  if (data.success) {
+    showToast('✅ Solicitação concluída!');
+    const card = document.getElementById('req-' + id);
+    if (card) card.remove();
+    const bPend = document.getElementById('badge-pendentes');
+    const bConc = document.getElementById('badge-concluidas');
+    bPend.textContent = Math.max(0, parseInt(bPend.textContent || '0') - 1);
+    bConc.textContent = parseInt(bConc.textContent || '0') + 1;
+    checkEmpty('pendentes');
+  } else {
+    showToast('Erro ao concluir.', true);
   }
+}
 
-  async function concluirSolicitacao(id) {
-    const resposta = document.getElementById('resp-' + id)?.value.trim() || '';
-
-    const res  = await fetch('/admin/requests/update', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ id, status: 'concluida', resposta })
-    });
-    const data = await res.json();
-
-    if (data.success) {
-      showToast('✅ Solicitação concluída!');
-
-      // Remove card da lista de pendentes
-      const card = document.getElementById('req-' + id);
-      if (card) card.remove();
-
-      // Atualiza badges
-      const bPend = document.getElementById('badge-pendentes');
-      const bConc = document.getElementById('badge-concluidas');
-      bPend.textContent = Math.max(0, parseInt(bPend.textContent || '0') - 1);
-      bConc.textContent = parseInt(bConc.textContent || '0') + 1;
-
-      // Remove empty-state de pendentes se lista ficou vazia
-      checkEmpty('pendentes');
-    } else {
-      showToast('Erro ao concluir.', true);
-    }
+async function excluirSolicitacao(id, painel) {
+  if (!confirm('Excluir esta solicitação?')) return;
+  const res = await fetch('/admin/requests/delete/' + id, { method: 'DELETE' });
+  const data = await res.json();
+  if (data.success) {
+    showToast('🗑️ Solicitação excluída.');
+    const card = document.getElementById('req-' + id);
+    if (card) card.remove();
+    const badge = document.getElementById('badge-' + (painel === 'pendente' ? 'pendentes' : 'concluidas'));
+    if (badge) badge.textContent = Math.max(0, parseInt(badge.textContent || '0') - 1);
+    checkEmpty(painel === 'pendente' ? 'pendentes' : 'concluidas');
+  } else {
+    showToast('Erro ao excluir.', true);
   }
+}
 
-  async function excluirSolicitacao(id, painel) {
-    if (!confirm('Excluir esta solicitação?')) return;
-
-    const res  = await fetch('/admin/requests/delete/' + id, { method: 'DELETE' });
-    const data = await res.json();
-
-    if (data.success) {
-      showToast('🗑️ Solicitação excluída.');
-      const card = document.getElementById('req-' + id);
-      if (card) card.remove();
-
-      const badge = document.getElementById('badge-' + (painel === 'pendente' ? 'pendentes' : 'concluidas'));
-      if (badge) badge.textContent = Math.max(0, parseInt(badge.textContent || '0') - 1);
-
-      checkEmpty(painel === 'pendente' ? 'pendentes' : 'concluidas');
-    } else {
-      showToast('Erro ao excluir.', true);
-    }
+function checkEmpty(painel) {
+  const lista = document.getElementById('lista-' + painel);
+  if (!lista) return;
+  const cards = lista.querySelectorAll('.req-card');
+  if (cards.length === 0 && !lista.querySelector('.empty-state')) {
+    const emptyMsg = painel === 'pendentes'
+      ? '<div class="empty-icon">📭</div>Nenhuma solicitação pendente.'
+      : '<div class="empty-icon">✅</div>Nenhuma solicitação concluída ainda.';
+    lista.innerHTML = `<div class="empty-state">${emptyMsg}</div>`;
   }
+}
 
-  function checkEmpty(painel) {
-    const lista = document.getElementById('lista-' + painel);
-    if (!lista) return;
-    const cards = lista.querySelectorAll('.req-card');
-    if (cards.length === 0 && !lista.querySelector('.empty-state')) {
-      const emptyMsg = painel === 'pendentes'
-        ? '<div class="empty-icon">📭</div>Nenhuma solicitação pendente.'
-        : '<div class="empty-icon">✅</div>Nenhuma solicitação concluída ainda.';
-      lista.innerHTML = `<div class="empty-state">${emptyMsg}</div>`;
-    }
-  }
-
-  function showToast(msg, erro = false) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.style.background = erro ? '#dc2626' : '#5b21b6';
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
-  }
+function showToast(msg, erro = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = erro ? '#dc2626' : '#5b21b6';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
 </script>
 </body>
 </html>
