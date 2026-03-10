@@ -285,7 +285,7 @@ td { padding: 12px 16px; font-size: 0.9rem; vertical-align: middle; }
         </thead>
         <tbody id="taskBody">
           {% if urgentes %}
-          <tr class="urgente-sep"><td colspan="5">⚠ URGENTE — aparece primeiro</td></tr>
+          <tr class="urgente-sep"><td colspan="5">⚠ URGENTE</td></tr>
           {% for task in urgentes %}
           <tr id="row-{{ task.id }}" class="urgente-row">
             <td style="color:#d1d5db; font-size:0.82rem;">{{ loop.index }}</td>
