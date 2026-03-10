@@ -12,21 +12,17 @@ app.secret_key = os.environ.get('SECRET_KEY', 'fogospiromax-dev-secret')
 
 SAO_PAULO = ZoneInfo('America/Sao_Paulo')
 
-
 def now_sp():
     """Retorna o datetime atual no fuso de São Paulo."""
     return datetime.now(SAO_PAULO)
-
 
 def today_sp():
     """Retorna a data de hoje em São Paulo como string ISO (YYYY-MM-DD)."""
     return now_sp().date().isoformat()
 
-
 def now_sp_str():
     """Retorna datetime atual formatado como string legível."""
     return now_sp().strftime('%d/%m/%Y %H:%M')
-
 
 def get_db():
     database_url = os.environ.get('DATABASE_URL', '')
@@ -35,20 +31,19 @@ def get_db():
         database_url = database_url.replace('postgres://', 'postgresql://', 1)
     return psycopg2.connect(database_url)
 
-
 def init_db():
     conn = get_db()
     cur = conn.cursor()
     cur.execute('''
         CREATE TABLE IF NOT EXISTS tasks (
-            id           TEXT PRIMARY KEY,
-            date         TEXT NOT NULL,
-            produto      TEXT NOT NULL,
-            quantidade   TEXT NOT NULL,
-            concluido    BOOLEAN DEFAULT FALSE,
-            assinatura   TEXT DEFAULT '',
+            id TEXT PRIMARY KEY,
+            date TEXT NOT NULL,
+            produto TEXT NOT NULL,
+            quantidade TEXT NOT NULL,
+            concluido BOOLEAN DEFAULT FALSE,
+            assinatura TEXT DEFAULT '',
             concluido_em TEXT DEFAULT '',
-            urgente      BOOLEAN DEFAULT FALSE
+            urgente BOOLEAN DEFAULT FALSE
         )
     ''')
     cur.execute('''
@@ -56,13 +51,13 @@ def init_db():
     ''')
     cur.execute('''
         CREATE TABLE IF NOT EXISTS requests (
-            id            TEXT PRIMARY KEY,
-            created_at    TEXT NOT NULL,
-            tipo          TEXT NOT NULL,
-            descricao     TEXT NOT NULL,
-            urgente       BOOLEAN DEFAULT FALSE,
-            status        TEXT DEFAULT 'pendente',
-            resposta      TEXT DEFAULT '',
+            id TEXT PRIMARY KEY,
+            created_at TEXT NOT NULL,
+            tipo TEXT NOT NULL,
+            descricao TEXT NOT NULL,
+            urgente BOOLEAN DEFAULT FALSE,
+            status TEXT DEFAULT 'pendente',
+            resposta TEXT DEFAULT '',
             respondido_em TEXT DEFAULT ''
         )
     ''')
@@ -70,13 +65,11 @@ def init_db():
     cur.close()
     conn.close()
 
-
 # Cria / migra tabelas na primeira vez que o app sobe
 try:
     init_db()
 except Exception as e:
     print(f"[init_db] Aviso: {e}")
-
 
 def get_tasks(date_str):
     conn = get_db()
@@ -87,9 +80,7 @@ def get_tasks(date_str):
     conn.close()
     return tasks
 
-
 # ── Login ──────────────────────────────────────────────────────────────────────
-
 def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -97,7 +88,6 @@ def login_required(f):
             return redirect(url_for('admin_login'))
         return f(*args, **kwargs)
     return decorated
-
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
@@ -114,83 +104,74 @@ def admin_login():
             error = 'Usuário ou senha incorretos. Tente novamente.'
     return render_template('login.html', error=error)
 
-
 @app.route('/admin/logout')
 def admin_logout():
     session.pop('admin_logged_in', None)
     return redirect(url_for('admin_login'))
 
+# ── Trabalhador — Hub ──────────────────────────────────────────────────────────
+@app.route('/')
+def worker_hub():
+    return render_template('worker_hub.html')
 
 # ── Trabalhador — Produção ─────────────────────────────────────────────────────
-
-@app.route('/')
+@app.route('/producao')
 def worker_view():
-    today    = today_sp()
+    today = today_sp()
     date_str = request.args.get('date', today)
-
-    tasks      = get_tasks(date_str)
-    total      = len(tasks)
+    tasks = get_tasks(date_str)
+    total = len(tasks)
     concluidos = sum(1 for t in tasks if t['concluido'])
-    return render_template('worker.html',
-                           tasks=tasks,
-                           date=date_str,
-                           today=today,
-                           total=total,
-                           concluidos=concluidos)
-
+    return render_template('worker.html', tasks=tasks, date=date_str, today=today,
+                           total=total, concluidos=concluidos)
 
 @app.route('/worker/update', methods=['POST'])
 def worker_update():
-    data         = request.json
+    data = request.json
     concluido_em = ''
     if data.get('concluido'):
         concluido_em = now_sp().strftime('%H:%M')
     conn = get_db()
-    cur  = conn.cursor()
+    cur = conn.cursor()
     cur.execute(
         'UPDATE tasks SET concluido=%s, assinatura=%s, concluido_em=%s '
         'WHERE id=%s AND date=%s',
-        (data['concluido'], data.get('assinatura', ''),
-         concluido_em, data['id'], data['date'])
+        (data['concluido'], data.get('assinatura', ''), concluido_em,
+         data['id'], data['date'])
     )
     conn.commit()
     cur.close()
     conn.close()
     return jsonify({'success': True, 'concluido_em': concluido_em})
 
-
 # ── Trabalhador — Solicitações ─────────────────────────────────────────────────
-
 @app.route('/requests')
 def requests_view():
     conn = get_db()
-    cur  = conn.cursor(cursor_factory=RealDictCursor)
+    cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("SELECT * FROM requests ORDER BY created_at DESC")
     reqs = [dict(r) for r in cur.fetchall()]
     cur.close()
     conn.close()
-    pendentes  = [r for r in reqs if r['status'] == 'pendente']
+    pendentes = [r for r in reqs if r['status'] == 'pendente']
     concluidas = [r for r in reqs if r['status'] == 'concluida']
-    return render_template('requests.html',
-                           pendentes=pendentes,
-                           concluidas=concluidas)
-
+    return render_template('requests.html', pendentes=pendentes, concluidas=concluidas)
 
 @app.route('/requests/add', methods=['POST'])
 def requests_add():
     data = request.json
-    req  = {
-        'id':         str(uuid.uuid4()),
+    req = {
+        'id': str(uuid.uuid4()),
         'created_at': now_sp_str(),
-        'tipo':       data.get('tipo', 'outro'),
-        'descricao':  data.get('descricao', '').strip(),
-        'urgente':    bool(data.get('urgente', False)),
-        'status':     'pendente',
-        'resposta':   '',
+        'tipo': data.get('tipo', 'outro'),
+        'descricao': data.get('descricao', '').strip(),
+        'urgente': bool(data.get('urgente', False)),
+        'status': 'pendente',
+        'resposta': '',
         'respondido_em': ''
     }
     conn = get_db()
-    cur  = conn.cursor()
+    cur = conn.cursor()
     cur.execute(
         'INSERT INTO requests (id, created_at, tipo, descricao, urgente, status, resposta, respondido_em) '
         'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
@@ -202,33 +183,43 @@ def requests_add():
     conn.close()
     return jsonify({'success': True, 'request': req})
 
-
-# ── Gestor / Admin — Produção ──────────────────────────────────────────────────
-
+# ── Gestor / Admin — Hub ───────────────────────────────────────────────────────
 @app.route('/admin')
 @login_required
 def admin_view():
-    date_str = request.args.get('date', today_sp())
-    tasks    = get_tasks(date_str)
-    return render_template('admin.html', tasks=tasks, date=date_str, today=today_sp())
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT COUNT(*) as cnt FROM requests WHERE status = 'pendente'")
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+    pendentes_count = row['cnt'] if row else 0
+    return render_template('admin_hub.html', pendentes_count=pendentes_count)
 
+# ── Gestor / Admin — Produção ──────────────────────────────────────────────────
+@app.route('/admin/producao')
+@login_required
+def admin_producao_view():
+    date_str = request.args.get('date', today_sp())
+    tasks = get_tasks(date_str)
+    return render_template('admin.html', tasks=tasks, date=date_str, today=today_sp())
 
 @app.route('/admin/add', methods=['POST'])
 @login_required
 def admin_add():
     data = request.json
     task = {
-        'id':           str(uuid.uuid4()),
-        'date':         data['date'],
-        'produto':      data['produto'].strip(),
-        'quantidade':   str(data['quantidade']),
-        'concluido':    False,
-        'assinatura':   '',
+        'id': str(uuid.uuid4()),
+        'date': data['date'],
+        'produto': data['produto'].strip(),
+        'quantidade': str(data['quantidade']),
+        'concluido': False,
+        'assinatura': '',
         'concluido_em': '',
-        'urgente':      bool(data.get('urgente', False))
+        'urgente': bool(data.get('urgente', False))
     }
     conn = get_db()
-    cur  = conn.cursor()
+    cur = conn.cursor()
     cur.execute(
         'INSERT INTO tasks (id, date, produto, quantidade, concluido, assinatura, concluido_em, urgente) '
         'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
@@ -240,42 +231,37 @@ def admin_add():
     conn.close()
     return jsonify({'success': True, 'task': task})
 
-
 @app.route('/admin/delete/<task_id>', methods=['DELETE'])
 @login_required
 def admin_delete(task_id):
     data = request.json
     conn = get_db()
-    cur  = conn.cursor()
-    cur.execute('DELETE FROM tasks WHERE id=%s AND date=%s',
-                (task_id, data['date']))
+    cur = conn.cursor()
+    cur.execute('DELETE FROM tasks WHERE id=%s AND date=%s', (task_id, data['date']))
     conn.commit()
     cur.close()
     conn.close()
     return jsonify({'success': True})
-
 
 @app.route('/admin/clear', methods=['POST'])
 @login_required
 def admin_clear():
     data = request.json
     conn = get_db()
-    cur  = conn.cursor()
+    cur = conn.cursor()
     cur.execute('DELETE FROM tasks WHERE date=%s', (data['date'],))
     conn.commit()
     cur.close()
     conn.close()
     return jsonify({'success': True})
 
-
 @app.route('/admin/copy-yesterday', methods=['POST'])
 @login_required
 def admin_copy_yesterday():
-    data      = request.json
+    data = request.json
     today_str = data['date']
-
     conn = get_db()
-    cur  = conn.cursor(cursor_factory=RealDictCursor)
+    cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute(
         "SELECT DISTINCT date FROM tasks WHERE date < %s ORDER BY date DESC LIMIT 1",
         (today_str,)
@@ -283,17 +269,14 @@ def admin_copy_yesterday():
     row = cur.fetchone()
     cur.close()
     conn.close()
-
     if not row:
         return jsonify({'success': False, 'message': 'Nenhum dia anterior com tarefas encontrado.'})
-
-    last_date  = row['date']
+    last_date = row['date']
     last_tasks = get_tasks(last_date)
     if not last_tasks:
         return jsonify({'success': False, 'message': 'Nenhuma tarefa encontrada no último dia.'})
-
     conn = get_db()
-    cur  = conn.cursor()
+    cur = conn.cursor()
     for t in last_tasks:
         cur.execute(
             'INSERT INTO tasks (id, date, produto, quantidade, concluido, assinatura, concluido_em, urgente) '
@@ -306,35 +289,30 @@ def admin_copy_yesterday():
     conn.close()
     return jsonify({'success': True, 'copied_from': last_date})
 
-
 # ── Gestor / Admin — Solicitações ─────────────────────────────────────────────
-
 @app.route('/admin/requests')
 @login_required
 def admin_requests_view():
     conn = get_db()
-    cur  = conn.cursor(cursor_factory=RealDictCursor)
+    cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("SELECT * FROM requests ORDER BY created_at DESC")
     reqs = [dict(r) for r in cur.fetchall()]
     cur.close()
     conn.close()
-    pendentes  = [r for r in reqs if r['status'] == 'pendente']
+    pendentes = [r for r in reqs if r['status'] == 'pendente']
     concluidas = [r for r in reqs if r['status'] == 'concluida']
-    return render_template('admin_requests.html',
-                           pendentes=pendentes,
-                           concluidas=concluidas)
-
+    return render_template('admin_requests.html', pendentes=pendentes, concluidas=concluidas)
 
 @app.route('/admin/requests/update', methods=['POST'])
 @login_required
 def admin_requests_update():
-    data   = request.json
+    data = request.json
     req_id = data['id']
     status = data.get('status', 'concluida')
-    resp   = data.get('resposta', '').strip()
+    resp = data.get('resposta', '').strip()
     resp_em = now_sp_str() if status == 'concluida' else ''
     conn = get_db()
-    cur  = conn.cursor()
+    cur = conn.cursor()
     cur.execute(
         'UPDATE requests SET status=%s, resposta=%s, respondido_em=%s WHERE id=%s',
         (status, resp, resp_em, req_id)
@@ -344,26 +322,22 @@ def admin_requests_update():
     conn.close()
     return jsonify({'success': True})
 
-
 @app.route('/admin/requests/delete/<req_id>', methods=['DELETE'])
 @login_required
 def admin_requests_delete(req_id):
     conn = get_db()
-    cur  = conn.cursor()
+    cur = conn.cursor()
     cur.execute('DELETE FROM requests WHERE id=%s', (req_id,))
     conn.commit()
     cur.close()
     conn.close()
     return jsonify({'success': True})
 
-
 # ── API ────────────────────────────────────────────────────────────────────────
-
 @app.route('/api/tasks')
 def api_tasks():
     date_str = request.args.get('date', today_sp())
     return jsonify(get_tasks(date_str))
-
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
