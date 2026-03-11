@@ -78,7 +78,7 @@ header {
   border-radius: 10px; padding: 10px 16px; font-size: 0.875rem;
   margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
 }
-.readonly-notice.past { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+.readonly-notice.past { background: #f5f3ff; border: 1px solid #c4b5fd; color: #5b21b6; }
 .readonly-notice.future { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
 .today-link {
   background: #f5f3ff; color: #7c3aed; border: 1.5px solid #ede9fe;
@@ -172,6 +172,13 @@ td { padding: 13px 16px; font-size: 0.93rem; vertical-align: middle; }
   tbody tr.done { background: #f0fff4 !important; }
 }
 .print-header, .print-company, .print-date { display: none; }
+
+.app-footer {
+  text-align: center; padding: 24px 20px 40px; font-size: 0.78rem; color: #9ca3af;
+  border-top: 1px solid #ede9fe; margin-top: 32px;
+}
+.app-footer a { color: #7c3aed; text-decoration: none; font-weight: 600; }
+.app-footer a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -216,7 +223,7 @@ td { padding: 13px 16px; font-size: 0.93rem; vertical-align: middle; }
     {% if date > today %}
     📅 Visualizando agenda de <strong>{{ dp[2] }}/{{ dp[1] }}/{{ dp[0] }}</strong> — modo somente leitura.
     {% else %}
-    ⚠️ Visualizando a produção de <strong>{{ dp[2] }}/{{ dp[1] }}/{{ dp[0] }}</strong> — modo somente leitura.
+    ✏️ Editando produção de <strong>{{ dp[2] }}/{{ dp[1] }}/{{ dp[0] }}</strong> — itens podem ser marcados como concluídos.
     {% endif %}
     <a href="/producao" class="today-link">↩ Hoje</a>
   </div>
@@ -270,7 +277,7 @@ td { padding: 13px 16px; font-size: 0.93rem; vertical-align: middle; }
             <div class="check-wrap">
               <input type="checkbox" id="check-{{ task.id }}"
                      {{ 'checked' if task.concluido else '' }}
-                     {{ 'disabled' if date != today else '' }}
+                     {{ 'disabled' if date > today else '' }}
                      onchange="autoSave('{{ task.id }}')">
               <span class="check-label {{ 'done-label' if task.concluido else '' }}" id="chklabel-{{ task.id }}">
                 {{ 'Feito!' if task.concluido else 'Pendente' }}
@@ -285,6 +292,10 @@ td { padding: 13px 16px; font-size: 0.93rem; vertical-align: middle; }
   </div>
 
 </div>
+
+<footer class="app-footer no-print">
+  Você é o gestor? <a href="/admin">Acessar o Painel do Gestor →</a>
+</footer>
 
 <div class="toast" id="toast"></div>
 
