@@ -46,7 +46,7 @@ header {
 
 .container { max-width: 600px; margin: 0 auto; padding: 20px 16px 60px; }
 
-/* ── Formulário ── */
+/* ── Formulário Novo Pedido ── */
 .add-card {
   background: white; border-radius: 14px; padding: 16px 18px;
   border: 1.5px solid #ede9fe; box-shadow: 0 2px 10px rgba(124,58,237,0.06);
@@ -56,35 +56,55 @@ header {
   font-size: 0.75rem; font-weight: 800; color: #7c3aed;
   text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 12px;
 }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-.form-group { display: flex; flex-direction: column; gap: 4px; }
-.form-group.full { grid-column: 1 / -1; }
-label {
+.field-label {
   font-size: 0.7rem; font-weight: 700; color: #9ca3af;
-  text-transform: uppercase; letter-spacing: 0.3px;
+  text-transform: uppercase; letter-spacing: 0.3px; display: block; margin-bottom: 4px;
 }
-input[type="text"], input[type="number"] {
-  padding: 8px 11px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+.input-cliente {
+  width: 100%; padding: 9px 12px; border: 1.5px solid #e5e7eb; border-radius: 9px;
   font-size: 0.9rem; color: #1e1b4b; outline: none; font-family: inherit;
+  transition: border-color 0.2s; margin-bottom: 12px;
+}
+.input-cliente:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.08); }
+
+/* Linhas de produto no formulário */
+.produto-rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.produto-row { display: grid; grid-template-columns: 1fr 68px 102px 30px 30px; gap: 5px; align-items: center; }
+.produto-row input {
+  padding: 8px 9px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+  font-size: 0.82rem; color: #1e1b4b; outline: none; font-family: inherit;
   transition: border-color 0.2s; width: 100%;
 }
-input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.08); }
+.produto-row input:focus { border-color: #7c3aed; }
+.produto-row input::placeholder { color: #9ca3af; }
 
-.form-bottom { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
-.urgente-toggle {
-  display: flex; align-items: center; gap: 7px; padding: 7px 11px;
-  background: #fff8f8; border: 1.5px solid #fca5a5; border-radius: 8px;
-  cursor: pointer; flex: 1; user-select: none;
+.btn-urgente-row {
+  width: 30px; height: 34px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+  background: white; font-size: 0.75rem; cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
 }
-.urgente-toggle input { width: 15px; height: 15px; accent-color: #dc2626; cursor: pointer; flex-shrink: 0; }
-.urgente-toggle-label { font-size: 0.82rem; font-weight: 700; color: #dc2626; }
-.btn-add {
-  padding: 9px 18px; background: #7c3aed; color: white;
-  border: none; border-radius: 9px; font-size: 0.88rem; font-weight: 700;
-  cursor: pointer; font-family: inherit; transition: background 0.15s; white-space: nowrap;
+.btn-urgente-row.on { border-color: #fca5a5; background: #fee2e2; }
+.btn-remove-row {
+  width: 30px; height: 34px; border: 1.5px solid #fca5a5; border-radius: 8px;
+  background: none; color: #dc2626; font-size: 0.8rem; cursor: pointer;
+  transition: all 0.15s; display: flex; align-items: center; justify-content: center;
 }
-.btn-add:hover { background: #6d28d9; }
-.btn-add:disabled { background: #c4b5fd; cursor: default; }
+.btn-remove-row:hover { background: #fff5f5; }
+
+.btn-add-produto {
+  width: 100%; padding: 8px; border: 1.5px dashed #c4b5fd; border-radius: 9px;
+  background: none; color: #7c3aed; font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: all 0.15s; margin-bottom: 10px;
+}
+.btn-add-produto:hover { background: #f5f3ff; }
+
+.btn-submit-pedido {
+  width: 100%; padding: 10px; background: #7c3aed; color: white;
+  border: none; border-radius: 10px; font-size: 0.9rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.btn-submit-pedido:hover { background: #6d28d9; }
+.btn-submit-pedido:disabled { background: #c4b5fd; cursor: default; }
 
 /* ── Tabs ── */
 .tabs {
@@ -106,83 +126,159 @@ input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.08)
 }
 .tab-btn:not(.active) .tab-count { background: #ede9fe; color: #7c3aed; }
 
-/* ── Separadores ── */
-.urgente-sep, .normal-sep {
+/* ── Separadores de seção ── */
+.section-sep {
   font-size: 0.68rem; font-weight: 800; letter-spacing: 0.5px;
-  text-transform: uppercase; padding: 4px 2px; margin-bottom: 6px; margin-top: 2px;
+  text-transform: uppercase; padding: 4px 2px; margin-bottom: 8px; margin-top: 2px;
   display: flex; align-items: center; gap: 6px;
 }
-.urgente-sep { color: #dc2626; }
-.urgente-sep::after, .normal-sep::after { content: ''; flex: 1; height: 1px; }
-.urgente-sep::after { background: #fca5a5; }
-.normal-sep { color: #9ca3af; }
-.normal-sep::after { background: #e5e7eb; }
+.section-sep.urgente { color: #dc2626; }
+.section-sep.urgente::after { content: ''; flex: 1; height: 1px; background: #fca5a5; }
+.section-sep.normal { color: #9ca3af; }
+.section-sep.normal::after { content: ''; flex: 1; height: 1px; background: #e5e7eb; }
 
-/* ── Cards compactos ── */
-.pedidos-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
-
-.pedido-card {
-  background: white; border-radius: 12px; padding: 11px 14px;
-  border: 1.5px solid #ede9fe; box-shadow: 0 1px 6px rgba(124,58,237,0.05);
+/* ── Client card ── */
+.client-group { margin-bottom: 10px; }
+.client-card {
+  background: white; border-radius: 12px; border: 1.5px solid #ede9fe;
+  overflow: hidden; box-shadow: 0 1px 6px rgba(124,58,237,0.05);
 }
-.pedido-card.urgente { border-color: #fca5a5; background: #fff8f8; }
-.pedido-card.concluido { border-color: #bbf7d0; background: #f0fdf4; opacity: 0.9; }
+.client-card.urgente { border-color: #fca5a5; }
 
-/* Linha superior: produto + badge + ações */
-.pedido-header {
-  display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
+.client-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 14px 8px; border-bottom: 1px solid #f3f4f6;
+  background: #fafaf9;
 }
-.pedido-produto {
-  font-size: 0.9rem; font-weight: 700; color: #1e1b4b; flex: 1;
+.client-name { font-size: 0.8rem; font-weight: 800; color: #374151; }
+.client-count { font-size: 0.7rem; color: #9ca3af; }
+
+/* ── Product line ── */
+.product-line {
+  border-bottom: 1px solid #f9f8ff;
+}
+.product-line:last-child { border-bottom: none; }
+.product-line-inner {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px 9px 14px;
+}
+
+.product-body { flex: 1; min-width: 0; }
+.product-name {
+  font-size: 0.88rem; font-weight: 700; color: #1e1b4b; margin-bottom: 4px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.pedido-card.concluido .pedido-produto { text-decoration: line-through; color: #9ca3af; }
-.urgente-badge {
-  background: #dc2626; color: white; border-radius: 20px;
-  padding: 1px 7px; font-size: 0.62rem; font-weight: 700;
-  white-space: nowrap; flex-shrink: 0;
-}
+.product-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 
-/* Linha meta inline */
-.pedido-meta-inline {
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  font-size: 0.76rem; color: #9ca3af; margin-bottom: 8px;
+.badge-urgent {
+  background: #fee2e2; color: #dc2626; border-radius: 6px;
+  padding: 2px 7px; font-size: 0.68rem; font-weight: 800; white-space: nowrap;
 }
-.pedido-meta-inline .cliente { color: #6b7280; font-weight: 600; }
-.pedido-meta-inline .sep { color: #d1d5db; }
-.qty-pill {
-  background: #ede9fe; color: #7c3aed; border-radius: 20px;
-  padding: 1px 8px; font-size: 0.72rem; font-weight: 700; white-space: nowrap;
+.badge-qty {
+  background: #f5f3ff; color: #7c3aed; border-radius: 6px;
+  padding: 2px 7px; font-size: 0.72rem; font-weight: 700; white-space: nowrap;
 }
+.badge-date {
+  background: #fef3c7; color: #b45309; border-radius: 6px;
+  padding: 2px 7px; font-size: 0.72rem; font-weight: 600; white-space: nowrap;
+}
+.badge-partial {
+  background: #fff7ed; color: #ea580c; border-radius: 6px;
+  padding: 2px 7px; font-size: 0.68rem; font-weight: 700; white-space: nowrap;
+}
+.produced-info { font-size: 0.7rem; color: #9ca3af; margin-top: 3px; }
 
-/* Concluído info */
-.concluido-info {
-  font-size: 0.76rem; color: #16a34a; font-weight: 600;
-  display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-bottom: 8px;
+/* Action buttons per line */
+.line-actions { display: flex; gap: 5px; flex-shrink: 0; }
+.btn-check {
+  width: 38px; height: 38px; background: #7c3aed; color: white;
+  border: none; border-radius: 10px; font-size: 1rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 6px rgba(124,58,237,0.2);
 }
-.concluido-date { color: #9ca3af; font-weight: 400; }
+.btn-check:hover { background: #6d28d9; }
+.btn-check:disabled { background: #c4b5fd; cursor: default; box-shadow: none; }
+.btn-check.partial {
+  background: #fff7ed; color: #ea580c;
+  box-shadow: 0 2px 6px rgba(234,88,12,0.15);
+  border: 1.5px solid #fed7aa;
+}
+.btn-check.partial:hover { background: #ffedd5; }
 
-/* Ações compactas */
-.pedido-actions { display: flex; gap: 7px; }
-.btn-done {
+.btn-edit {
+  width: 32px; height: 38px; border-radius: 9px;
+  background: #f5f3ff; border: 1.5px solid #ede9fe; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; color: #7c3aed; transition: all 0.15s;
+}
+.btn-edit:hover { background: #ede9fe; }
+.btn-edit.active { background: #ede9fe; border-color: #c4b5fd; }
+.btn-del {
+  width: 32px; height: 38px; border-radius: 9px;
+  background: #fef2f2; border: 1.5px solid #fecaca; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.82rem; color: #dc2626; transition: all 0.15s;
+}
+.btn-del:hover { background: #fee2e2; }
+.btn-reopen {
+  height: 38px; padding: 0 10px; border-radius: 10px;
+  background: #f5f3ff; border: 1.5px solid #ede9fe; cursor: pointer;
+  font-size: 0.75rem; font-weight: 700; color: #7c3aed;
+  transition: all 0.15s; white-space: nowrap; font-family: inherit;
+}
+.btn-reopen:hover { background: #ede9fe; }
+
+/* Inline edit form */
+.edit-form {
+  padding: 10px 14px 12px;
+  background: #fafaff; border-top: 1.5px dashed #ede9fe;
+}
+.edit-grid {
+  display: grid; grid-template-columns: 1fr 68px 102px; gap: 5px; margin-bottom: 8px;
+}
+.edit-grid input {
+  padding: 7px 9px; border: 1.5px solid #c4b5fd; border-radius: 8px;
+  font-size: 0.82rem; color: #1e1b4b; outline: none; font-family: inherit;
+  transition: border-color 0.2s; width: 100%;
+}
+.edit-grid input:focus { border-color: #7c3aed; }
+.edit-actions { display: flex; gap: 6px; }
+.btn-edit-urgente {
+  padding: 7px 10px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+  background: white; font-size: 0.75rem; font-weight: 700; cursor: pointer;
+  color: #9ca3af; transition: all 0.15s; font-family: inherit;
+}
+.btn-edit-urgente.on { border-color: #fca5a5; background: #fee2e2; color: #dc2626; }
+.btn-save-edit {
   flex: 1; padding: 7px 12px; background: #7c3aed; color: white;
-  border: none; border-radius: 8px; font-size: 0.8rem; font-weight: 700;
+  border: none; border-radius: 8px; font-size: 0.82rem; font-weight: 700;
   cursor: pointer; font-family: inherit; transition: background 0.15s;
 }
-.btn-done:hover { background: #6d28d9; }
-.btn-done:disabled { background: #c4b5fd; cursor: default; }
-.btn-delete {
-  padding: 7px 11px; background: none; color: #dc2626;
-  border: 1.5px solid #fca5a5; border-radius: 8px; font-size: 0.8rem;
-  cursor: pointer; font-family: inherit; transition: all 0.15s;
+.btn-save-edit:hover { background: #6d28d9; }
+.btn-cancel-edit {
+  padding: 7px 12px; background: white; border: 1.5px solid #e5e7eb;
+  border-radius: 8px; font-size: 0.82rem; font-weight: 600; color: #6b7280;
+  cursor: pointer; font-family: inherit;
 }
-.btn-delete:hover { background: #fff5f5; }
-.btn-reopen {
-  flex: 1; padding: 7px 12px; background: none; color: #7c3aed;
-  border: 1.5px solid #ede9fe; border-radius: 8px; font-size: 0.8rem;
-  cursor: pointer; font-family: inherit; font-weight: 600; transition: all 0.15s;
+
+/* ── Concluídos ── */
+.concluido-card {
+  background: white; border-radius: 12px; border: 1.5px solid #bbf7d0;
+  overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  margin-bottom: 8px; opacity: 0.85;
 }
-.btn-reopen:hover { background: #f5f3ff; }
+.concluido-line-inner {
+  display: flex; align-items: center; gap: 10px; padding: 10px 10px 10px 14px;
+}
+.concluido-body { flex: 1; }
+.concluido-produto {
+  font-size: 0.88rem; font-weight: 700; color: #6b7280;
+  text-decoration: line-through; margin-bottom: 3px;
+}
+.concluido-sub { font-size: 0.74rem; color: #9ca3af; }
+.concluido-info-text { font-size: 0.74rem; color: #16a34a; font-weight: 600; }
+.concluido-actions { display: flex; gap: 5px; flex-shrink: 0; }
 
 /* ── Empty ── */
 .empty-state {
@@ -198,6 +294,52 @@ input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.08)
   opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; white-space: nowrap;
 }
 .toast.show { opacity: 1; }
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+  display: flex; align-items: flex-end; justify-content: center;
+  z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: white; border-radius: 20px 20px 0 0;
+  padding: 24px 20px 36px; width: 100%; max-width: 600px;
+  transform: translateY(20px); transition: transform 0.2s;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-handle { width: 40px; height: 4px; background: #e5e7eb; border-radius: 2px; margin: 0 auto 18px; }
+.modal-title { font-size: 1rem; font-weight: 800; color: #1e1b4b; margin-bottom: 3px; }
+.modal-sub { font-size: 0.82rem; color: #7c3aed; font-weight: 600; margin-bottom: 18px; }
+.qty-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.qty-group label {
+  font-size: 0.72rem; font-weight: 700; color: #6b7280;
+  text-transform: uppercase; letter-spacing: 0.3px; display: block; margin-bottom: 5px;
+}
+.qty-group input {
+  width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 10px;
+  font-size: 0.95rem; font-weight: 700; text-align: center;
+  background: white; color: #1e1b4b; outline: none; font-family: inherit;
+}
+.qty-group input:disabled { background: #f9fafb; color: #9ca3af; }
+.qty-group input:focus { border-color: #7c3aed; }
+.saldo-warning {
+  background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px;
+  padding: 9px 12px; font-size: 0.78rem; color: #c2410c; font-weight: 600;
+  margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+}
+.modal-actions { display: flex; gap: 10px; }
+.btn-modal-confirm {
+  flex: 1; padding: 12px; background: #7c3aed; color: white;
+  border: none; border-radius: 10px; font-size: 0.92rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.btn-modal-confirm:hover { background: #6d28d9; }
+.btn-modal-cancel {
+  padding: 12px 18px; background: none; color: #9ca3af;
+  border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 0.92rem;
+  cursor: pointer; font-family: inherit;
+}
 </style>
 </head>
 <body>
@@ -220,302 +362,472 @@ input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.08)
 
 <div class="container">
 
-  <!-- Formulário compacto -->
+  <!-- ── Formulário ── -->
   <div class="add-card">
     <div class="add-card-title">+ Novo Pedido</div>
-    <div class="form-group full" style="margin-bottom:8px">
-      <label for="inputProduto">Produto</label>
-      <input type="text" id="inputProduto" placeholder="Ex: Kit Casamento Especial">
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label for="inputCliente">Cliente</label>
-        <input type="text" id="inputCliente" placeholder="Nome do cliente">
-      </div>
-      <div class="form-group">
-        <label for="inputQtd">Quantidade</label>
-        <input type="number" id="inputQtd" placeholder="0" min="1">
-      </div>
-    </div>
-    <div class="form-bottom">
-      <label class="urgente-toggle" for="checkUrgente">
-        <input type="checkbox" id="checkUrgente">
-        <span class="urgente-toggle-label">🔴 Urgente</span>
-      </label>
-      <button class="btn-add" id="btnAdd" onclick="adicionarPedido()">＋ Adicionar</button>
-    </div>
+
+    <label class="field-label" for="inputCliente">Cliente</label>
+    <input type="text" id="inputCliente" class="input-cliente" placeholder="Nome do cliente" autocomplete="off">
+
+    <div class="produto-rows" id="produtoRows"></div>
+
+    <button class="btn-add-produto" onclick="addProdutoRow()">＋ Adicionar produto</button>
+    <button class="btn-submit-pedido" id="btnSubmit" onclick="submeterPedido()">✓ Salvar Pedido</button>
   </div>
 
-  <!-- Tabs -->
+  <!-- ── Tabs ── -->
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('pendentes', this)">
-      Pendentes <span class="tab-count" id="count-pendentes">{{ pendentes|length }}</span>
+      Pendentes <span class="tab-count" id="count-pendentes">{{ total_pendentes }}</span>
     </button>
     <button class="tab-btn" onclick="switchTab('concluidos', this)">
-      Concluídos <span class="tab-count" id="count-concluidos">{{ concluidos|length }}</span>
+      Concluídos <span class="tab-count" id="count-concluidos">{{ total_concluidos }}</span>
     </button>
   </div>
 
-  <!-- Tab Pendentes -->
+  <!-- ── Tab Pendentes ── -->
   <div id="tab-pendentes">
-    {% set urgentes = pendentes | selectattr('urgente') | list %}
-    {% set normais  = pendentes | rejectattr('urgente') | list %}
 
-    {% if urgentes %}
-    <div class="urgente-sep">🔴 Urgente</div>
-    <div class="pedidos-list" id="list-urgentes">
-      {% for o in urgentes %}
-      <div class="pedido-card urgente" id="card-{{ o.id }}">
-        <div class="pedido-header">
-          <div class="pedido-produto">{{ o.produto }}</div>
-          <span class="urgente-badge">URGENTE</span>
+    {% if urgentes_clientes %}
+    <div class="section-sep urgente">🔴 Urgentes</div>
+    {% for grupo in urgentes_clientes %}
+    <div class="client-group">
+      <div class="client-card urgente">
+        <div class="client-header">
+          <span class="client-name">{{ grupo.cliente }}</span>
+          <span class="client-count">{{ grupo.produtos|length }} produto{{ 's' if grupo.produtos|length != 1 else '' }}</span>
         </div>
-        <div class="pedido-meta-inline">
-          <span class="cliente">{{ o.cliente }}</span>
-          <span class="sep">·</span>
-          <span class="qty-pill">📦 {{ o.quantidade }}</span>
-          <span class="sep">·</span>
-          <span>{{ o.criado_em }}</span>
+        {% for o in grupo.produtos %}
+        {% set saldo = o.quantidade - (o.quantidade_produzida or 0) %}
+        <div class="product-line" id="line-{{ o.id }}">
+          <div class="product-line-inner">
+            <div class="product-body">
+              <div class="product-name">{{ o.produto }}</div>
+              <div class="product-meta">
+                <span class="badge-urgent">URGENTE</span>
+                <span class="badge-qty">📦 {{ saldo }}</span>
+                {% if o.data_entrega %}
+                <span class="badge-date">⏰ {{ o.data_entrega[8:10] }}/{{ o.data_entrega[5:7] }}</span>
+                {% endif %}
+                {% if o.quantidade_produzida and o.quantidade_produzida > 0 %}
+                <span class="badge-partial">⚠ Saldo: {{ saldo }} restantes</span>
+                {% endif %}
+              </div>
+              {% if o.quantidade_produzida and o.quantidade_produzida > 0 %}
+              <div class="produced-info">✅ {{ o.quantidade_produzida }} prod. por {{ o.concluido_por }} · {{ o.concluido_em }}</div>
+              {% endif %}
+            </div>
+            <div class="line-actions">
+              <button class="btn-check {% if o.quantidade_produzida and o.quantidade_produzida > 0 %}partial{% endif %}"
+                      data-id="{{ o.id }}" data-produto="{{ o.produto | replace('"', '&quot;') }}"
+                      data-saldo="{{ saldo }}" onclick="abrirModal(this)">✓</button>
+              <button class="btn-edit" data-id="{{ o.id }}"
+                      data-produto="{{ o.produto | replace('"', '&quot;') }}"
+                      data-quantidade="{{ o.quantidade }}"
+                      data-entrega="{{ o.data_entrega or '' }}"
+                      data-urgente="{{ 'true' if o.urgente else 'false' }}"
+                      onclick="toggleEdit(this)" title="Editar">✏</button>
+              <button class="btn-del" onclick="excluirPedido('{{ o.id }}', this)" title="Excluir">🗑</button>
+            </div>
+          </div>
+          <!-- Edit form (hidden by default, injected by JS) -->
         </div>
-        <div class="pedido-actions">
-          <button class="btn-done" onclick="concluirPedido('{{ o.id }}', this)">✓ Concluir</button>
-          <button class="btn-delete" onclick="excluirPedido('{{ o.id }}', this)">🗑</button>
-        </div>
+        {% endfor %}
       </div>
-      {% endfor %}
     </div>
-    {% else %}
-    <div id="list-urgentes"></div>
+    {% endfor %}
     {% endif %}
 
-    {% if normais %}
-    <div class="normal-sep" id="sep-normais">Demais pedidos</div>
-    <div class="pedidos-list" id="list-normais">
-      {% for o in normais %}
-      <div class="pedido-card" id="card-{{ o.id }}">
-        <div class="pedido-header">
-          <div class="pedido-produto">{{ o.produto }}</div>
+    {% if normais_clientes %}
+    <div class="section-sep normal">Demais pedidos</div>
+    {% for grupo in normais_clientes %}
+    <div class="client-group">
+      <div class="client-card">
+        <div class="client-header">
+          <span class="client-name">{{ grupo.cliente }}</span>
+          <span class="client-count">{{ grupo.produtos|length }} produto{{ 's' if grupo.produtos|length != 1 else '' }}</span>
         </div>
-        <div class="pedido-meta-inline">
-          <span class="cliente">{{ o.cliente }}</span>
-          <span class="sep">·</span>
-          <span class="qty-pill">📦 {{ o.quantidade }}</span>
-          <span class="sep">·</span>
-          <span>{{ o.criado_em }}</span>
+        {% for o in grupo.produtos %}
+        {% set saldo = o.quantidade - (o.quantidade_produzida or 0) %}
+        <div class="product-line" id="line-{{ o.id }}">
+          <div class="product-line-inner">
+            <div class="product-body">
+              <div class="product-name">{{ o.produto }}</div>
+              <div class="product-meta">
+                <span class="badge-qty">📦 {{ saldo }}</span>
+                {% if o.data_entrega %}
+                <span class="badge-date">⏰ {{ o.data_entrega[8:10] }}/{{ o.data_entrega[5:7] }}</span>
+                {% endif %}
+                {% if o.quantidade_produzida and o.quantidade_produzida > 0 %}
+                <span class="badge-partial">⚠ Saldo: {{ saldo }} restantes</span>
+                {% endif %}
+              </div>
+              {% if o.quantidade_produzida and o.quantidade_produzida > 0 %}
+              <div class="produced-info">✅ {{ o.quantidade_produzida }} prod. por {{ o.concluido_por }} · {{ o.concluido_em }}</div>
+              {% endif %}
+            </div>
+            <div class="line-actions">
+              <button class="btn-check {% if o.quantidade_produzida and o.quantidade_produzida > 0 %}partial{% endif %}"
+                      data-id="{{ o.id }}" data-produto="{{ o.produto | replace('"', '&quot;') }}"
+                      data-saldo="{{ saldo }}" onclick="abrirModal(this)">✓</button>
+              <button class="btn-edit" data-id="{{ o.id }}"
+                      data-produto="{{ o.produto | replace('"', '&quot;') }}"
+                      data-quantidade="{{ o.quantidade }}"
+                      data-entrega="{{ o.data_entrega or '' }}"
+                      data-urgente="{{ 'true' if o.urgente else 'false' }}"
+                      onclick="toggleEdit(this)" title="Editar">✏</button>
+              <button class="btn-del" onclick="excluirPedido('{{ o.id }}', this)" title="Excluir">🗑</button>
+            </div>
+          </div>
         </div>
-        <div class="pedido-actions">
-          <button class="btn-done" onclick="concluirPedido('{{ o.id }}', this)">✓ Concluir</button>
-          <button class="btn-delete" onclick="excluirPedido('{{ o.id }}', this)">🗑</button>
-        </div>
+        {% endfor %}
       </div>
-      {% endfor %}
     </div>
-    {% else %}
-    <div id="sep-normais" style="display:none" class="normal-sep">Demais pedidos</div>
-    <div class="pedidos-list" id="list-normais"></div>
+    {% endfor %}
     {% endif %}
 
-    {% if not pendentes %}
-    <div class="empty-state" id="emptyPendentes">
+    {% if not urgentes_clientes and not normais_clientes %}
+    <div class="empty-state">
       <div>🎉</div>
       Nenhum pedido especial pendente!
     </div>
-    {% else %}
-    <div class="empty-state" id="emptyPendentes" style="display:none">
-      <div>🎉</div>
-      Nenhum pedido especial pendente!
-    </div>
     {% endif %}
+
   </div>
 
-  <!-- Tab Concluídos -->
+  <!-- ── Tab Concluídos ── -->
   <div id="tab-concluidos" style="display:none;">
     {% if concluidos %}
-    <div class="pedidos-list" id="list-concluidos">
       {% for o in concluidos %}
-      <div class="pedido-card concluido" id="card-{{ o.id }}">
-        <div class="pedido-header">
-          <div class="pedido-produto">{{ o.produto }}</div>
-          {% if o.urgente %}<span class="urgente-badge">URGENTE</span>{% endif %}
-        </div>
-        <div class="pedido-meta-inline">
-          <span class="cliente">{{ o.cliente }}</span>
-          <span class="sep">·</span>
-          <span class="qty-pill">📦 {{ o.quantidade }}</span>
-          <span class="sep">·</span>
-          <span>{{ o.criado_em }}</span>
-        </div>
-        <div class="concluido-info">
-          ✅ {{ o.concluido_por }}
-          <span class="concluido-date">· {{ o.concluido_em }}</span>
-        </div>
-        <div class="pedido-actions">
-          <button class="btn-reopen" onclick="reabrirPedido('{{ o.id }}', this)">↩ Reabrir</button>
-          <button class="btn-delete" onclick="excluirPedido('{{ o.id }}', this)">🗑</button>
+      <div class="concluido-card" id="line-{{ o.id }}">
+        <div class="concluido-line-inner">
+          <div class="concluido-body">
+            <div class="concluido-produto">{{ o.produto }}</div>
+            <div class="concluido-sub">{{ o.cliente }} · 📦 {{ o.quantidade }}</div>
+            <div class="concluido-info-text">✅ {{ o.concluido_por }} · {{ o.concluido_em }}</div>
+          </div>
+          <div class="concluido-actions">
+            <button class="btn-reopen" onclick="reabrirPedido('{{ o.id }}', this)">↩ Reabrir</button>
+            <button class="btn-del" onclick="excluirPedido('{{ o.id }}', this)" title="Excluir">🗑</button>
+          </div>
         </div>
       </div>
       {% endfor %}
-    </div>
     {% else %}
-    <div id="list-concluidos" class="pedidos-list"></div>
-    {% endif %}
-
-    <div class="empty-state" id="emptyConcluidos" {% if concluidos %}style="display:none"{% endif %}>
+    <div class="empty-state">
       <div>📋</div>
       Nenhum pedido concluído ainda.
     </div>
+    {% endif %}
   </div>
 
+</div>
+
+<!-- ── Modal: Registrar Produção ── -->
+<div class="modal-overlay" id="modalOverlay" onclick="fecharModalOverlay(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Registrar Produção</div>
+    <div class="modal-sub" id="modalProduto"></div>
+
+    <div class="qty-row">
+      <div class="qty-group">
+        <label>Quantidade pedida</label>
+        <input type="number" id="inputSaldo" disabled>
+      </div>
+      <div class="qty-group">
+        <label>Quantidade produzida</label>
+        <input type="number" id="inputProduzida" min="1" oninput="calcSaldo()">
+      </div>
+    </div>
+
+    <div class="saldo-warning" id="saldoWarning" style="display:none">
+      ⚠ Saldo restante: <span id="saldoNum">0</span> unidades — ficará em aberto
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-modal-confirm" id="btnConfirmar" onclick="confirmarProducao()">✓ Confirmar</button>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-function switchTab(tab, btn) {
-  document.getElementById('tab-pendentes').style.display = tab === 'pendentes' ? '' : 'none';
-  document.getElementById('tab-concluidos').style.display = tab === 'concluidos' ? '' : 'none';
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-}
-
+/* ── Utilitários ── */
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-function updateCounts(deltaPendentes, deltaConcluidos) {
-  const cp = document.getElementById('count-pendentes');
-  const cc = document.getElementById('count-concluidos');
-  if (cp) cp.textContent = Math.max(0, parseInt(cp.textContent || 0) + deltaPendentes);
-  if (cc) cc.textContent = Math.max(0, parseInt(cc.textContent || 0) + deltaConcluidos);
+function switchTab(tab, btn) {
+  document.getElementById('tab-pendentes').style.display  = tab === 'pendentes'  ? '' : 'none';
+  document.getElementById('tab-concluidos').style.display = tab === 'concluidos' ? '' : 'none';
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
 }
 
-function adicionarPedido() {
-  const produto = document.getElementById('inputProduto').value.trim();
-  const cliente = document.getElementById('inputCliente').value.trim();
-  const qtd     = parseInt(document.getElementById('inputQtd').value);
-  const urgente = document.getElementById('checkUrgente').checked;
+function updateCounts(dp, dc) {
+  const cp = document.getElementById('count-pendentes');
+  const cc = document.getElementById('count-concluidos');
+  if (cp) cp.textContent = Math.max(0, parseInt(cp.textContent || 0) + dp);
+  if (cc) cc.textContent = Math.max(0, parseInt(cc.textContent || 0) + dc);
+}
 
-  if (!produto || !cliente || !qtd || qtd < 1) {
-    showToast('Preencha todos os campos.');
+/* ── Formulário: adicionar produto rows ── */
+let rowIdx = 0;
+
+function addProdutoRow() {
+  const idx = rowIdx++;
+  const row = document.createElement('div');
+  row.className = 'produto-row';
+  row.dataset.idx = idx;
+  row.innerHTML = `
+    <input type="text" class="r-produto" placeholder="Produto">
+    <input type="number" class="r-qtd" placeholder="Qtd" min="1">
+    <input type="date" class="r-data">
+    <button class="btn-urgente-row" onclick="toggleUrgenteRow(this)" title="Urgente">🔴</button>
+    <button class="btn-remove-row" onclick="removeRow(this)" title="Remover">✕</button>
+  `;
+  document.getElementById('produtoRows').appendChild(row);
+}
+
+function toggleUrgenteRow(btn) { btn.classList.toggle('on'); }
+
+function removeRow(btn) {
+  const rows = document.getElementById('produtoRows');
+  if (rows.children.length > 1) {
+    btn.closest('.produto-row').remove();
+  }
+}
+
+// Inicializa com uma linha
+addProdutoRow();
+
+function submeterPedido() {
+  const cliente = document.getElementById('inputCliente').value.trim();
+  if (!cliente) {
+    document.getElementById('inputCliente').focus();
+    document.getElementById('inputCliente').style.borderColor = '#dc2626';
+    setTimeout(() => document.getElementById('inputCliente').style.borderColor = '', 1500);
     return;
   }
 
-  const btn = document.getElementById('btnAdd');
+  const rows = document.querySelectorAll('#produtoRows .produto-row');
+  const produtos = [];
+  let valid = true;
+
+  rows.forEach(row => {
+    const produto = row.querySelector('.r-produto').value.trim();
+    const qtd     = parseInt(row.querySelector('.r-qtd').value);
+    const data    = row.querySelector('.r-data').value;
+    const urgente = row.querySelector('.btn-urgente-row').classList.contains('on');
+    if (!produto || !qtd || qtd < 1) { valid = false; return; }
+    produtos.push({ produto, quantidade: qtd, data_entrega: data, urgente });
+  });
+
+  if (!valid || produtos.length === 0) {
+    showToast('Preencha produto e quantidade em todas as linhas.');
+    return;
+  }
+
+  const btn = document.getElementById('btnSubmit');
   btn.disabled = true; btn.textContent = '…';
 
   fetch('/admin/pedidos/add', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ produto, cliente, quantidade: qtd, urgente })
+    body: JSON.stringify({ cliente, produtos })
   })
   .then(r => r.json())
   .then(data => {
     if (data.success) {
-      const o = data.order;
-      const listId = o.urgente ? 'list-urgentes' : 'list-normais';
-      const list = document.getElementById(listId);
-      if (!o.urgente) {
-        const sep = document.getElementById('sep-normais');
-        if (sep) sep.style.display = '';
-      }
-      list.insertAdjacentHTML('afterbegin', buildCard(o));
-      document.getElementById('emptyPendentes').style.display = 'none';
-      document.getElementById('inputProduto').value = '';
-      document.getElementById('inputCliente').value = '';
-      document.getElementById('inputQtd').value = '';
-      document.getElementById('checkUrgente').checked = false;
-      updateCounts(1, 0);
-      showToast('📦 Pedido adicionado!');
+      showToast('📦 Pedido salvo!');
+      setTimeout(() => window.location.reload(), 800);
     } else {
-      showToast('Erro ao adicionar.');
+      showToast('Erro ao salvar.'); btn.disabled = false; btn.textContent = '✓ Salvar Pedido';
     }
   })
-  .catch(() => showToast('Erro de conexão.'))
-  .finally(() => { btn.disabled = false; btn.textContent = '＋ Adicionar'; });
+  .catch(() => { showToast('Erro de conexão.'); btn.disabled = false; btn.textContent = '✓ Salvar Pedido'; });
 }
 
-function buildCard(o) {
-  const urgBadge = o.urgente ? '<span class="urgente-badge">URGENTE</span>' : '';
-  const urgClass = o.urgente ? ' urgente' : '';
-  return `
-  <div class="pedido-card${urgClass}" id="card-${o.id}">
-    <div class="pedido-header">
-      <div class="pedido-produto">${escHtml(o.produto)}</div>
-      ${urgBadge}
+/* ── Edição inline ── */
+function toggleEdit(btn) {
+  const line = btn.closest('.product-line');
+  let editForm = line.querySelector('.edit-form');
+
+  // Fecha se já estava aberto
+  if (editForm) {
+    editForm.remove();
+    btn.classList.remove('active');
+    return;
+  }
+
+  // Fecha qualquer outro formulário aberto
+  document.querySelectorAll('.edit-form').forEach(f => {
+    f.remove();
+    const eb = f.closest('.product-line')?.querySelector('.btn-edit');
+    if (eb) eb.classList.remove('active');
+  });
+
+  btn.classList.add('active');
+  const id       = btn.dataset.id;
+  const produto  = btn.dataset.produto;
+  const qtd      = btn.dataset.quantidade;
+  const entrega  = btn.dataset.entrega || '';
+  const urgente  = btn.dataset.urgente === 'true';
+
+  editForm = document.createElement('div');
+  editForm.className = 'edit-form';
+  editForm.innerHTML = `
+    <div class="edit-grid">
+      <input type="text"   class="e-produto"  value="${escHtml(produto)}" placeholder="Produto">
+      <input type="number" class="e-qtd"      value="${qtd}" placeholder="Qtd" min="1">
+      <input type="date"   class="e-data"     value="${escHtml(entrega)}">
     </div>
-    <div class="pedido-meta-inline">
-      <span class="cliente">${escHtml(o.cliente)}</span>
-      <span class="sep">·</span>
-      <span class="qty-pill">📦 ${o.quantidade}</span>
-      <span class="sep">·</span>
-      <span>${escHtml(o.criado_em)}</span>
+    <div class="edit-actions">
+      <button class="btn-edit-urgente ${urgente ? 'on' : ''}" onclick="this.classList.toggle('on')">🔴 Urgente</button>
+      <button class="btn-save-edit" onclick="salvarEdicao('${escHtml(id)}', this)">✓ Salvar</button>
+      <button class="btn-cancel-edit" onclick="cancelarEdicao(this)">Cancelar</button>
     </div>
-    <div class="pedido-actions">
-      <button class="btn-done" onclick="concluirPedido('${o.id}', this)">✓ Concluir</button>
-      <button class="btn-delete" onclick="excluirPedido('${o.id}', this)">🗑</button>
-    </div>
-  </div>`;
+  `;
+  line.appendChild(editForm);
 }
 
-function escHtml(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function cancelarEdicao(btn) {
+  const form = btn.closest('.edit-form');
+  const line = form.closest('.product-line');
+  const editBtn = line.querySelector('.btn-edit');
+  if (editBtn) editBtn.classList.remove('active');
+  form.remove();
 }
 
-function concluirPedido(orderId, btn) {
-  if (!confirm('Marcar pedido como concluído?')) return;
+function salvarEdicao(orderId, btn) {
+  const form    = btn.closest('.edit-form');
+  const produto = form.querySelector('.e-produto').value.trim();
+  const qtd     = parseInt(form.querySelector('.e-qtd').value);
+  const data    = form.querySelector('.e-data').value;
+  const urgente = form.querySelector('.btn-edit-urgente').classList.contains('on');
+
+  if (!produto || !qtd || qtd < 1) {
+    showToast('Preencha produto e quantidade.'); return;
+  }
+
   btn.disabled = true; btn.textContent = '…';
-  fetch('/admin/pedidos/' + orderId + '/concluir', { method: 'POST' })
+
+  fetch('/admin/pedidos/' + orderId + '/editar', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ produto, quantidade: qtd, data_entrega: data, urgente })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) {
+      showToast('✅ Alterações salvas!');
+      setTimeout(() => window.location.reload(), 800);
+    } else {
+      showToast('Erro ao salvar.'); btn.disabled = false; btn.textContent = '✓ Salvar';
+    }
+  })
+  .catch(() => { showToast('Erro de conexão.'); btn.disabled = false; btn.textContent = '✓ Salvar'; });
+}
+
+/* ── Concluir (produção parcial) ── */
+let pendingOrderId = null;
+
+function abrirModal(btn) {
+  pendingOrderId = btn.dataset.id;
+  document.getElementById('modalProduto').textContent = btn.dataset.produto;
+  const saldo = parseInt(btn.dataset.saldo) || 0;
+  document.getElementById('inputSaldo').value     = saldo;
+  document.getElementById('inputProduzida').value  = saldo;
+  document.getElementById('saldoWarning').style.display = 'none';
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('inputProduzida').focus(), 200);
+}
+
+function fecharModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  pendingOrderId = null;
+}
+
+function fecharModalOverlay(e) {
+  if (e.target === document.getElementById('modalOverlay')) fecharModal();
+}
+
+function calcSaldo() {
+  const pedida   = parseInt(document.getElementById('inputSaldo').value)    || 0;
+  const produzida = parseInt(document.getElementById('inputProduzida').value) || 0;
+  const saldo    = pedida - produzida;
+  const warn     = document.getElementById('saldoWarning');
+  if (saldo > 0) { document.getElementById('saldoNum').textContent = saldo; warn.style.display = 'flex'; }
+  else { warn.style.display = 'none'; }
+}
+
+function confirmarProducao() {
+  const produzida = parseInt(document.getElementById('inputProduzida').value) || 0;
+  const saldo     = parseInt(document.getElementById('inputSaldo').value) || 0;
+
+  if (produzida < 1 || produzida > saldo) {
+    const inp = document.getElementById('inputProduzida');
+    inp.focus(); inp.style.borderColor = '#dc2626';
+    setTimeout(() => inp.style.borderColor = '', 1500);
+    return;
+  }
+
+  const orderId = pendingOrderId;
+  const btn = document.getElementById('btnConfirmar');
+  btn.disabled = true; btn.textContent = '…';
+  fecharModal();
+
+  fetch('/admin/pedidos/' + orderId + '/concluir', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ quantidade_produzida: produzida, nome: 'Gestor' })
+  })
   .then(r => r.json())
   .then(data => {
     if (data.success) {
-      document.getElementById('card-' + orderId).style.display = 'none';
-      updateCounts(-1, 1);
-      showToast('✅ Concluído!');
+      showToast(data.concluido ? '✅ Concluído!' : '📦 Produção parcial registrada!');
+      setTimeout(() => window.location.reload(), 800);
     } else {
-      showToast('Erro.'); btn.disabled = false; btn.textContent = '✓ Concluir';
+      showToast('Erro.'); btn.disabled = false; btn.textContent = '✓ Confirmar';
     }
   })
-  .catch(() => { showToast('Erro de conexão.'); btn.disabled = false; btn.textContent = '✓ Concluir'; });
+  .catch(() => { showToast('Erro de conexão.'); btn.disabled = false; btn.textContent = '✓ Confirmar'; });
 }
 
+/* ── Reabrir ── */
 function reabrirPedido(orderId, btn) {
   if (!confirm('Reabrir este pedido?')) return;
   btn.disabled = true; btn.textContent = '…';
   fetch('/admin/pedidos/' + orderId + '/reabrir', { method: 'POST' })
   .then(r => r.json())
   .then(data => {
-    if (data.success) {
-      document.getElementById('card-' + orderId).style.display = 'none';
-      updateCounts(1, -1);
-      showToast('↩ Reaberto!');
-    } else {
-      showToast('Erro.'); btn.disabled = false; btn.textContent = '↩ Reabrir';
-    }
+    if (data.success) { showToast('↩ Reaberto!'); setTimeout(() => window.location.reload(), 800); }
+    else { showToast('Erro.'); btn.disabled = false; btn.textContent = '↩ Reabrir'; }
   })
   .catch(() => { showToast('Erro de conexão.'); btn.disabled = false; btn.textContent = '↩ Reabrir'; });
 }
 
+/* ── Excluir ── */
 function excluirPedido(orderId, btn) {
-  if (!confirm('Excluir este pedido?')) return;
+  if (!confirm('Excluir este produto do pedido?')) return;
   btn.disabled = true;
   fetch('/admin/pedidos/' + orderId + '/excluir', { method: 'DELETE' })
   .then(r => r.json())
   .then(data => {
-    if (data.success) {
-      document.getElementById('card-' + orderId).remove();
-      showToast('🗑 Excluído.');
-    } else {
-      showToast('Erro.'); btn.disabled = false;
-    }
+    if (data.success) { showToast('🗑 Excluído.'); setTimeout(() => window.location.reload(), 800); }
+    else { showToast('Erro.'); btn.disabled = false; }
   })
   .catch(() => { showToast('Erro de conexão.'); btn.disabled = false; });
 }
 
-document.getElementById('inputQtd').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') adicionarPedido();
-});
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 </script>
 </body>
 </html>
