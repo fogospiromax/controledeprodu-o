@@ -142,6 +142,13 @@ header {
   opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; white-space: nowrap;
 }
 #toast.show { opacity: 1; }
+
+.app-footer {
+  text-align: center; padding: 24px 20px 40px; font-size: 0.78rem; color: #9ca3af;
+  border-top: 1px solid #ede9fe; margin-top: 32px;
+}
+.app-footer a { color: #7c3aed; text-decoration: none; font-weight: 600; }
+.app-footer a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -283,6 +290,10 @@ header {
   </div>
 
 </div>
+
+<footer class="app-footer">
+  <a href="/">← Ver área dos trabalhadores</a>
+</footer>
 
 <div id="toast"></div>
 
