@@ -61,6 +61,19 @@ def init_db():
             respondido_em TEXT DEFAULT ''
         )
     ''')
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS special_orders (
+            id TEXT PRIMARY KEY,
+            produto TEXT NOT NULL,
+            cliente TEXT NOT NULL,
+            quantidade INTEGER NOT NULL,
+            urgente BOOLEAN DEFAULT FALSE,
+            concluido BOOLEAN DEFAULT FALSE,
+            concluido_por TEXT DEFAULT '',
+            concluido_em TEXT DEFAULT '',
+            criado_em TEXT NOT NULL
+        )
+    ''')
     conn.commit()
     cur.close()
     conn.close()
@@ -183,6 +196,35 @@ def requests_add():
     conn.close()
     return jsonify({'success': True, 'request': req})
 
+# ── Trabalhador — Pedidos Especiais ───────────────────────────────────────────
+@app.route('/pedidos')
+def worker_pedidos_view():
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT * FROM special_orders ORDER BY criado_em DESC")
+    orders = [dict(o) for o in cur.fetchall()]
+    cur.close()
+    conn.close()
+    pendentes = [o for o in orders if not o['concluido']]
+    concluidos = [o for o in orders if o['concluido']]
+    return render_template('worker_pedidos.html', pendentes=pendentes, concluidos=concluidos)
+
+@app.route('/pedidos/<order_id>/concluir', methods=['POST'])
+def worker_pedidos_concluir(order_id):
+    data = request.json
+    concluido_por = data.get('nome', '').strip() or 'Trabalhador'
+    concluido_em = now_sp_str()
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        'UPDATE special_orders SET concluido=%s, concluido_por=%s, concluido_em=%s WHERE id=%s',
+        (True, concluido_por, concluido_em, order_id)
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True, 'concluido_em': concluido_em, 'concluido_por': concluido_por})
+
 # ── Gestor / Admin — Hub ───────────────────────────────────────────────────────
 @app.route('/admin')
 @login_required
@@ -191,10 +233,19 @@ def admin_view():
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("SELECT COUNT(*) as cnt FROM requests WHERE status = 'pendente'")
     row = cur.fetchone()
+    pedidos_row = None
+    try:
+        cur.execute("SELECT COUNT(*) as cnt FROM special_orders WHERE concluido = FALSE")
+        pedidos_row = cur.fetchone()
+    except Exception:
+        pass
     cur.close()
     conn.close()
     pendentes_count = row['cnt'] if row else 0
-    return render_template('admin_hub.html', pendentes_count=pendentes_count)
+    pedidos_pendentes_count = pedidos_row['cnt'] if pedidos_row else 0
+    return render_template('admin_hub.html',
+                           pendentes_count=pendentes_count,
+                           pedidos_pendentes_count=pedidos_pendentes_count)
 
 # ── Gestor / Admin — Produção ──────────────────────────────────────────────────
 @app.route('/admin/producao')
@@ -328,6 +379,90 @@ def admin_requests_delete(req_id):
     conn = get_db()
     cur = conn.cursor()
     cur.execute('DELETE FROM requests WHERE id=%s', (req_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True})
+
+# ── Gestor / Admin — Pedidos Especiais ────────────────────────────────────────
+@app.route('/admin/pedidos')
+@login_required
+def admin_pedidos_view():
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT * FROM special_orders ORDER BY criado_em DESC")
+    orders = [dict(o) for o in cur.fetchall()]
+    cur.close()
+    conn.close()
+    pendentes = [o for o in orders if not o['concluido']]
+    concluidos = [o for o in orders if o['concluido']]
+    return render_template('admin_pedidos.html', pendentes=pendentes, concluidos=concluidos)
+
+@app.route('/admin/pedidos/add', methods=['POST'])
+@login_required
+def admin_pedidos_add():
+    data = request.json
+    order = {
+        'id': str(uuid.uuid4()),
+        'produto': data['produto'].strip(),
+        'cliente': data['cliente'].strip(),
+        'quantidade': int(data['quantidade']),
+        'urgente': bool(data.get('urgente', False)),
+        'concluido': False,
+        'concluido_por': '',
+        'concluido_em': '',
+        'criado_em': now_sp_str()
+    }
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        'INSERT INTO special_orders '
+        '(id, produto, cliente, quantidade, urgente, concluido, concluido_por, concluido_em, criado_em) '
+        'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+        (order['id'], order['produto'], order['cliente'], order['quantidade'],
+         order['urgente'], order['concluido'], order['concluido_por'],
+         order['concluido_em'], order['criado_em'])
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True, 'order': order})
+
+@app.route('/admin/pedidos/<order_id>/concluir', methods=['POST'])
+@login_required
+def admin_pedidos_concluir(order_id):
+    concluido_em = now_sp_str()
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        'UPDATE special_orders SET concluido=%s, concluido_por=%s, concluido_em=%s WHERE id=%s',
+        (True, 'Gestor', concluido_em, order_id)
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True, 'concluido_em': concluido_em})
+
+@app.route('/admin/pedidos/<order_id>/reabrir', methods=['POST'])
+@login_required
+def admin_pedidos_reabrir(order_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        'UPDATE special_orders SET concluido=%s, concluido_por=%s, concluido_em=%s WHERE id=%s',
+        (False, '', '', order_id)
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True})
+
+@app.route('/admin/pedidos/<order_id>/excluir', methods=['DELETE'])
+@login_required
+def admin_pedidos_excluir(order_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('DELETE FROM special_orders WHERE id=%s', (order_id,))
     conn.commit()
     cur.close()
     conn.close()
