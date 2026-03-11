@@ -100,6 +100,19 @@ header {
   <div class="hub-date" id="hubDate"></div>
 
   <div class="modules">
+
+    <a href="/admin/pedidos" class="module-card">
+      <div class="module-icon">📦</div>
+      <div class="module-info">
+        <div class="module-title">Pedidos Especiais</div>
+        <div class="module-desc">Gerencie pedidos especiais por cliente</div>
+      </div>
+      {% if pedidos_pendentes_count > 0 %}
+      <span class="module-badge">{{ pedidos_pendentes_count }} pendente{{ 's' if pedidos_pendentes_count != 1 else '' }}</span>
+      {% endif %}
+      <div class="module-arrow">›</div>
+    </a>
+
     <a href="/admin/producao" class="module-card">
       <div class="module-icon">📋</div>
       <div class="module-info">
@@ -120,6 +133,7 @@ header {
       {% endif %}
       <div class="module-arrow">›</div>
     </a>
+
   </div>
 
 </div>
