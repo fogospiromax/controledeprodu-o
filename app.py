@@ -31,6 +31,14 @@ def get_db():
         database_url = database_url.replace('postgres://', 'postgresql://', 1)
     return psycopg2.connect(database_url)
 
+def group_by_cliente(orders):
+    """Agrupa lista de pedidos por cliente (já deve estar ordenada por cliente)."""
+    from itertools import groupby
+    result = []
+    for cliente, grp in groupby(orders, key=lambda o: o['cliente']):
+        result.append({'cliente': cliente, 'produtos': list(grp)})
+    return result
+
 def init_db():
     conn = get_db()
     cur = conn.cursor()
@@ -71,9 +79,14 @@ def init_db():
             concluido BOOLEAN DEFAULT FALSE,
             concluido_por TEXT DEFAULT '',
             concluido_em TEXT DEFAULT '',
-            criado_em TEXT NOT NULL
+            criado_em TEXT NOT NULL,
+            data_entrega TEXT DEFAULT '',
+            quantidade_produzida INTEGER DEFAULT 0
         )
     ''')
+    # Migrações para bancos já existentes
+    cur.execute("ALTER TABLE special_orders ADD COLUMN IF NOT EXISTS data_entrega TEXT DEFAULT ''")
+    cur.execute("ALTER TABLE special_orders ADD COLUMN IF NOT EXISTS quantidade_produzida INTEGER DEFAULT 0")
     conn.commit()
     cur.close()
     conn.close()
@@ -201,29 +214,71 @@ def requests_add():
 def worker_pedidos_view():
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute("SELECT * FROM special_orders ORDER BY criado_em DESC")
+    cur.execute("SELECT * FROM special_orders ORDER BY cliente, criado_em")
     orders = [dict(o) for o in cur.fetchall()]
     cur.close()
     conn.close()
+
     pendentes = [o for o in orders if not o['concluido']]
-    concluidos = [o for o in orders if o['concluido']]
-    return render_template('worker_pedidos.html', pendentes=pendentes, concluidos=concluidos)
+    concluidos = sorted([o for o in orders if o['concluido']],
+                        key=lambda o: o['concluido_em'], reverse=True)
+
+    urgentes = sorted([o for o in pendentes if o['urgente']],
+                      key=lambda o: o['cliente'].lower())
+    normais  = sorted([o for o in pendentes if not o['urgente']],
+                      key=lambda o: o['cliente'].lower())
+
+    return render_template('worker_pedidos.html',
+                           urgentes_clientes=group_by_cliente(urgentes),
+                           normais_clientes=group_by_cliente(normais),
+                           concluidos=concluidos,
+                           total_pendentes=len(pendentes),
+                           total_concluidos=len(concluidos))
 
 @app.route('/pedidos/<order_id>/concluir', methods=['POST'])
 def worker_pedidos_concluir(order_id):
     data = request.json
-    concluido_por = data.get('nome', '').strip() or 'Trabalhador'
-    concluido_em = now_sp_str()
+    nome = data.get('nome', '').strip() or 'Trabalhador'
+    produzida_agora = int(data.get('quantidade_produzida', 0))
+
     conn = get_db()
-    cur = conn.cursor()
-    cur.execute(
-        'UPDATE special_orders SET concluido=%s, concluido_por=%s, concluido_em=%s WHERE id=%s',
-        (True, concluido_por, concluido_em, order_id)
-    )
-    conn.commit()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute('SELECT * FROM special_orders WHERE id=%s', (order_id,))
+    order = cur.fetchone()
     cur.close()
+
+    if not order:
+        conn.close()
+        return jsonify({'success': False, 'error': 'Pedido não encontrado'}), 404
+
+    total_produzida = (order['quantidade_produzida'] or 0) + produzida_agora
+    saldo_restante  = order['quantidade'] - total_produzida
+    concluido_em    = now_sp_str()
+    fully_done      = saldo_restante <= 0
+
+    cur2 = conn.cursor()
+    if fully_done:
+        cur2.execute(
+            'UPDATE special_orders SET concluido=%s, concluido_por=%s, concluido_em=%s, '
+            'quantidade_produzida=%s WHERE id=%s',
+            (True, nome, concluido_em, total_produzida, order_id)
+        )
+    else:
+        cur2.execute(
+            'UPDATE special_orders SET quantidade_produzida=%s, concluido_por=%s, '
+            'concluido_em=%s WHERE id=%s',
+            (total_produzida, nome, concluido_em, order_id)
+        )
+    conn.commit()
+    cur2.close()
     conn.close()
-    return jsonify({'success': True, 'concluido_em': concluido_em, 'concluido_por': concluido_por})
+    return jsonify({
+        'success': True,
+        'concluido': fully_done,
+        'saldo_restante': max(0, saldo_restante),
+        'concluido_em': concluido_em,
+        'concluido_por': nome
+    })
 
 # ── Gestor / Admin — Hub ───────────────────────────────────────────────────────
 @app.route('/admin')
@@ -390,58 +445,117 @@ def admin_requests_delete(req_id):
 def admin_pedidos_view():
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute("SELECT * FROM special_orders ORDER BY criado_em DESC")
+    cur.execute("SELECT * FROM special_orders ORDER BY cliente, criado_em")
     orders = [dict(o) for o in cur.fetchall()]
     cur.close()
     conn.close()
+
     pendentes = [o for o in orders if not o['concluido']]
-    concluidos = [o for o in orders if o['concluido']]
-    return render_template('admin_pedidos.html', pendentes=pendentes, concluidos=concluidos)
+    concluidos = sorted([o for o in orders if o['concluido']],
+                        key=lambda o: o['concluido_em'], reverse=True)
+
+    urgentes = sorted([o for o in pendentes if o['urgente']],
+                      key=lambda o: o['cliente'].lower())
+    normais  = sorted([o for o in pendentes if not o['urgente']],
+                      key=lambda o: o['cliente'].lower())
+
+    return render_template('admin_pedidos.html',
+                           urgentes_clientes=group_by_cliente(urgentes),
+                           normais_clientes=group_by_cliente(normais),
+                           concluidos=concluidos,
+                           total_pendentes=len(pendentes),
+                           total_concluidos=len(concluidos))
 
 @app.route('/admin/pedidos/add', methods=['POST'])
 @login_required
 def admin_pedidos_add():
     data = request.json
-    order = {
-        'id': str(uuid.uuid4()),
-        'produto': data['produto'].strip(),
-        'cliente': data['cliente'].strip(),
-        'quantidade': int(data['quantidade']),
-        'urgente': bool(data.get('urgente', False)),
-        'concluido': False,
-        'concluido_por': '',
-        'concluido_em': '',
-        'criado_em': now_sp_str()
-    }
+    cliente = data.get('cliente', '').strip()
+    produtos = data.get('produtos', [])
+
+    if not cliente or not produtos:
+        return jsonify({'success': False, 'error': 'Dados incompletos'}), 400
+
+    conn = get_db()
+    cur = conn.cursor()
+    criado_em = now_sp_str()
+    for p in produtos:
+        cur.execute(
+            'INSERT INTO special_orders '
+            '(id, produto, cliente, quantidade, urgente, concluido, concluido_por, '
+            'concluido_em, criado_em, data_entrega, quantidade_produzida) '
+            'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+            (str(uuid.uuid4()), p['produto'].strip(), cliente,
+             int(p['quantidade']), bool(p.get('urgente', False)),
+             False, '', '', criado_em,
+             p.get('data_entrega', '').strip(), 0)
+        )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True, 'count': len(produtos)})
+
+@app.route('/admin/pedidos/<order_id>/editar', methods=['POST'])
+@login_required
+def admin_pedidos_editar(order_id):
+    data = request.json
     conn = get_db()
     cur = conn.cursor()
     cur.execute(
-        'INSERT INTO special_orders '
-        '(id, produto, cliente, quantidade, urgente, concluido, concluido_por, concluido_em, criado_em) '
-        'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-        (order['id'], order['produto'], order['cliente'], order['quantidade'],
-         order['urgente'], order['concluido'], order['concluido_por'],
-         order['concluido_em'], order['criado_em'])
+        'UPDATE special_orders SET produto=%s, quantidade=%s, data_entrega=%s, urgente=%s WHERE id=%s',
+        (data['produto'].strip(), int(data['quantidade']),
+         data.get('data_entrega', '').strip(),
+         bool(data.get('urgente', False)), order_id)
     )
     conn.commit()
     cur.close()
     conn.close()
-    return jsonify({'success': True, 'order': order})
+    return jsonify({'success': True})
 
 @app.route('/admin/pedidos/<order_id>/concluir', methods=['POST'])
 @login_required
 def admin_pedidos_concluir(order_id):
-    concluido_em = now_sp_str()
+    data = request.json or {}
+    nome = data.get('nome', 'Gestor').strip() or 'Gestor'
+    produzida_agora = int(data.get('quantidade_produzida', 0))
+
     conn = get_db()
-    cur = conn.cursor()
-    cur.execute(
-        'UPDATE special_orders SET concluido=%s, concluido_por=%s, concluido_em=%s WHERE id=%s',
-        (True, 'Gestor', concluido_em, order_id)
-    )
-    conn.commit()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute('SELECT * FROM special_orders WHERE id=%s', (order_id,))
+    order = cur.fetchone()
     cur.close()
+
+    if not order:
+        conn.close()
+        return jsonify({'success': False}), 404
+
+    total_produzida = (order['quantidade_produzida'] or 0) + produzida_agora
+    saldo_restante  = order['quantidade'] - total_produzida
+    concluido_em    = now_sp_str()
+    fully_done      = saldo_restante <= 0
+
+    cur2 = conn.cursor()
+    if fully_done:
+        cur2.execute(
+            'UPDATE special_orders SET concluido=%s, concluido_por=%s, concluido_em=%s, '
+            'quantidade_produzida=%s WHERE id=%s',
+            (True, nome, concluido_em, total_produzida, order_id)
+        )
+    else:
+        cur2.execute(
+            'UPDATE special_orders SET quantidade_produzida=%s, concluido_por=%s, '
+            'concluido_em=%s WHERE id=%s',
+            (total_produzida, nome, concluido_em, order_id)
+        )
+    conn.commit()
+    cur2.close()
     conn.close()
-    return jsonify({'success': True, 'concluido_em': concluido_em})
+    return jsonify({
+        'success': True,
+        'concluido': fully_done,
+        'saldo_restante': max(0, saldo_restante),
+        'concluido_em': concluido_em
+    })
 
 @app.route('/admin/pedidos/<order_id>/reabrir', methods=['POST'])
 @login_required
@@ -449,8 +563,9 @@ def admin_pedidos_reabrir(order_id):
     conn = get_db()
     cur = conn.cursor()
     cur.execute(
-        'UPDATE special_orders SET concluido=%s, concluido_por=%s, concluido_em=%s WHERE id=%s',
-        (False, '', '', order_id)
+        'UPDATE special_orders SET concluido=%s, concluido_por=%s, '
+        'concluido_em=%s, quantidade_produzida=%s WHERE id=%s',
+        (False, '', '', 0, order_id)
     )
     conn.commit()
     cur.close()
