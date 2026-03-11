@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pedidos Especiais — Fogos Piromax</title>
+<link rel="manifest" href="/static/manifest.json">
+<link rel="apple-touch-icon" href="/static/logo.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Piromax">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#7c3aed">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8f7ff; color: #2d3748; min-height: 100vh; }
+
+/* ── Header ── */
+header {
+  background: white; border-bottom: 1px solid #ede9fe;
+  box-shadow: 0 1px 8px rgba(124,58,237,0.07);
+  position: sticky; top: 0; z-index: 50;
+  padding: 12px 20px;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.header-left { display: flex; align-items: center; gap: 8px; }
+.back-btn {
+  width: 34px; height: 34px; background: #f5f3ff; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: #7c3aed; font-size: 1.1rem; cursor: pointer;
+  border: 1.5px solid #ede9fe; font-family: inherit;
+  flex-shrink: 0; text-decoration: none; font-weight: 700; line-height: 1;
+}
+.back-btn:hover { background: #ede9fe; }
+.header-logo {
+  width: 40px; height: 40px; background: white; border-radius: 10px;
+  overflow: hidden; padding: 3px; border: 1px solid #ede9fe; flex-shrink: 0;
+}
+.header-logo img { width: 100%; height: 100%; object-fit: contain; }
+.header-brand-text .title { font-size: 0.98rem; font-weight: 700; color: #1e1b4b; }
+.header-brand-text .sub { font-size: 0.7rem; color: #9ca3af; }
+
+.container { max-width: 600px; margin: 0 auto; padding: 24px 16px 60px; }
+
+/* ── Tabs ── */
+.tabs {
+  display: flex; background: white; border-radius: 12px;
+  border: 1.5px solid #ede9fe; overflow: hidden; margin-bottom: 20px;
+  box-shadow: 0 1px 6px rgba(124,58,237,0.05);
+}
+.tab-btn {
+  flex: 1; padding: 12px 16px; font-size: 0.88rem; font-weight: 700;
+  background: none; border: none; cursor: pointer; color: #9ca3af;
+  transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: inherit;
+}
+.tab-btn.active { background: #7c3aed; color: white; }
+.tab-btn:not(.active):hover { background: #f5f3ff; color: #7c3aed; }
+.tab-count {
+  background: rgba(255,255,255,0.25); border-radius: 20px;
+  padding: 1px 7px; font-size: 0.72rem; font-weight: 800;
+}
+.tab-btn:not(.active) .tab-count { background: #ede9fe; color: #7c3aed; }
+
+/* ── Separadores ── */
+.urgente-sep, .normal-sep {
+  font-size: 0.72rem; font-weight: 800; letter-spacing: 0.5px;
+  text-transform: uppercase; padding: 6px 4px; margin-bottom: 8px; margin-top: 4px;
+  display: flex; align-items: center; gap: 6px;
+}
+.urgente-sep { color: #dc2626; }
+.urgente-sep::after, .normal-sep::after { content: ''; flex: 1; height: 1px; }
+.urgente-sep::after { background: #fca5a5; }
+.normal-sep { color: #9ca3af; }
+.normal-sep::after { background: #e5e7eb; }
+
+/* ── Cards ── */
+.pedidos-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+
+.pedido-card {
+  background: white; border-radius: 14px; padding: 16px 18px;
+  border: 1.5px solid #ede9fe; box-shadow: 0 2px 10px rgba(124,58,237,0.06);
+}
+.pedido-card.urgente { border-color: #fca5a5; background: #fff8f8; }
+.pedido-card.concluido { border-color: #bbf7d0; background: #f0fdf4; }
+
+.pedido-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.pedido-produto { font-size: 0.97rem; font-weight: 800; color: #1e1b4b; }
+.pedido-card.concluido .pedido-produto { text-decoration: line-through; color: #9ca3af; }
+.urgente-badge {
+  background: #dc2626; color: white; border-radius: 20px;
+  padding: 2px 9px; font-size: 0.68rem; font-weight: 700;
+  white-space: nowrap; flex-shrink: 0; letter-spacing: 0.3px;
+}
+.pedido-cliente { font-size: 0.82rem; color: #6b7280; margin-bottom: 10px; }
+.pedido-cliente strong { color: #4b5563; }
+
+.pedido-meta { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 12px; }
+.meta-pill {
+  background: #ede9fe; color: #7c3aed; border-radius: 20px;
+  padding: 3px 10px; font-size: 0.75rem; font-weight: 700;
+}
+.meta-pill.data { background: #f3f4f6; color: #9ca3af; font-weight: 500; }
+
+.btn-concluir {
+  width: 100%; padding: 10px; background: #7c3aed; color: white;
+  border: none; border-radius: 10px; font-size: 0.88rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.btn-concluir:hover { background: #6d28d9; }
+.btn-concluir:disabled { background: #c4b5fd; cursor: default; }
+
+.concluido-info {
+  font-size: 0.82rem; color: #16a34a; font-weight: 600;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.concluido-date { color: #9ca3af; font-weight: 400; font-size: 0.78rem; }
+
+/* ── Empty ── */
+.empty-state {
+  text-align: center; padding: 48px 20px; color: #9ca3af; font-size: 0.92rem;
+}
+.empty-state div { font-size: 2.2rem; margin-bottom: 10px; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: #1e293b; color: white; padding: 12px 24px;
+  border-radius: 10px; font-size: 0.9rem; font-weight: 600;
+  opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+  display: flex; align-items: flex-end; justify-content: center;
+  z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: white; border-radius: 20px 20px 0 0;
+  padding: 28px 24px 40px; width: 100%; max-width: 600px;
+  transform: translateY(20px); transition: transform 0.2s;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-title { font-size: 1rem; font-weight: 800; color: #1e1b4b; margin-bottom: 6px; }
+.modal-produto { font-size: 0.82rem; color: #7c3aed; font-weight: 600; margin-bottom: 18px; }
+.modal label { font-size: 0.73rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px; display: block; margin-bottom: 6px; }
+.modal input {
+  width: 100%; padding: 11px 14px; border: 1.5px solid #e5e7eb; border-radius: 10px;
+  font-size: 0.95rem; color: #1e1b4b; outline: none; font-family: inherit;
+  margin-bottom: 16px; transition: border-color 0.2s;
+}
+.modal input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.08); }
+.modal-actions { display: flex; gap: 10px; }
+.btn-modal-confirm {
+  flex: 1; padding: 12px; background: #7c3aed; color: white;
+  border: none; border-radius: 10px; font-size: 0.92rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.btn-modal-confirm:hover { background: #6d28d9; }
+.btn-modal-cancel {
+  padding: 12px 18px; background: none; color: #9ca3af;
+  border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 0.92rem;
+  cursor: pointer; font-family: inherit; transition: all 0.15s;
+}
+.btn-modal-cancel:hover { border-color: #c4b5fd; color: #7c3aed; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <a href="/" class="back-btn">‹</a>
+    <div class="header-logo">
+      <img src="/static/logo.png" alt="Piromax">
+    </div>
+    <div class="header-brand-text">
+      <div class="title">Fogos Piromax</div>
+      <div class="sub">Pedidos Especiais</div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('pendentes', this)">
+      Pendentes <span class="tab-count" id="count-pendentes">{{ pendentes|length }}</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('concluidos', this)">
+      Concluídos <span class="tab-count" id="count-concluidos">{{ concluidos|length }}</span>
+    </button>
+  </div>
+
+  <!-- Tab Pendentes -->
+  <div id="tab-pendentes">
+    {% set urgentes = pendentes | selectattr('urgente') | list %}
+    {% set normais  = pendentes | rejectattr('urgente') | list %}
+
+    {% if urgentes %}
+    <div class="urgente-sep">🔴 Urgente</div>
+    <div class="pedidos-list">
+      {% for o in urgentes %}
+      <div class="pedido-card urgente" id="card-{{ o.id }}">
+        <div class="pedido-top">
+          <div class="pedido-produto">{{ o.produto }}</div>
+          <span class="urgente-badge">🔴 URGENTE</span>
+        </div>
+        <div class="pedido-cliente">Cliente: <strong>{{ o.cliente }}</strong></div>
+        <div class="pedido-meta">
+          <span class="meta-pill">📦 {{ o.quantidade }} unidade{{ 's' if o.quantidade != 1 else '' }}</span>
+          <span class="meta-pill data">Adicionado {{ o.criado_em }}</span>
+        </div>
+        <button class="btn-concluir" onclick="abrirModal('{{ o.id }}', '{{ o.produto | replace("'", "\\'") }}')">
+          ✓ Marcar como concluído
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if normais %}
+    <div class="normal-sep">Demais pedidos</div>
+    <div class="pedidos-list">
+      {% for o in normais %}
+      <div class="pedido-card" id="card-{{ o.id }}">
+        <div class="pedido-top">
+          <div class="pedido-produto">{{ o.produto }}</div>
+        </div>
+        <div class="pedido-cliente">Cliente: <strong>{{ o.cliente }}</strong></div>
+        <div class="pedido-meta">
+          <span class="meta-pill">📦 {{ o.quantidade }} unidade{{ 's' if o.quantidade != 1 else '' }}</span>
+          <span class="meta-pill data">Adicionado {{ o.criado_em }}</span>
+        </div>
+        <button class="btn-concluir" onclick="abrirModal('{{ o.id }}', '{{ o.produto | replace("'", "\\'") }}')">
+          ✓ Marcar como concluído
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if not pendentes %}
+    <div class="empty-state">
+      <div>🎉</div>
+      Nenhum pedido especial pendente!
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Tab Concluídos -->
+  <div id="tab-concluidos" style="display:none;">
+    {% if concluidos %}
+    <div class="pedidos-list">
+      {% for o in concluidos %}
+      <div class="pedido-card concluido">
+        <div class="pedido-top">
+          <div class="pedido-produto">{{ o.produto }}</div>
+          {% if o.urgente %}<span class="urgente-badge">🔴 URGENTE</span>{% endif %}
+        </div>
+        <div class="pedido-cliente">Cliente: <strong>{{ o.cliente }}</strong></div>
+        <div class="pedido-meta">
+          <span class="meta-pill">📦 {{ o.quantidade }} unidade{{ 's' if o.quantidade != 1 else '' }}</span>
+        </div>
+        <div class="concluido-info">
+          ✅ Concluído por <strong>{{ o.concluido_por }}</strong>
+          <span class="concluido-date">{{ o.concluido_em }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div>📋</div>
+      Nenhum pedido concluído ainda.
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- Modal: nome do trabalhador -->
+<div class="modal-overlay" id="modalOverlay" onclick="fecharModal(event)">
+  <div class="modal">
+    <div class="modal-title">Marcar como concluído</div>
+    <div class="modal-produto" id="modalProduto"></div>
+    <label for="inputNome">Seu nome</label>
+    <input type="text" id="inputNome" placeholder="Ex: João" autocomplete="off">
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="fecharModalBtn()">Cancelar</button>
+      <button class="btn-modal-confirm" onclick="confirmarConclusao()">✓ Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let pendingOrderId = null;
+
+function switchTab(tab, btn) {
+  document.getElementById('tab-pendentes').style.display = tab === 'pendentes' ? '' : 'none';
+  document.getElementById('tab-concluidos').style.display = tab === 'concluidos' ? '' : 'none';
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function abrirModal(orderId, produto) {
+  pendingOrderId = orderId;
+  document.getElementById('modalProduto').textContent = produto;
+  document.getElementById('inputNome').value = '';
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('inputNome').focus(), 200);
+}
+
+function fecharModalBtn() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  pendingOrderId = null;
+}
+
+function fecharModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) fecharModalBtn();
+}
+
+function confirmarConclusao() {
+  const nome = document.getElementById('inputNome').value.trim();
+  if (!nome) {
+    document.getElementById('inputNome').focus();
+    document.getElementById('inputNome').style.borderColor = '#dc2626';
+    setTimeout(() => document.getElementById('inputNome').style.borderColor = '', 1500);
+    return;
+  }
+  const orderId = pendingOrderId;
+  fecharModalBtn();
+
+  const card = document.getElementById('card-' + orderId);
+  if (card) {
+    const btn = card.querySelector('.btn-concluir');
+    if (btn) { btn.disabled = true; btn.textContent = 'Salvando…'; }
+  }
+
+  fetch('/pedidos/' + orderId + '/concluir', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nome: nome })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      showToast('✅ Pedido concluído por ' + data.concluido_por);
+      if (card) card.style.display = 'none';
+      // Atualiza contadores
+      const countP = document.getElementById('count-pendentes');
+      const countC = document.getElementById('count-concluidos');
+      if (countP) countP.textContent = Math.max(0, parseInt(countP.textContent) - 1);
+      if (countC) countC.textContent = parseInt(countC.textContent) + 1;
+    } else {
+      showToast('Erro ao salvar. Tente novamente.');
+      if (card) {
+        const btn = card.querySelector('.btn-concluir');
+        if (btn) { btn.disabled = false; btn.textContent = '✓ Marcar como concluído'; }
+      }
+    }
+  })
+  .catch(() => {
+    showToast('Erro de conexão. Tente novamente.');
+    if (card) {
+      const btn = card.querySelector('.btn-concluir');
+      if (btn) { btn.disabled = false; btn.textContent = '✓ Marcar como concluído'; }
+    }
+  });
+}
+
+// Submeter modal com Enter
+document.getElementById('inputNome').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') confirmarConclusao();
+});
+</script>
+</body>
+</html>

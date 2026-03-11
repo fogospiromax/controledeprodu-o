@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pedidos Especiais — Gestor</title>
+<link rel="manifest" href="/static/manifest.json">
+<link rel="apple-touch-icon" href="/static/logo.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Piromax">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#7c3aed">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8f7ff; color: #2d3748; min-height: 100vh; }
+
+/* ── Header ── */
+header {
+  background: white; border-bottom: 1px solid #ede9fe;
+  box-shadow: 0 1px 8px rgba(124,58,237,0.07);
+  position: sticky; top: 0; z-index: 50;
+  padding: 12px 20px;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.header-left { display: flex; align-items: center; gap: 8px; }
+.back-btn {
+  width: 34px; height: 34px; background: #f5f3ff; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: #7c3aed; font-size: 1.1rem; cursor: pointer;
+  border: 1.5px solid #ede9fe; font-family: inherit;
+  flex-shrink: 0; text-decoration: none; font-weight: 700; line-height: 1;
+}
+.back-btn:hover { background: #ede9fe; }
+.header-logo {
+  width: 40px; height: 40px; background: white; border-radius: 10px;
+  overflow: hidden; padding: 3px; border: 1px solid #ede9fe; flex-shrink: 0;
+}
+.header-logo img { width: 100%; height: 100%; object-fit: contain; }
+.header-brand-text .title { font-size: 0.98rem; font-weight: 700; color: #1e1b4b; }
+.header-brand-text .sub { font-size: 0.7rem; color: #9ca3af; }
+.header-right { display: flex; align-items: center; }
+.gestor-badge {
+  background: #f5f3ff; color: #7c3aed; border: 1.5px solid #ede9fe;
+  border-radius: 8px; padding: 5px 10px; font-size: 0.72rem; font-weight: 800;
+}
+
+.container { max-width: 600px; margin: 0 auto; padding: 24px 16px 60px; }
+
+/* ── Formulário ── */
+.add-card {
+  background: white; border-radius: 16px; padding: 20px 22px;
+  border: 1.5px solid #ede9fe; box-shadow: 0 2px 12px rgba(124,58,237,0.07);
+  margin-bottom: 22px;
+}
+.add-card-title {
+  font-size: 0.78rem; font-weight: 800; color: #7c3aed;
+  text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 14px;
+}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1 / -1; }
+label {
+  font-size: 0.73rem; font-weight: 700; color: #6b7280;
+  text-transform: uppercase; letter-spacing: 0.3px;
+}
+input[type="text"], input[type="number"] {
+  padding: 10px 13px; border: 1.5px solid #e5e7eb; border-radius: 9px;
+  font-size: 0.92rem; color: #1e1b4b; outline: none; font-family: inherit;
+  transition: border-color 0.2s; width: 100%;
+}
+input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.08); }
+
+.urgente-toggle {
+  display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+  background: #fff8f8; border: 1.5px solid #fca5a5; border-radius: 9px;
+  cursor: pointer; margin-bottom: 10px; user-select: none;
+}
+.urgente-toggle input { width: 16px; height: 16px; accent-color: #dc2626; cursor: pointer; flex-shrink: 0; }
+.urgente-toggle-label { font-size: 0.85rem; font-weight: 700; color: #dc2626; }
+.urgente-toggle-desc { font-size: 0.76rem; color: #9ca3af; margin-left: auto; }
+
+.btn-add {
+  width: 100%; padding: 11px; background: #7c3aed; color: white;
+  border: none; border-radius: 10px; font-size: 0.92rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.btn-add:hover { background: #6d28d9; }
+.btn-add:disabled { background: #c4b5fd; cursor: default; }
+
+/* ── Tabs ── */
+.tabs {
+  display: flex; background: white; border-radius: 12px;
+  border: 1.5px solid #ede9fe; overflow: hidden; margin-bottom: 20px;
+  box-shadow: 0 1px 6px rgba(124,58,237,0.05);
+}
+.tab-btn {
+  flex: 1; padding: 12px 16px; font-size: 0.88rem; font-weight: 700;
+  background: none; border: none; cursor: pointer; color: #9ca3af;
+  transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: inherit;
+}
+.tab-btn.active { background: #7c3aed; color: white; }
+.tab-btn:not(.active):hover { background: #f5f3ff; color: #7c3aed; }
+.tab-count {
+  background: rgba(255,255,255,0.25); border-radius: 20px;
+  padding: 1px 7px; font-size: 0.72rem; font-weight: 800;
+}
+.tab-btn:not(.active) .tab-count { background: #ede9fe; color: #7c3aed; }
+
+/* ── Separadores ── */
+.urgente-sep, .normal-sep {
+  font-size: 0.72rem; font-weight: 800; letter-spacing: 0.5px;
+  text-transform: uppercase; padding: 6px 4px; margin-bottom: 8px; margin-top: 4px;
+  display: flex; align-items: center; gap: 6px;
+}
+.urgente-sep { color: #dc2626; }
+.urgente-sep::after, .normal-sep::after { content: ''; flex: 1; height: 1px; }
+.urgente-sep::after { background: #fca5a5; }
+.normal-sep { color: #9ca3af; }
+.normal-sep::after { background: #e5e7eb; }
+
+/* ── Cards ── */
+.pedidos-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+
+.pedido-card {
+  background: white; border-radius: 14px; padding: 16px 18px;
+  border: 1.5px solid #ede9fe; box-shadow: 0 2px 10px rgba(124,58,237,0.06);
+}
+.pedido-card.urgente { border-color: #fca5a5; background: #fff8f8; }
+.pedido-card.concluido { border-color: #bbf7d0; background: #f0fdf4; }
+
+.pedido-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+.pedido-produto { font-size: 0.97rem; font-weight: 800; color: #1e1b4b; }
+.pedido-card.concluido .pedido-produto { text-decoration: line-through; color: #9ca3af; }
+.urgente-badge {
+  background: #dc2626; color: white; border-radius: 20px;
+  padding: 2px 9px; font-size: 0.68rem; font-weight: 700;
+  white-space: nowrap; flex-shrink: 0;
+}
+.pedido-cliente { font-size: 0.82rem; color: #6b7280; margin-bottom: 6px; }
+.pedido-cliente strong { color: #4b5563; }
+.pedido-date { font-size: 0.74rem; color: #d1d5db; margin-bottom: 10px; }
+
+.pedido-meta { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 12px; }
+.meta-pill {
+  background: #ede9fe; color: #7c3aed; border-radius: 20px;
+  padding: 3px 10px; font-size: 0.75rem; font-weight: 700;
+}
+
+.pedido-actions { display: flex; gap: 8px; }
+.btn-done {
+  flex: 1; padding: 9px; background: #7c3aed; color: white;
+  border: none; border-radius: 9px; font-size: 0.84rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.btn-done:hover { background: #6d28d9; }
+.btn-done:disabled { background: #c4b5fd; cursor: default; }
+.btn-delete {
+  padding: 9px 13px; background: none; color: #dc2626;
+  border: 1.5px solid #fca5a5; border-radius: 9px; font-size: 0.84rem;
+  cursor: pointer; font-family: inherit; font-weight: 600; transition: all 0.15s;
+}
+.btn-delete:hover { background: #fff5f5; }
+.btn-reopen {
+  flex: 1; padding: 9px; background: none; color: #7c3aed;
+  border: 1.5px solid #ede9fe; border-radius: 9px; font-size: 0.84rem;
+  cursor: pointer; font-family: inherit; font-weight: 600; transition: all 0.15s;
+}
+.btn-reopen:hover { background: #f5f3ff; }
+
+.concluido-info {
+  font-size: 0.82rem; color: #16a34a; font-weight: 600;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;
+}
+.concluido-date { color: #9ca3af; font-weight: 400; font-size: 0.78rem; }
+
+/* ── Empty ── */
+.empty-state {
+  text-align: center; padding: 48px 20px; color: #9ca3af; font-size: 0.92rem;
+}
+.empty-state div { font-size: 2.2rem; margin-bottom: 10px; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: #1e293b; color: white; padding: 12px 24px;
+  border-radius: 10px; font-size: 0.9rem; font-weight: 600;
+  opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <a href="/admin" class="back-btn">‹</a>
+    <div class="header-logo">
+      <img src="/static/logo.png" alt="Piromax">
+    </div>
+    <div class="header-brand-text">
+      <div class="title">Fogos Piromax</div>
+      <div class="sub">Pedidos Especiais</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="gestor-badge">👔 GESTOR</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Formulário -->
+  <div class="add-card">
+    <div class="add-card-title">+ Novo Pedido Especial</div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label for="inputProduto">Produto</label>
+        <input type="text" id="inputProduto" placeholder="Ex: Kit Casamento Especial">
+      </div>
+      <div class="form-group">
+        <label for="inputCliente">Cliente</label>
+        <input type="text" id="inputCliente" placeholder="Nome do cliente">
+      </div>
+      <div class="form-group">
+        <label for="inputQtd">Quantidade</label>
+        <input type="number" id="inputQtd" placeholder="0" min="1">
+      </div>
+    </div>
+    <label class="urgente-toggle" for="checkUrgente">
+      <input type="checkbox" id="checkUrgente">
+      <span class="urgente-toggle-label">🔴 Marcar como urgente</span>
+      <span class="urgente-toggle-desc">Aparece primeiro na lista</span>
+    </label>
+    <button class="btn-add" id="btnAdd" onclick="adicionarPedido()">＋ Adicionar Pedido</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('pendentes', this)">
+      Pendentes <span class="tab-count" id="count-pendentes">{{ pendentes|length }}</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('concluidos', this)">
+      Concluídos <span class="tab-count" id="count-concluidos">{{ concluidos|length }}</span>
+    </button>
+  </div>
+
+  <!-- Tab Pendentes -->
+  <div id="tab-pendentes">
+    {% set urgentes = pendentes | selectattr('urgente') | list %}
+    {% set normais  = pendentes | rejectattr('urgente') | list %}
+
+    {% if urgentes %}
+    <div class="urgente-sep">🔴 Urgente</div>
+    <div class="pedidos-list" id="list-urgentes">
+      {% for o in urgentes %}
+      <div class="pedido-card urgente" id="card-{{ o.id }}">
+        <div class="pedido-top">
+          <div class="pedido-produto">{{ o.produto }}</div>
+          <span class="urgente-badge">🔴 URGENTE</span>
+        </div>
+        <div class="pedido-cliente">Cliente: <strong>{{ o.cliente }}</strong></div>
+        <div class="pedido-date">Criado em {{ o.criado_em }}</div>
+        <div class="pedido-meta">
+          <span class="meta-pill">📦 {{ o.quantidade }} unidade{{ 's' if o.quantidade != 1 else '' }}</span>
+        </div>
+        <div class="pedido-actions">
+          <button class="btn-done" onclick="concluirPedido('{{ o.id }}', this)">✓ Concluir</button>
+          <button class="btn-delete" onclick="excluirPedido('{{ o.id }}', this)">🗑</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div id="list-urgentes"></div>
+    {% endif %}
+
+    {% if normais %}
+    <div class="normal-sep" id="sep-normais" {% if not normais %}style="display:none"{% endif %}>Demais pedidos</div>
+    <div class="pedidos-list" id="list-normais">
+      {% for o in normais %}
+      <div class="pedido-card" id="card-{{ o.id }}">
+        <div class="pedido-top">
+          <div class="pedido-produto">{{ o.produto }}</div>
+        </div>
+        <div class="pedido-cliente">Cliente: <strong>{{ o.cliente }}</strong></div>
+        <div class="pedido-date">Criado em {{ o.criado_em }}</div>
+        <div class="pedido-meta">
+          <span class="meta-pill">📦 {{ o.quantidade }} unidade{{ 's' if o.quantidade != 1 else '' }}</span>
+        </div>
+        <div class="pedido-actions">
+          <button class="btn-done" onclick="concluirPedido('{{ o.id }}', this)">✓ Concluir</button>
+          <button class="btn-delete" onclick="excluirPedido('{{ o.id }}', this)">🗑</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div id="sep-normais" style="display:none" class="normal-sep">Demais pedidos</div>
+    <div class="pedidos-list" id="list-normais"></div>
+    {% endif %}
+
+    {% if not pendentes %}
+    <div class="empty-state" id="emptyPendentes">
+      <div>🎉</div>
+      Nenhum pedido especial pendente!
+    </div>
+    {% else %}
+    <div class="empty-state" id="emptyPendentes" style="display:none">
+      <div>🎉</div>
+      Nenhum pedido especial pendente!
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Tab Concluídos -->
+  <div id="tab-concluidos" style="display:none;">
+    {% if concluidos %}
+    <div class="pedidos-list" id="list-concluidos">
+      {% for o in concluidos %}
+      <div class="pedido-card concluido" id="card-{{ o.id }}">
+        <div class="pedido-top">
+          <div class="pedido-produto">{{ o.produto }}</div>
+          {% if o.urgente %}<span class="urgente-badge">🔴 URGENTE</span>{% endif %}
+        </div>
+        <div class="pedido-cliente">Cliente: <strong>{{ o.cliente }}</strong></div>
+        <div class="pedido-date">Criado em {{ o.criado_em }}</div>
+        <div class="pedido-meta">
+          <span class="meta-pill">📦 {{ o.quantidade }} unidade{{ 's' if o.quantidade != 1 else '' }}</span>
+        </div>
+        <div class="concluido-info">
+          ✅ Concluído por <strong>{{ o.concluido_por }}</strong>
+          <span class="concluido-date">{{ o.concluido_em }}</span>
+        </div>
+        <div class="pedido-actions">
+          <button class="btn-reopen" onclick="reabrirPedido('{{ o.id }}', this)">↩ Reabrir</button>
+          <button class="btn-delete" onclick="excluirPedido('{{ o.id }}', this)">🗑</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div id="list-concluidos" class="pedidos-list"></div>
+    {% endif %}
+
+    <div class="empty-state" id="emptyConcluidos" {% if concluidos %}style="display:none"{% endif %}>
+      <div>📋</div>
+      Nenhum pedido concluído ainda.
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function switchTab(tab, btn) {
+  document.getElementById('tab-pendentes').style.display = tab === 'pendentes' ? '' : 'none';
+  document.getElementById('tab-concluidos').style.display = tab === 'concluidos' ? '' : 'none';
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function updateCounts(deltaPendentes, deltaConcluidos) {
+  const cp = document.getElementById('count-pendentes');
+  const cc = document.getElementById('count-concluidos');
+  if (cp) cp.textContent = Math.max(0, parseInt(cp.textContent || 0) + deltaPendentes);
+  if (cc) cc.textContent = Math.max(0, parseInt(cc.textContent || 0) + deltaConcluidos);
+}
+
+function adicionarPedido() {
+  const produto  = document.getElementById('inputProduto').value.trim();
+  const cliente  = document.getElementById('inputCliente').value.trim();
+  const qtd      = parseInt(document.getElementById('inputQtd').value);
+  const urgente  = document.getElementById('checkUrgente').checked;
+
+  if (!produto || !cliente || !qtd || qtd < 1) {
+    showToast('Preencha todos os campos.');
+    return;
+  }
+
+  const btn = document.getElementById('btnAdd');
+  btn.disabled = true; btn.textContent = 'Salvando…';
+
+  fetch('/admin/pedidos/add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ produto, cliente, quantidade: qtd, urgente })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      const o = data.order;
+      const cardHtml = buildCard(o);
+      const listId = o.urgente ? 'list-urgentes' : 'list-normais';
+      const list = document.getElementById(listId);
+
+      // Mostrar separador de normais se necessário
+      if (!o.urgente) {
+        const sep = document.getElementById('sep-normais');
+        if (sep) sep.style.display = '';
+      }
+
+      list.insertAdjacentHTML('afterbegin', cardHtml);
+      document.getElementById('emptyPendentes').style.display = 'none';
+
+      // Limpar form
+      document.getElementById('inputProduto').value = '';
+      document.getElementById('inputCliente').value = '';
+      document.getElementById('inputQtd').value = '';
+      document.getElementById('checkUrgente').checked = false;
+
+      updateCounts(1, 0);
+      showToast('📦 Pedido adicionado!');
+    } else {
+      showToast('Erro ao adicionar. Tente novamente.');
+    }
+  })
+  .catch(() => showToast('Erro de conexão.'))
+  .finally(() => { btn.disabled = false; btn.textContent = '＋ Adicionar Pedido'; });
+}
+
+function buildCard(o) {
+  const urgBadge = o.urgente ? '<span class="urgente-badge">🔴 URGENTE</span>' : '';
+  const urgClass = o.urgente ? ' urgente' : '';
+  const unidStr  = o.quantidade !== 1 ? 'unidades' : 'unidade';
+  return `
+  <div class="pedido-card${urgClass}" id="card-${o.id}">
+    <div class="pedido-top">
+      <div class="pedido-produto">${escHtml(o.produto)}</div>
+      ${urgBadge}
+    </div>
+    <div class="pedido-cliente">Cliente: <strong>${escHtml(o.cliente)}</strong></div>
+    <div class="pedido-date">Criado em ${escHtml(o.criado_em)}</div>
+    <div class="pedido-meta">
+      <span class="meta-pill">📦 ${o.quantidade} ${unidStr}</span>
+    </div>
+    <div class="pedido-actions">
+      <button class="btn-done" onclick="concluirPedido('${o.id}', this)">✓ Concluir</button>
+      <button class="btn-delete" onclick="excluirPedido('${o.id}', this)">🗑</button>
+    </div>
+  </div>`;
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function concluirPedido(orderId, btn) {
+  if (!confirm('Marcar pedido como concluído?')) return;
+  btn.disabled = true; btn.textContent = '…';
+
+  fetch('/admin/pedidos/' + orderId + '/concluir', { method: 'POST' })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      const card = document.getElementById('card-' + orderId);
+      if (card) card.style.display = 'none';
+      updateCounts(-1, 1);
+      showToast('✅ Pedido concluído!');
+    } else {
+      showToast('Erro ao concluir.'); btn.disabled = false; btn.textContent = '✓ Concluir';
+    }
+  })
+  .catch(() => { showToast('Erro de conexão.'); btn.disabled = false; btn.textContent = '✓ Concluir'; });
+}
+
+function reabrirPedido(orderId, btn) {
+  if (!confirm('Reabrir este pedido como pendente?')) return;
+  btn.disabled = true; btn.textContent = '…';
+
+  fetch('/admin/pedidos/' + orderId + '/reabrir', { method: 'POST' })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      const card = document.getElementById('card-' + orderId);
+      if (card) card.style.display = 'none';
+      updateCounts(1, -1);
+      showToast('↩ Pedido reaberto!');
+    } else {
+      showToast('Erro ao reabrir.'); btn.disabled = false; btn.textContent = '↩ Reabrir';
+    }
+  })
+  .catch(() => { showToast('Erro de conexão.'); btn.disabled = false; btn.textContent = '↩ Reabrir'; });
+}
+
+function excluirPedido(orderId, btn) {
+  if (!confirm('Excluir este pedido permanentemente?')) return;
+  btn.disabled = true;
+
+  fetch('/admin/pedidos/' + orderId + '/excluir', { method: 'DELETE' })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      const card = document.getElementById('card-' + orderId);
+      if (card) card.remove();
+      showToast('🗑 Pedido excluído.');
+    } else {
+      showToast('Erro ao excluir.'); btn.disabled = false;
+    }
+  })
+  .catch(() => { showToast('Erro de conexão.'); btn.disabled = false; });
+}
+
+// Submeter form com Enter no último campo
+document.getElementById('inputQtd').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') adicionarPedido();
+});
+</script>
+</body>
+</html>
