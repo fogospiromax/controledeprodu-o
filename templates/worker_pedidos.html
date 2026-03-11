@@ -61,71 +61,99 @@ header {
 }
 .tab-btn:not(.active) .tab-count { background: #ede9fe; color: #7c3aed; }
 
-/* ── Separadores ── */
-.urgente-sep, .normal-sep {
+/* ── Separadores de seção ── */
+.section-sep {
   font-size: 0.68rem; font-weight: 800; letter-spacing: 0.5px;
-  text-transform: uppercase; padding: 4px 2px; margin-bottom: 6px; margin-top: 2px;
+  text-transform: uppercase; padding: 4px 2px; margin-bottom: 8px; margin-top: 2px;
   display: flex; align-items: center; gap: 6px;
 }
-.urgente-sep { color: #dc2626; }
-.urgente-sep::after, .normal-sep::after { content: ''; flex: 1; height: 1px; }
-.urgente-sep::after { background: #fca5a5; }
-.normal-sep { color: #9ca3af; }
-.normal-sep::after { background: #e5e7eb; }
+.section-sep.urgente { color: #dc2626; }
+.section-sep.urgente::after { content: ''; flex: 1; height: 1px; background: #fca5a5; }
+.section-sep.normal { color: #9ca3af; }
+.section-sep.normal::after { content: ''; flex: 1; height: 1px; background: #e5e7eb; }
 
-/* ── Lista compacta ── */
-.pedidos-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+/* ── Client card ── */
+.client-group { margin-bottom: 10px; }
+.client-card {
+  background: white; border-radius: 12px; border: 1.5px solid #ede9fe;
+  overflow: hidden; box-shadow: 0 1px 6px rgba(124,58,237,0.05);
+}
+.client-card.urgente { border-color: #fca5a5; }
 
-.pedido-card {
-  background: white; border-radius: 12px; padding: 11px 14px;
-  border: 1.5px solid #ede9fe; box-shadow: 0 1px 6px rgba(124,58,237,0.05);
-  display: flex; align-items: center; gap: 12px;
+.client-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 14px 8px; border-bottom: 1px solid #f3f4f6;
+  background: #fafaf9;
 }
-.pedido-card.urgente { border-color: #fca5a5; background: #fff8f8; }
-.pedido-card.concluido { border-color: #bbf7d0; background: #f0fdf4; opacity: 0.85; }
+.client-name { font-size: 0.8rem; font-weight: 800; color: #374151; }
+.client-count { font-size: 0.7rem; color: #9ca3af; }
 
-/* Coluna principal */
-.pedido-body { flex: 1; min-width: 0; }
-.pedido-top { display: flex; align-items: center; gap: 7px; margin-bottom: 3px; flex-wrap: wrap; }
-.pedido-produto {
-  font-size: 0.92rem; font-weight: 700; color: #1e1b4b;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+/* ── Product line ── */
+.product-line {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px 9px 14px;
+  border-bottom: 1px solid #f9f8ff;
 }
-.pedido-card.concluido .pedido-produto { text-decoration: line-through; color: #9ca3af; }
-.urgente-badge {
-  background: #dc2626; color: white; border-radius: 20px;
-  padding: 1px 7px; font-size: 0.62rem; font-weight: 700;
-  white-space: nowrap; flex-shrink: 0;
+.product-line:last-child { border-bottom: none; }
+
+.product-body { flex: 1; min-width: 0; }
+.product-name {
+  font-size: 0.88rem; font-weight: 700; color: #1e1b4b;
+  margin-bottom: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.product-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+.badge-urgent {
+  background: #fee2e2; color: #dc2626; border-radius: 6px;
+  padding: 2px 7px; font-size: 0.68rem; font-weight: 800; white-space: nowrap;
+}
+.badge-qty {
+  background: #f5f3ff; color: #7c3aed; border-radius: 6px;
+  padding: 2px 7px; font-size: 0.72rem; font-weight: 700; white-space: nowrap;
+}
+.badge-date {
+  background: #fef3c7; color: #b45309; border-radius: 6px;
+  padding: 2px 7px; font-size: 0.72rem; font-weight: 600; white-space: nowrap;
+}
+.badge-partial {
+  background: #fff7ed; color: #ea580c; border-radius: 6px;
+  padding: 2px 7px; font-size: 0.68rem; font-weight: 700; white-space: nowrap;
+}
+.produced-info {
+  font-size: 0.7rem; color: #9ca3af; margin-top: 3px;
 }
 
-/* Linha de meta inline */
-.pedido-meta-inline {
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  font-size: 0.76rem; color: #9ca3af;
-}
-.pedido-meta-inline .cliente { color: #6b7280; font-weight: 600; }
-.pedido-meta-inline .sep { color: #d1d5db; }
-.qty-pill {
-  background: #ede9fe; color: #7c3aed; border-radius: 20px;
-  padding: 1px 8px; font-size: 0.72rem; font-weight: 700; white-space: nowrap;
-}
-
-/* Botão ✓ compacto */
+/* ── Botão ✓ compacto ── */
 .btn-check {
   width: 38px; height: 38px; background: #7c3aed; color: white;
   border: none; border-radius: 10px; font-size: 1rem; font-weight: 700;
   cursor: pointer; font-family: inherit; transition: background 0.15s;
   flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 6px rgba(124,58,237,0.25);
 }
 .btn-check:hover { background: #6d28d9; }
-.btn-check:disabled { background: #c4b5fd; cursor: default; }
-
-/* Concluído info */
-.concluido-info {
-  font-size: 0.76rem; color: #16a34a; font-weight: 600;
-  display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-top: 3px;
+.btn-check:disabled { background: #c4b5fd; cursor: default; box-shadow: none; }
+.btn-check.partial {
+  background: #fff7ed; color: #ea580c;
+  box-shadow: 0 2px 6px rgba(234,88,12,0.2);
+  border: 1.5px solid #fed7aa;
 }
-.concluido-date { color: #9ca3af; font-weight: 400; }
+.btn-check.partial:hover { background: #ffedd5; }
+
+/* ── Concluídos ── */
+.concluido-card {
+  background: white; border-radius: 12px; border: 1.5px solid #bbf7d0;
+  overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  margin-bottom: 8px; opacity: 0.8;
+}
+.concluido-line { padding: 10px 14px; }
+.concluido-produto {
+  font-size: 0.88rem; font-weight: 700; color: #6b7280;
+  text-decoration: line-through; margin-bottom: 3px;
+}
+.concluido-sub { font-size: 0.74rem; color: #9ca3af; }
+.concluido-info { font-size: 0.74rem; color: #16a34a; font-weight: 600; }
 
 /* ── Empty ── */
 .empty-state {
@@ -151,19 +179,46 @@ header {
 .modal-overlay.open { opacity: 1; pointer-events: all; }
 .modal {
   background: white; border-radius: 20px 20px 0 0;
-  padding: 28px 24px 40px; width: 100%; max-width: 600px;
+  padding: 24px 20px 36px; width: 100%; max-width: 600px;
   transform: translateY(20px); transition: transform 0.2s;
 }
 .modal-overlay.open .modal { transform: translateY(0); }
-.modal-title { font-size: 1rem; font-weight: 800; color: #1e1b4b; margin-bottom: 4px; }
-.modal-produto { font-size: 0.82rem; color: #7c3aed; font-weight: 600; margin-bottom: 18px; }
-.modal label { font-size: 0.73rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px; display: block; margin-bottom: 6px; }
-.modal input {
+.modal-handle { width: 40px; height: 4px; background: #e5e7eb; border-radius: 2px; margin: 0 auto 18px; }
+.modal-title { font-size: 1rem; font-weight: 800; color: #1e1b4b; margin-bottom: 3px; }
+.modal-sub { font-size: 0.82rem; color: #7c3aed; font-weight: 600; margin-bottom: 18px; }
+
+.qty-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.qty-group label {
+  font-size: 0.72rem; font-weight: 700; color: #6b7280;
+  text-transform: uppercase; letter-spacing: 0.3px; display: block; margin-bottom: 5px;
+}
+.qty-group input {
+  width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 10px;
+  font-size: 0.95rem; font-weight: 700; text-align: center;
+  background: white; color: #1e1b4b; outline: none; font-family: inherit;
+  transition: border-color 0.2s;
+}
+.qty-group input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.08); }
+.qty-group input:disabled { background: #f9fafb; color: #9ca3af; cursor: not-allowed; }
+
+.saldo-warning {
+  background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px;
+  padding: 9px 12px; font-size: 0.78rem; color: #c2410c; font-weight: 600;
+  margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+}
+.saldo-warning .saldo-num { font-weight: 900; }
+
+.modal label.nome-label {
+  font-size: 0.72rem; font-weight: 700; color: #6b7280;
+  text-transform: uppercase; letter-spacing: 0.3px; display: block; margin-bottom: 5px;
+}
+.modal input.nome-input {
   width: 100%; padding: 11px 14px; border: 1.5px solid #e5e7eb; border-radius: 10px;
   font-size: 0.95rem; color: #1e1b4b; outline: none; font-family: inherit;
   margin-bottom: 16px; transition: border-color 0.2s;
 }
-.modal input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.08); }
+.modal input.nome-input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.08); }
+
 .modal-actions { display: flex; gap: 10px; }
 .btn-modal-confirm {
   flex: 1; padding: 12px; background: #7c3aed; color: white;
@@ -198,99 +253,116 @@ header {
 
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('pendentes', this)">
-      Pendentes <span class="tab-count" id="count-pendentes">{{ pendentes|length }}</span>
+      Pendentes <span class="tab-count" id="count-pendentes">{{ total_pendentes }}</span>
     </button>
     <button class="tab-btn" onclick="switchTab('concluidos', this)">
-      Concluídos <span class="tab-count" id="count-concluidos">{{ concluidos|length }}</span>
+      Concluídos <span class="tab-count" id="count-concluidos">{{ total_concluidos }}</span>
     </button>
   </div>
 
-  <!-- Tab Pendentes -->
+  <!-- ── Tab Pendentes ── -->
   <div id="tab-pendentes">
-    {% set urgentes = pendentes | selectattr('urgente') | list %}
-    {% set normais  = pendentes | rejectattr('urgente') | list %}
 
-    {% if urgentes %}
-    <div class="urgente-sep">🔴 Urgente</div>
-    <div class="pedidos-list">
-      {% for o in urgentes %}
-      <div class="pedido-card urgente" id="card-{{ o.id }}">
-        <div class="pedido-body">
-          <div class="pedido-top">
-            <span class="pedido-produto">{{ o.produto }}</span>
-            <span class="urgente-badge">URGENTE</span>
-          </div>
-          <div class="pedido-meta-inline">
-            <span class="cliente">{{ o.cliente }}</span>
-            <span class="sep">·</span>
-            <span class="qty-pill">📦 {{ o.quantidade }}</span>
-            <span class="sep">·</span>
-            <span>{{ o.criado_em }}</span>
-          </div>
+    {% if urgentes_clientes %}
+    <div class="section-sep urgente">🔴 Urgentes</div>
+    {% for grupo in urgentes_clientes %}
+    <div class="client-group">
+      <div class="client-card urgente">
+        <div class="client-header">
+          <span class="client-name">{{ grupo.cliente }}</span>
+          <span class="client-count">{{ grupo.produtos|length }} produto{{ 's' if grupo.produtos|length != 1 else '' }}</span>
         </div>
-        <button class="btn-check" title="Marcar como concluído"
-                onclick="abrirModal('{{ o.id }}', '{{ o.produto | replace("'", "\\'") }}')">✓</button>
+        {% for o in grupo.produtos %}
+        {% set saldo = o.quantidade - (o.quantidade_produzida or 0) %}
+        <div class="product-line" id="line-{{ o.id }}">
+          <div class="product-body">
+            <div class="product-name">{{ o.produto }}</div>
+            <div class="product-meta">
+              <span class="badge-urgent">URGENTE</span>
+              <span class="badge-qty">📦 {{ saldo }}</span>
+              {% if o.data_entrega %}
+              <span class="badge-date">⏰ {{ o.data_entrega[8:10] }}/{{ o.data_entrega[5:7] }}</span>
+              {% endif %}
+              {% if o.quantidade_produzida and o.quantidade_produzida > 0 %}
+              <span class="badge-partial">⚠ Saldo: {{ saldo }} restantes</span>
+              {% endif %}
+            </div>
+            {% if o.quantidade_produzida and o.quantidade_produzida > 0 %}
+            <div class="produced-info">✅ {{ o.quantidade_produzida }} produzidos por {{ o.concluido_por }} · {{ o.concluido_em }}</div>
+            {% endif %}
+          </div>
+          <button class="btn-check {% if o.quantidade_produzida and o.quantidade_produzida > 0 %}partial{% endif %}"
+                  data-id="{{ o.id }}"
+                  data-produto="{{ o.produto | replace('"', '&quot;') }}"
+                  data-saldo="{{ saldo }}"
+                  onclick="abrirModal(this)">✓</button>
+        </div>
+        {% endfor %}
       </div>
-      {% endfor %}
     </div>
+    {% endfor %}
     {% endif %}
 
-    {% if normais %}
-    <div class="normal-sep">Demais pedidos</div>
-    <div class="pedidos-list">
-      {% for o in normais %}
-      <div class="pedido-card" id="card-{{ o.id }}">
-        <div class="pedido-body">
-          <div class="pedido-top">
-            <span class="pedido-produto">{{ o.produto }}</span>
-          </div>
-          <div class="pedido-meta-inline">
-            <span class="cliente">{{ o.cliente }}</span>
-            <span class="sep">·</span>
-            <span class="qty-pill">📦 {{ o.quantidade }}</span>
-            <span class="sep">·</span>
-            <span>{{ o.criado_em }}</span>
-          </div>
+    {% if normais_clientes %}
+    <div class="section-sep normal {% if urgentes_clientes %}mt{% endif %}">Demais pedidos</div>
+    {% for grupo in normais_clientes %}
+    <div class="client-group">
+      <div class="client-card">
+        <div class="client-header">
+          <span class="client-name">{{ grupo.cliente }}</span>
+          <span class="client-count">{{ grupo.produtos|length }} produto{{ 's' if grupo.produtos|length != 1 else '' }}</span>
         </div>
-        <button class="btn-check" title="Marcar como concluído"
-                onclick="abrirModal('{{ o.id }}', '{{ o.produto | replace("'", "\\'") }}')">✓</button>
+        {% for o in grupo.produtos %}
+        {% set saldo = o.quantidade - (o.quantidade_produzida or 0) %}
+        <div class="product-line" id="line-{{ o.id }}">
+          <div class="product-body">
+            <div class="product-name">{{ o.produto }}</div>
+            <div class="product-meta">
+              <span class="badge-qty">📦 {{ saldo }}</span>
+              {% if o.data_entrega %}
+              <span class="badge-date">⏰ {{ o.data_entrega[8:10] }}/{{ o.data_entrega[5:7] }}</span>
+              {% endif %}
+              {% if o.quantidade_produzida and o.quantidade_produzida > 0 %}
+              <span class="badge-partial">⚠ Saldo: {{ saldo }} restantes</span>
+              {% endif %}
+            </div>
+            {% if o.quantidade_produzida and o.quantidade_produzida > 0 %}
+            <div class="produced-info">✅ {{ o.quantidade_produzida }} produzidos por {{ o.concluido_por }} · {{ o.concluido_em }}</div>
+            {% endif %}
+          </div>
+          <button class="btn-check {% if o.quantidade_produzida and o.quantidade_produzida > 0 %}partial{% endif %}"
+                  data-id="{{ o.id }}"
+                  data-produto="{{ o.produto | replace('"', '&quot;') }}"
+                  data-saldo="{{ saldo }}"
+                  onclick="abrirModal(this)">✓</button>
+        </div>
+        {% endfor %}
       </div>
-      {% endfor %}
     </div>
+    {% endfor %}
     {% endif %}
 
-    {% if not pendentes %}
+    {% if not urgentes_clientes and not normais_clientes %}
     <div class="empty-state">
       <div>🎉</div>
       Nenhum pedido especial pendente!
     </div>
     {% endif %}
+
   </div>
 
-  <!-- Tab Concluídos -->
+  <!-- ── Tab Concluídos ── -->
   <div id="tab-concluidos" style="display:none;">
     {% if concluidos %}
-    <div class="pedidos-list">
       {% for o in concluidos %}
-      <div class="pedido-card concluido">
-        <div class="pedido-body">
-          <div class="pedido-top">
-            <span class="pedido-produto">{{ o.produto }}</span>
-            {% if o.urgente %}<span class="urgente-badge">URGENTE</span>{% endif %}
-          </div>
-          <div class="pedido-meta-inline">
-            <span class="cliente">{{ o.cliente }}</span>
-            <span class="sep">·</span>
-            <span class="qty-pill">📦 {{ o.quantidade }}</span>
-          </div>
-          <div class="concluido-info">
-            ✅ {{ o.concluido_por }}
-            <span class="concluido-date">· {{ o.concluido_em }}</span>
-          </div>
+      <div class="concluido-card">
+        <div class="concluido-line">
+          <div class="concluido-produto">{{ o.produto }}</div>
+          <div class="concluido-sub">{{ o.cliente }} · 📦 {{ o.quantidade }}</div>
+          <div class="concluido-info">✅ {{ o.concluido_por }} · {{ o.concluido_em }}</div>
         </div>
       </div>
       {% endfor %}
-    </div>
     {% else %}
     <div class="empty-state">
       <div>📋</div>
@@ -301,16 +373,34 @@ header {
 
 </div>
 
-<!-- Modal: nome do trabalhador -->
-<div class="modal-overlay" id="modalOverlay" onclick="fecharModal(event)">
+<!-- ── Modal: Registrar Produção ── -->
+<div class="modal-overlay" id="modalOverlay" onclick="fecharModalOverlay(event)">
   <div class="modal">
-    <div class="modal-title">Marcar como concluído</div>
-    <div class="modal-produto" id="modalProduto"></div>
-    <label for="inputNome">Seu nome</label>
-    <input type="text" id="inputNome" placeholder="Ex: João" autocomplete="off">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Registrar Produção</div>
+    <div class="modal-sub" id="modalProduto"></div>
+
+    <div class="qty-row">
+      <div class="qty-group">
+        <label>Quantidade pedida</label>
+        <input type="number" id="inputSaldo" disabled>
+      </div>
+      <div class="qty-group">
+        <label>Quantidade produzida</label>
+        <input type="number" id="inputProduzida" min="1" oninput="calcSaldo()">
+      </div>
+    </div>
+
+    <div class="saldo-warning" id="saldoWarning" style="display:none">
+      ⚠ Saldo restante: <span class="saldo-num" id="saldoNum">0</span> unidades — ficará em aberto
+    </div>
+
+    <label class="nome-label" for="inputNome">Seu nome</label>
+    <input type="text" class="nome-input" id="inputNome" placeholder="Ex: João" autocomplete="off">
+
     <div class="modal-actions">
-      <button class="btn-modal-cancel" onclick="fecharModalBtn()">Cancelar</button>
-      <button class="btn-modal-confirm" onclick="confirmarConclusao()">✓ Confirmar</button>
+      <button class="btn-modal-cancel" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-modal-confirm" id="btnConfirmar" onclick="confirmarProducao()">✓ Confirmar</button>
     </div>
   </div>
 </div>
@@ -321,7 +411,7 @@ header {
 let pendingOrderId = null;
 
 function switchTab(tab, btn) {
-  document.getElementById('tab-pendentes').style.display = tab === 'pendentes' ? '' : 'none';
+  document.getElementById('tab-pendentes').style.display  = tab === 'pendentes'  ? '' : 'none';
   document.getElementById('tab-concluidos').style.display = tab === 'concluidos' ? '' : 'none';
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -333,73 +423,93 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-function abrirModal(orderId, produto) {
-  pendingOrderId = orderId;
-  document.getElementById('modalProduto').textContent = produto;
+function abrirModal(btn) {
+  pendingOrderId = btn.dataset.id;
+  document.getElementById('modalProduto').textContent = btn.dataset.produto;
+  const saldo = parseInt(btn.dataset.saldo) || 0;
+  document.getElementById('inputSaldo').value    = saldo;
+  document.getElementById('inputProduzida').value = saldo;
+  document.getElementById('saldoWarning').style.display = 'none';
   document.getElementById('inputNome').value = '';
   document.getElementById('modalOverlay').classList.add('open');
-  setTimeout(() => document.getElementById('inputNome').focus(), 200);
+  setTimeout(() => document.getElementById('inputProduzida').focus(), 200);
 }
 
-function fecharModalBtn() {
+function fecharModal() {
   document.getElementById('modalOverlay').classList.remove('open');
   pendingOrderId = null;
 }
 
-function fecharModal(e) {
-  if (e.target === document.getElementById('modalOverlay')) fecharModalBtn();
+function fecharModalOverlay(e) {
+  if (e.target === document.getElementById('modalOverlay')) fecharModal();
 }
 
-function confirmarConclusao() {
-  const nome = document.getElementById('inputNome').value.trim();
+function calcSaldo() {
+  const pedida   = parseInt(document.getElementById('inputSaldo').value)    || 0;
+  const produzida = parseInt(document.getElementById('inputProduzida').value) || 0;
+  const saldo    = pedida - produzida;
+  const warn     = document.getElementById('saldoWarning');
+  if (saldo > 0) {
+    document.getElementById('saldoNum').textContent = saldo;
+    warn.style.display = 'flex';
+  } else {
+    warn.style.display = 'none';
+  }
+}
+
+function confirmarProducao() {
+  const nome      = document.getElementById('inputNome').value.trim();
+  const produzida = parseInt(document.getElementById('inputProduzida').value) || 0;
+  const saldo     = parseInt(document.getElementById('inputSaldo').value) || 0;
+
   if (!nome) {
-    const input = document.getElementById('inputNome');
-    input.focus(); input.style.borderColor = '#dc2626';
-    setTimeout(() => input.style.borderColor = '', 1500);
+    const inp = document.getElementById('inputNome');
+    inp.focus(); inp.style.borderColor = '#dc2626';
+    setTimeout(() => inp.style.borderColor = '', 1500);
     return;
   }
-  const orderId = pendingOrderId;
-  fecharModalBtn();
-
-  const card = document.getElementById('card-' + orderId);
-  if (card) {
-    const btn = card.querySelector('.btn-check');
-    if (btn) { btn.disabled = true; btn.textContent = '…'; }
+  if (produzida < 1 || produzida > saldo) {
+    const inp = document.getElementById('inputProduzida');
+    inp.focus(); inp.style.borderColor = '#dc2626';
+    setTimeout(() => inp.style.borderColor = '', 1500);
+    return;
   }
+
+  const orderId = pendingOrderId;
+  const btn = document.getElementById('btnConfirmar');
+  btn.disabled = true; btn.textContent = '…';
+  fecharModal();
 
   fetch('/pedidos/' + orderId + '/concluir', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nome })
+    body: JSON.stringify({ nome, quantidade_produzida: produzida })
   })
   .then(r => r.json())
   .then(data => {
     if (data.success) {
-      showToast('✅ Concluído por ' + data.concluido_por);
-      if (card) card.style.display = 'none';
-      const cp = document.getElementById('count-pendentes');
-      const cc = document.getElementById('count-concluidos');
-      if (cp) cp.textContent = Math.max(0, parseInt(cp.textContent) - 1);
-      if (cc) cc.textContent = parseInt(cc.textContent) + 1;
+      if (data.concluido) {
+        showToast('✅ Concluído por ' + data.concluido_por);
+      } else {
+        showToast('📦 ' + produzida + ' unidades registradas · Saldo: ' + data.saldo_restante);
+      }
+      setTimeout(() => window.location.reload(), 1000);
     } else {
       showToast('Erro ao salvar. Tente novamente.');
-      if (card) {
-        const btn = card.querySelector('.btn-check');
-        if (btn) { btn.disabled = false; btn.textContent = '✓'; }
-      }
+      btn.disabled = false; btn.textContent = '✓ Confirmar';
     }
   })
   .catch(() => {
     showToast('Erro de conexão.');
-    if (card) {
-      const btn = card.querySelector('.btn-check');
-      if (btn) { btn.disabled = false; btn.textContent = '✓'; }
-    }
+    btn.disabled = false; btn.textContent = '✓ Confirmar';
   });
 }
 
 document.getElementById('inputNome').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') confirmarConclusao();
+  if (e.key === 'Enter') confirmarProducao();
+});
+document.getElementById('inputProduzida').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') document.getElementById('inputNome').focus();
 });
 </script>
 </body>
