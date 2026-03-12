@@ -38,117 +38,128 @@ header {
 .header-brand-text { flex: 1; }
 .header-brand-text .title { font-size: 0.98rem; font-weight: 700; color: #1e1b4b; }
 .header-brand-text .sub { font-size: 0.7rem; color: #9ca3af; }
+.header-right { display: flex; align-items: center; gap: 8px; }
+.gestor-badge {
+  background: #f5f3ff; color: #7c3aed; border: 1.5px solid #ede9fe;
+  border-radius: 8px; padding: 5px 10px; font-size: 0.72rem; font-weight: 800;
+}
 .btn-logout {
   background: none; border: 1.5px solid #e5e7eb; border-radius: 8px;
-  padding: 6px 12px; font-size: 0.78rem; font-weight: 600;
+  padding: 5px 10px; font-size: 0.72rem; font-weight: 600;
   color: #6b7280; text-decoration: none; transition: all 0.15s;
 }
 .btn-logout:hover { border-color: #c4b5fd; color: #7c3aed; }
 
-/* ── Layout ── */
-.container { max-width: 860px; margin: 24px auto; padding: 0 16px 40px; }
+.container { max-width: 600px; margin: 0 auto; padding: 20px 16px 60px; }
 
-/* ── Abas ── */
+/* ── Tabs ── */
 .tabs {
-  display: flex; gap: 0; border-bottom: 2px solid #ede9fe; margin-bottom: 18px;
+  display: flex; background: white; border-radius: 12px;
+  border: 1.5px solid #ede9fe; overflow: hidden; margin-bottom: 18px;
+  box-shadow: 0 1px 6px rgba(124,58,237,0.05);
 }
 .tab-btn {
-  background: none; border: none; padding: 10px 20px;
-  font-size: 0.9rem; font-weight: 600; color: #9ca3af; cursor: pointer;
-  border-bottom: 3px solid transparent; margin-bottom: -2px;
-  transition: all 0.2s; font-family: inherit;
+  flex: 1; padding: 11px 16px; font-size: 0.88rem; font-weight: 700;
+  background: none; border: none; cursor: pointer; color: #9ca3af;
+  transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: inherit;
+}
+.tab-btn.active { background: #7c3aed; color: white; }
+.tab-btn:not(.active):hover { background: #f5f3ff; color: #7c3aed; }
+.tab-count {
+  background: rgba(255,255,255,0.25); border-radius: 20px;
+  padding: 1px 7px; font-size: 0.72rem; font-weight: 800;
+}
+.tab-btn:not(.active) .tab-count { background: #ede9fe; color: #7c3aed; }
+
+/* ── Separadores ── */
+.section-sep {
+  font-size: 0.68rem; font-weight: 800; letter-spacing: 0.5px;
+  text-transform: uppercase; padding: 4px 2px; margin-bottom: 8px; margin-top: 2px;
   display: flex; align-items: center; gap: 6px;
 }
-.tab-btn.active { color: #7c3aed; border-bottom-color: #7c3aed; }
-.tab-btn:hover { color: #374151; }
-.tab-badge {
-  background: #ede9fe; color: #7c3aed; border-radius: 20px;
-  padding: 1px 8px; font-size: 0.73rem; font-weight: 700;
-}
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
-
-/* ── Divisores ── */
-.urgente-divider {
-  font-size: 0.68rem; font-weight: 700; color: #dc2626; letter-spacing: 0.5px;
-  padding: 6px 4px 8px; border-top: 2px solid #fecaca; margin-top: 4px;
-}
-.normal-divider {
-  font-size: 0.68rem; font-weight: 700; color: #9ca3af; letter-spacing: 0.5px;
-  padding: 10px 4px 8px; border-top: 1px solid #f3f4f6; margin-top: 4px;
-}
+.section-sep.urgente { color: #dc2626; }
+.section-sep.urgente::after { content: ''; flex: 1; height: 1px; background: #fca5a5; }
+.section-sep.normal { color: #9ca3af; }
+.section-sep.normal::after { content: ''; flex: 1; height: 1px; background: #e5e7eb; }
 
 /* ── Cards ── */
-.req-list { display: flex; flex-direction: column; gap: 12px; }
+.req-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+
 .req-card {
   background: white; border-radius: 12px;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.06); padding: 16px 18px;
-  border-left: 4px solid #e5e7eb;
+  border: 1.5px solid #ede9fe; box-shadow: 0 1px 6px rgba(124,58,237,0.05);
+  overflow: hidden;
 }
-.req-card.urgente { border-left-color: #ef4444; }
-.req-card.concluida { border-left-color: #22c55e; opacity: 0.9; }
-.req-card-top { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; }
-.req-tipo-badge {
+.req-card.urgente { border-color: #fca5a5; }
+.req-card.concluida { border-color: #bbf7d0; opacity: 0.85; }
+
+.req-card-body { padding: 11px 14px 10px; }
+
+.req-top { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; flex-wrap: wrap; }
+.tipo-badge {
   background: #f5f3ff; color: #7c3aed; border-radius: 7px;
-  padding: 4px 9px; font-size: 0.73rem; font-weight: 700;
-  white-space: nowrap; flex-shrink: 0;
+  padding: 2px 9px; font-size: 0.72rem; font-weight: 700; white-space: nowrap;
 }
-.req-body { flex: 1; }
-.req-desc { font-size: 0.93rem; color: #111827; font-weight: 500; margin-bottom: 5px; line-height: 1.4; }
-.req-meta { font-size: 0.77rem; color: #9ca3af; display: flex; gap: 10px; flex-wrap: wrap; }
 .badge-urgente {
-  background: #fee2e2; color: #dc2626; border-radius: 5px;
-  padding: 1px 7px; font-size: 0.7rem; font-weight: 700;
+  background: #fee2e2; color: #dc2626; border-radius: 6px;
+  padding: 2px 7px; font-size: 0.68rem; font-weight: 800; white-space: nowrap;
 }
 .badge-concluida {
-  background: #dcfce7; color: #16a34a; border-radius: 5px;
-  padding: 1px 7px; font-size: 0.7rem; font-weight: 700;
+  background: #dcfce7; color: #16a34a; border-radius: 6px;
+  padding: 2px 7px; font-size: 0.68rem; font-weight: 700;
 }
+
+.req-desc {
+  font-size: 0.88rem; color: #1e1b4b; font-weight: 600;
+  line-height: 1.45; margin-bottom: 4px;
+}
+.req-meta { font-size: 0.74rem; color: #9ca3af; }
+
 .req-resposta-existente {
-  margin-top: 8px; background: #f0fdf4; border-radius: 7px;
-  padding: 8px 12px; font-size: 0.82rem; color: #166534;
+  margin-top: 8px; background: #f0fdf4; border-radius: 8px;
+  padding: 8px 11px; font-size: 0.82rem; color: #166534;
   border-left: 3px solid #16a34a;
 }
+
+/* Actions area */
 .req-actions {
-  border-top: 1px solid #f3f4f6; padding-top: 12px;
-  margin-top: 4px; display: flex; flex-direction: column; gap: 10px;
+  border-top: 1px solid #f3f4f6; padding: 10px 14px 12px;
+  background: #fafaf9; display: flex; flex-direction: column; gap: 8px;
 }
 .resposta-input {
   width: 100%; border: 1.5px solid #e5e7eb; border-radius: 8px;
-  padding: 9px 12px; font-size: 0.88rem; font-family: inherit;
-  resize: vertical; min-height: 70px; outline: none; transition: border-color 0.2s;
+  padding: 8px 11px; font-size: 0.86rem; font-family: inherit;
+  resize: vertical; min-height: 66px; outline: none; transition: border-color 0.2s;
+  background: white; color: #1e1b4b;
 }
 .resposta-input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.08); }
-.req-actions-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-.btn {
-  border: none; border-radius: 8px; padding: 8px 16px;
-  font-size: 0.85rem; font-weight: 600; cursor: pointer;
-  transition: opacity 0.15s; font-family: inherit;
+.req-actions-btns { display: flex; gap: 7px; }
+.btn-concluir {
+  flex: 1; padding: 8px 12px; background: #7c3aed; color: white;
+  border: none; border-radius: 8px; font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
 }
-.btn-concluir { background: #16a34a; color: white; }
-.btn-concluir:hover { background: #15803d; }
-.btn-excluir { background: #fee2e2; color: #dc2626; }
-.btn-excluir:hover { background: #fecaca; }
+.btn-concluir:hover { background: #6d28d9; }
+.btn-excluir {
+  padding: 8px 11px; background: #fef2f2; color: #dc2626;
+  border: 1.5px solid #fecaca; border-radius: 8px; font-size: 0.82rem;
+  cursor: pointer; font-family: inherit; transition: all 0.15s;
+}
+.btn-excluir:hover { background: #fee2e2; }
 
-.empty-state { text-align: center; padding: 40px 20px; color: #9ca3af; font-size: 0.93rem; }
+/* ── Empty ── */
+.empty-state { text-align: center; padding: 40px 20px; color: #9ca3af; font-size: 0.92rem; }
 .empty-state .empty-icon { font-size: 2.2rem; margin-bottom: 10px; }
 
 /* ── Toast ── */
 #toast {
   position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-  background: #7c3aed; color: white; padding: 12px 24px;
+  background: #1e293b; color: white; padding: 12px 24px;
   border-radius: 10px; font-size: 0.9rem; font-weight: 600;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
   opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; white-space: nowrap;
 }
 #toast.show { opacity: 1; }
-
-.app-footer {
-  text-align: center; padding: 24px 20px 40px; font-size: 0.78rem; color: #9ca3af;
-  border-top: 1px solid #ede9fe; margin-top: 32px;
-}
-.app-footer a { color: #7c3aed; text-decoration: none; font-weight: 600; }
-.app-footer a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -161,53 +172,55 @@ header {
     </div>
     <div class="header-brand-text">
       <div class="title">Fogos Piromax</div>
-      <div class="sub">Área do Gestor · Solicitações</div>
+      <div class="sub">Solicitações</div>
     </div>
   </div>
-  <a href="/admin/logout" class="btn-logout">🚪 Sair</a>
+  <div class="header-right">
+    <span class="gestor-badge">👔 GESTOR</span>
+    <a href="/admin/logout" class="btn-logout">🚪 Sair</a>
+  </div>
 </header>
 
 <div class="container">
 
+  <!-- Tabs -->
   <div class="tabs">
     <button class="tab-btn active" onclick="trocarAba('pendentes', this)">
-      🕐 Pendentes <span class="tab-badge" id="badge-pendentes">{{ pendentes|length }}</span>
+      Pendentes <span class="tab-count" id="badge-pendentes">{{ pendentes|length }}</span>
     </button>
     <button class="tab-btn" onclick="trocarAba('concluidas', this)">
-      ✅ Concluídas <span class="tab-badge" id="badge-concluidas">{{ concluidas|length }}</span>
+      Concluídas <span class="tab-count" id="badge-concluidas">{{ concluidas|length }}</span>
     </button>
   </div>
 
-  <!-- Pendentes: urgentes primeiro -->
-  <div class="tab-panel active" id="panel-pendentes">
+  <!-- Tab Pendentes -->
+  <div id="panel-pendentes">
     <div class="req-list" id="lista-pendentes">
       {% set urgentes = pendentes | selectattr('urgente') | list %}
-      {% set normais = pendentes | rejectattr('urgente') | list %}
+      {% set normais  = pendentes | rejectattr('urgente') | list %}
 
       {% if urgentes %}
-      <div class="urgente-divider">⚠ URGENTE</div>
+      <div class="section-sep urgente">🔴 Urgentes</div>
       {% for r in urgentes %}
       <div class="req-card urgente" id="req-{{ r.id }}">
-        <div class="req-card-top">
-          <span class="req-tipo-badge">
-            {% if r.tipo == 'material' %}🧱 Material
-            {% elif r.tipo == 'equipamento' %}🔧 Equipamento
-            {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
-            {% else %}📝 Outro{% endif %}
-          </span>
-          <div class="req-body">
-            <div class="req-desc">{{ r.descricao }}</div>
-            <div class="req-meta">
-              <span>🕐 {{ r.created_at }}</span>
-              <span class="badge-urgente">⚠️ URGENTE</span>
-            </div>
+        <div class="req-card-body">
+          <div class="req-top">
+            <span class="tipo-badge">
+              {% if r.tipo == 'material' %}🧱 Material
+              {% elif r.tipo == 'equipamento' %}🔧 Equipamento
+              {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
+              {% else %}📝 Outro{% endif %}
+            </span>
+            <span class="badge-urgente">URGENTE</span>
           </div>
+          <div class="req-desc">{{ r.descricao }}</div>
+          <div class="req-meta">🕐 {{ r.created_at }}</div>
         </div>
         <div class="req-actions">
           <textarea class="resposta-input" id="resp-{{ r.id }}" placeholder="Resposta opcional..."></textarea>
           <div class="req-actions-btns">
-            <button class="btn btn-concluir" onclick="concluirSolicitacao('{{ r.id }}')">✅ Marcar como concluída</button>
-            <button class="btn btn-excluir" onclick="excluirSolicitacao('{{ r.id }}', 'pendente')">🗑️ Excluir</button>
+            <button class="btn-concluir" onclick="concluirSolicitacao('{{ r.id }}')">✅ Marcar como concluída</button>
+            <button class="btn-excluir"  onclick="excluirSolicitacao('{{ r.id }}', 'pendente')">🗑</button>
           </div>
         </div>
       </div>
@@ -215,26 +228,26 @@ header {
       {% endif %}
 
       {% if normais %}
-      <div class="normal-divider">OUTRAS PENDÊNCIAS</div>
+      <div class="section-sep normal">Outras pendências</div>
       {% for r in normais %}
       <div class="req-card" id="req-{{ r.id }}">
-        <div class="req-card-top">
-          <span class="req-tipo-badge">
-            {% if r.tipo == 'material' %}🧱 Material
-            {% elif r.tipo == 'equipamento' %}🔧 Equipamento
-            {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
-            {% else %}📝 Outro{% endif %}
-          </span>
-          <div class="req-body">
-            <div class="req-desc">{{ r.descricao }}</div>
-            <div class="req-meta"><span>🕐 {{ r.created_at }}</span></div>
+        <div class="req-card-body">
+          <div class="req-top">
+            <span class="tipo-badge">
+              {% if r.tipo == 'material' %}🧱 Material
+              {% elif r.tipo == 'equipamento' %}🔧 Equipamento
+              {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
+              {% else %}📝 Outro{% endif %}
+            </span>
           </div>
+          <div class="req-desc">{{ r.descricao }}</div>
+          <div class="req-meta">🕐 {{ r.created_at }}</div>
         </div>
         <div class="req-actions">
           <textarea class="resposta-input" id="resp-{{ r.id }}" placeholder="Resposta opcional..."></textarea>
           <div class="req-actions-btns">
-            <button class="btn btn-concluir" onclick="concluirSolicitacao('{{ r.id }}')">✅ Marcar como concluída</button>
-            <button class="btn btn-excluir" onclick="excluirSolicitacao('{{ r.id }}', 'pendente')">🗑️ Excluir</button>
+            <button class="btn-concluir" onclick="concluirSolicitacao('{{ r.id }}')">✅ Marcar como concluída</button>
+            <button class="btn-excluir"  onclick="excluirSolicitacao('{{ r.id }}', 'pendente')">🗑</button>
           </div>
         </div>
       </div>
@@ -249,34 +262,32 @@ header {
     </div>
   </div>
 
-  <!-- Concluídas -->
-  <div class="tab-panel" id="panel-concluidas">
+  <!-- Tab Concluídas -->
+  <div id="panel-concluidas" style="display:none;">
     <div class="req-list" id="lista-concluidas">
       {% if concluidas %}
       {% for r in concluidas %}
       <div class="req-card concluida" id="req-{{ r.id }}">
-        <div class="req-card-top">
-          <span class="req-tipo-badge">
-            {% if r.tipo == 'material' %}🧱 Material
-            {% elif r.tipo == 'equipamento' %}🔧 Equipamento
-            {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
-            {% else %}📝 Outro{% endif %}
-          </span>
-          <div class="req-body">
-            <div class="req-desc">{{ r.descricao }}</div>
-            <div class="req-meta">
-              <span>📅 {{ r.created_at }}</span>
-              <span class="badge-concluida">✅ Concluída</span>
-              {% if r.respondido_em %}<span>· {{ r.respondido_em }}</span>{% endif %}
-            </div>
-            {% if r.resposta %}
-            <div class="req-resposta-existente">💬 {{ r.resposta }}</div>
-            {% endif %}
+        <div class="req-card-body">
+          <div class="req-top">
+            <span class="tipo-badge">
+              {% if r.tipo == 'material' %}🧱 Material
+              {% elif r.tipo == 'equipamento' %}🔧 Equipamento
+              {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
+              {% else %}📝 Outro{% endif %}
+            </span>
+            <span class="badge-concluida">✅ Concluída</span>
+            {% if r.urgente %}<span class="badge-urgente">URGENTE</span>{% endif %}
           </div>
+          <div class="req-desc">{{ r.descricao }}</div>
+          <div class="req-meta">📅 {{ r.created_at }}{% if r.respondido_em %} · respondido em {{ r.respondido_em }}{% endif %}</div>
+          {% if r.resposta %}
+          <div class="req-resposta-existente">💬 {{ r.resposta }}</div>
+          {% endif %}
         </div>
         <div class="req-actions">
           <div class="req-actions-btns">
-            <button class="btn btn-excluir" onclick="excluirSolicitacao('{{ r.id }}', 'concluida')">🗑️ Excluir</button>
+            <button class="btn-excluir" onclick="excluirSolicitacao('{{ r.id }}', 'concluida')">🗑 Excluir</button>
           </div>
         </div>
       </div>
@@ -291,18 +302,14 @@ header {
 
 </div>
 
-<footer class="app-footer">
-  <a href="/">← Ver área dos trabalhadores</a>
-</footer>
-
 <div id="toast"></div>
 
 <script>
 function trocarAba(aba, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-pendentes').style.display  = aba === 'pendentes'  ? '' : 'none';
+  document.getElementById('panel-concluidas').style.display = aba === 'concluidas' ? '' : 'none';
   btn.classList.add('active');
-  document.getElementById('panel-' + aba).classList.add('active');
 }
 
 async function concluirSolicitacao(id) {
@@ -330,7 +337,7 @@ async function excluirSolicitacao(id, painel) {
   const res = await fetch('/admin/requests/delete/' + id, { method: 'DELETE' });
   const data = await res.json();
   if (data.success) {
-    showToast('🗑️ Solicitação excluída.');
+    showToast('🗑️ Excluída.');
     const card = document.getElementById('req-' + id);
     if (card) card.remove();
     const badge = document.getElementById('badge-' + (painel === 'pendente' ? 'pendentes' : 'concluidas'));
@@ -354,7 +361,7 @@ function checkEmpty(painel) {
 function showToast(msg, erro = false) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.style.background = erro ? '#dc2626' : '#7c3aed';
+  t.style.background = erro ? '#dc2626' : '#1e293b';
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
 }
