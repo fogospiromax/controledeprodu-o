@@ -38,132 +38,131 @@ header {
 .header-brand-text .title { font-size: 0.98rem; font-weight: 700; color: #1e1b4b; }
 .header-brand-text .sub { font-size: 0.7rem; color: #9ca3af; }
 
-/* ── Layout ── */
-.container { max-width: 860px; margin: 24px auto; padding: 0 16px 40px; }
+.container { max-width: 600px; margin: 0 auto; padding: 20px 16px 60px; }
 
 /* ── Formulário nova solicitação ── */
-.form-card {
-  background: white; border-radius: 14px;
-  box-shadow: 0 2px 10px rgba(124,58,237,0.05); border: 1.5px solid #ede9fe;
-  padding: 20px; margin-bottom: 24px;
+.add-card {
+  background: white; border-radius: 14px; padding: 16px 18px;
+  border: 1.5px solid #ede9fe; box-shadow: 0 2px 10px rgba(124,58,237,0.06);
+  margin-bottom: 18px;
 }
-.form-card h2 {
-  font-size: 0.9rem; font-weight: 700; color: #7c3aed; margin-bottom: 14px;
+.add-card-title {
+  font-size: 0.75rem; font-weight: 800; color: #7c3aed;
+  text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 12px;
 }
 .tipo-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-bottom: 10px;
 }
 .tipo-btn {
-  background: #f5f3ff; border: 1.5px solid #ede9fe; border-radius: 8px;
-  padding: 8px 6px; font-size: 0.78rem; font-weight: 600; color: #6b7280;
+  background: #f5f3ff; border: 1.5px solid #ede9fe; border-radius: 9px;
+  padding: 8px 4px; font-size: 0.78rem; font-weight: 600; color: #6b7280;
   cursor: pointer; font-family: inherit; text-align: center; transition: all 0.15s;
 }
 .tipo-btn:hover { border-color: #c4b5fd; color: #7c3aed; }
 .tipo-btn.active { background: #7c3aed; border-color: #7c3aed; color: white; }
+
 .form-textarea {
   width: 100%; border: 1.5px solid #e5e7eb; border-radius: 9px;
-  padding: 10px 13px; font-size: 0.92rem; font-family: inherit;
-  color: #1e1b4b; resize: vertical; min-height: 80px; outline: none;
-  transition: border-color 0.2s; margin-bottom: 12px;
+  padding: 10px 13px; font-size: 0.9rem; font-family: inherit;
+  color: #1e1b4b; resize: vertical; min-height: 76px; outline: none;
+  transition: border-color 0.2s; margin-bottom: 10px;
 }
 .form-textarea:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.08); }
-.form-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+
+.form-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .urgente-toggle {
   display: flex; align-items: center; gap: 7px; cursor: pointer;
-  padding: 8px 12px; border: 1.5px solid #fca5a5; border-radius: 8px;
-  background: #fff5f5; user-select: none; font-size: 0.85rem;
+  padding: 8px 11px; border: 1.5px solid #fca5a5; border-radius: 8px;
+  background: #fff8f8; user-select: none; font-size: 0.82rem;
   font-weight: 700; color: #dc2626;
 }
-.urgente-toggle input { width: 16px; height: 16px; accent-color: #dc2626; cursor: pointer; }
+.urgente-toggle input { width: 15px; height: 15px; accent-color: #dc2626; cursor: pointer; }
 .btn-submit {
-  background: #7c3aed; color: white; border: none; border-radius: 9px;
-  padding: 10px 22px; font-size: 0.9rem; font-weight: 700;
-  cursor: pointer; font-family: inherit; transition: background 0.15s;
+  padding: 9px 20px; background: #7c3aed; color: white; border: none;
+  border-radius: 9px; font-size: 0.88rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.15s; white-space: nowrap;
 }
 .btn-submit:hover { background: #6d28d9; }
 
-/* ── Abas ── */
+/* ── Tabs ── */
 .tabs {
-  display: flex; gap: 0; border-bottom: 2px solid #ede9fe; margin-bottom: 18px;
+  display: flex; background: white; border-radius: 12px;
+  border: 1.5px solid #ede9fe; overflow: hidden; margin-bottom: 18px;
+  box-shadow: 0 1px 6px rgba(124,58,237,0.05);
 }
 .tab-btn {
-  background: none; border: none; padding: 10px 20px;
-  font-size: 0.9rem; font-weight: 600; color: #9ca3af; cursor: pointer;
-  border-bottom: 3px solid transparent; margin-bottom: -2px;
-  transition: all 0.2s; font-family: inherit;
+  flex: 1; padding: 11px 16px; font-size: 0.88rem; font-weight: 700;
+  background: none; border: none; cursor: pointer; color: #9ca3af;
+  transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: inherit;
+}
+.tab-btn.active { background: #7c3aed; color: white; }
+.tab-btn:not(.active):hover { background: #f5f3ff; color: #7c3aed; }
+.tab-count {
+  background: rgba(255,255,255,0.25); border-radius: 20px;
+  padding: 1px 7px; font-size: 0.72rem; font-weight: 800;
+}
+.tab-btn:not(.active) .tab-count { background: #ede9fe; color: #7c3aed; }
+
+/* ── Separadores ── */
+.section-sep {
+  font-size: 0.68rem; font-weight: 800; letter-spacing: 0.5px;
+  text-transform: uppercase; padding: 4px 2px; margin-bottom: 8px; margin-top: 2px;
   display: flex; align-items: center; gap: 6px;
 }
-.tab-btn.active { color: #7c3aed; border-bottom-color: #7c3aed; }
-.tab-btn:hover { color: #374151; }
-.tab-badge {
-  background: #ede9fe; color: #7c3aed; border-radius: 20px;
-  padding: 1px 8px; font-size: 0.73rem; font-weight: 700;
-}
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
-
-/* ── Divisores urgente / normal ── */
-.urgente-divider {
-  font-size: 0.68rem; font-weight: 700; color: #dc2626; letter-spacing: 0.5px;
-  padding: 6px 4px 8px; border-top: 2px solid #fecaca; margin-top: 4px;
-}
-.normal-divider {
-  font-size: 0.68rem; font-weight: 700; color: #9ca3af; letter-spacing: 0.5px;
-  padding: 10px 4px 8px; border-top: 1px solid #f3f4f6; margin-top: 4px;
-}
+.section-sep.urgente { color: #dc2626; }
+.section-sep.urgente::after { content: ''; flex: 1; height: 1px; background: #fca5a5; }
+.section-sep.normal { color: #9ca3af; }
+.section-sep.normal::after { content: ''; flex: 1; height: 1px; background: #e5e7eb; }
 
 /* ── Cards de solicitação ── */
-.req-list { display: flex; flex-direction: column; gap: 10px; }
+.req-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+
 .req-card {
-  background: white; border-radius: 12px;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.06); padding: 14px 18px;
-  border-left: 4px solid #e5e7eb;
-  display: flex; gap: 12px; align-items: flex-start;
+  background: white; border-radius: 12px; padding: 11px 14px;
+  border: 1.5px solid #ede9fe; box-shadow: 0 1px 6px rgba(124,58,237,0.05);
 }
-.req-card.urgente { border-left-color: #ef4444; }
-.req-card.pendente { border-left-color: #f59e0b; }
-.req-card.concluida { border-left-color: #22c55e; opacity: 0.85; }
-.req-tipo-badge {
+.req-card.urgente { border-color: #fca5a5; background: #fff8f8; }
+.req-card.concluida { border-color: #bbf7d0; background: #f0fdf4; opacity: 0.85; }
+
+.req-top { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; flex-wrap: wrap; }
+.tipo-badge {
   background: #f5f3ff; color: #7c3aed; border-radius: 7px;
-  padding: 4px 9px; font-size: 0.73rem; font-weight: 700;
-  white-space: nowrap; flex-shrink: 0;
+  padding: 2px 9px; font-size: 0.72rem; font-weight: 700; white-space: nowrap;
 }
-.req-body { flex: 1; }
-.req-desc { font-size: 0.93rem; color: #111827; font-weight: 500; margin-bottom: 5px; line-height: 1.4; }
-.req-meta { font-size: 0.77rem; color: #9ca3af; display: flex; gap: 10px; flex-wrap: wrap; }
 .badge-urgente {
-  background: #fee2e2; color: #dc2626; border-radius: 5px;
-  padding: 1px 7px; font-size: 0.7rem; font-weight: 700;
+  background: #fee2e2; color: #dc2626; border-radius: 6px;
+  padding: 2px 7px; font-size: 0.68rem; font-weight: 800; white-space: nowrap;
 }
 .badge-concluida {
-  background: #dcfce7; color: #16a34a; border-radius: 5px;
-  padding: 1px 7px; font-size: 0.7rem; font-weight: 700;
+  background: #dcfce7; color: #16a34a; border-radius: 6px;
+  padding: 2px 7px; font-size: 0.68rem; font-weight: 700;
 }
+
+.req-desc {
+  font-size: 0.88rem; color: #1e1b4b; font-weight: 600;
+  line-height: 1.45; margin-bottom: 4px;
+}
+.req-meta { font-size: 0.74rem; color: #9ca3af; }
+
 .req-resposta {
-  margin-top: 8px; background: #f0fdf4; border-radius: 7px;
-  padding: 8px 12px; font-size: 0.82rem; color: #166534;
+  margin-top: 8px; background: #f0fdf4; border-radius: 8px;
+  padding: 8px 11px; font-size: 0.82rem; color: #166534;
   border-left: 3px solid #16a34a;
 }
-.empty-state { text-align: center; padding: 40px 20px; color: #9ca3af; font-size: 0.93rem; }
+
+/* ── Empty ── */
+.empty-state { text-align: center; padding: 40px 20px; color: #9ca3af; font-size: 0.92rem; }
 .empty-state .empty-icon { font-size: 2.2rem; margin-bottom: 10px; }
 
 /* ── Toast ── */
 #toast {
   position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-  background: #7c3aed; color: white; padding: 12px 24px;
+  background: #1e293b; color: white; padding: 12px 24px;
   border-radius: 10px; font-size: 0.9rem; font-weight: 600;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-  opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999;
-  white-space: nowrap;
+  opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; white-space: nowrap;
 }
 #toast.show { opacity: 1; }
-
-.app-footer {
-  text-align: center; padding: 24px 20px 40px; font-size: 0.78rem; color: #9ca3af;
-  border-top: 1px solid #ede9fe; margin-top: 32px;
-}
-.app-footer a { color: #7c3aed; text-decoration: none; font-weight: 600; }
-.app-footer a:hover { text-decoration: underline; }
 
 @media (max-width: 480px) {
   .tipo-grid { grid-template-columns: repeat(2, 1fr); }
@@ -188,13 +187,13 @@ header {
 <div class="container">
 
   <!-- Formulário nova solicitação -->
-  <div class="form-card">
-    <h2>➕ Nova Solicitação</h2>
+  <div class="add-card">
+    <div class="add-card-title">+ Nova Solicitação</div>
     <div class="tipo-grid" id="tipoGrid">
-      <button class="tipo-btn active" data-value="material" onclick="selecionarTipo(this)">🧱 Material</button>
-      <button class="tipo-btn" data-value="equipamento" onclick="selecionarTipo(this)">🔧 Equipamento</button>
-      <button class="tipo-btn" data-value="manutencao" onclick="selecionarTipo(this)">🛠️ Manutenção</button>
-      <button class="tipo-btn" data-value="outro" onclick="selecionarTipo(this)">📝 Outro</button>
+      <button class="tipo-btn active" data-value="material"    onclick="selecionarTipo(this)">🧱 Material</button>
+      <button class="tipo-btn"        data-value="equipamento" onclick="selecionarTipo(this)">🔧 Equipamento</button>
+      <button class="tipo-btn"        data-value="manutencao"  onclick="selecionarTipo(this)">🛠️ Manutenção</button>
+      <button class="tipo-btn"        data-value="outro"       onclick="selecionarTipo(this)">📝 Outro</button>
     </div>
     <textarea class="form-textarea" id="descricao" placeholder="Descreva o que está sendo solicitado..."></textarea>
     <div class="form-footer">
@@ -205,59 +204,55 @@ header {
     </div>
   </div>
 
-  <!-- Abas -->
+  <!-- Tabs -->
   <div class="tabs">
     <button class="tab-btn active" onclick="trocarAba('pendentes', this)">
-      ⏳ Pendentes <span class="tab-badge" id="badge-pendentes">{{ pendentes|length }}</span>
+      Pendentes <span class="tab-count" id="badge-pendentes">{{ pendentes|length }}</span>
     </button>
     <button class="tab-btn" onclick="trocarAba('concluidas', this)">
-      ✅ Concluídas <span class="tab-badge" id="badge-concluidas">{{ concluidas|length }}</span>
+      Concluídas <span class="tab-count" id="badge-concluidas">{{ concluidas|length }}</span>
     </button>
   </div>
 
-  <!-- Pendentes: urgentes primeiro -->
+  <!-- Tab Pendentes -->
   <div class="tab-panel active" id="panel-pendentes">
     <div class="req-list" id="lista-pendentes">
       {% set urgentes = pendentes | selectattr('urgente') | list %}
-      {% set normais = pendentes | rejectattr('urgente') | list %}
+      {% set normais  = pendentes | rejectattr('urgente') | list %}
 
       {% if urgentes %}
-      <div class="urgente-divider">⚠ URGENTE</div>
+      <div class="section-sep urgente">🔴 Urgentes</div>
       {% for r in urgentes %}
       <div class="req-card urgente" data-id="{{ r.id }}">
-        <span class="req-tipo-badge">
-          {% if r.tipo == 'material' %}🧱 Material
-          {% elif r.tipo == 'equipamento' %}🔧 Equipamento
-          {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
-          {% else %}📝 Outro{% endif %}
-        </span>
-        <div class="req-body">
-          <div class="req-desc">{{ r.descricao }}</div>
-          <div class="req-meta">
-            <span>🕐 {{ r.created_at }}</span>
-            <span class="badge-urgente">⚠️ URGENTE</span>
-          </div>
+        <div class="req-top">
+          <span class="tipo-badge">
+            {% if r.tipo == 'material' %}🧱 Material
+            {% elif r.tipo == 'equipamento' %}🔧 Equipamento
+            {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
+            {% else %}📝 Outro{% endif %}
+          </span>
+          <span class="badge-urgente">URGENTE</span>
         </div>
+        <div class="req-desc">{{ r.descricao }}</div>
+        <div class="req-meta">🕐 {{ r.created_at }}</div>
       </div>
       {% endfor %}
       {% endif %}
 
       {% if normais %}
-      <div class="normal-divider">OUTRAS PENDÊNCIAS</div>
+      <div class="section-sep normal">Outras pendências</div>
       {% for r in normais %}
-      <div class="req-card pendente" data-id="{{ r.id }}">
-        <span class="req-tipo-badge">
-          {% if r.tipo == 'material' %}🧱 Material
-          {% elif r.tipo == 'equipamento' %}🔧 Equipamento
-          {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
-          {% else %}📝 Outro{% endif %}
-        </span>
-        <div class="req-body">
-          <div class="req-desc">{{ r.descricao }}</div>
-          <div class="req-meta">
-            <span>🕐 {{ r.created_at }}</span>
-          </div>
+      <div class="req-card" data-id="{{ r.id }}">
+        <div class="req-top">
+          <span class="tipo-badge">
+            {% if r.tipo == 'material' %}🧱 Material
+            {% elif r.tipo == 'equipamento' %}🔧 Equipamento
+            {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
+            {% else %}📝 Outro{% endif %}
+          </span>
         </div>
+        <div class="req-desc">{{ r.descricao }}</div>
+        <div class="req-meta">🕐 {{ r.created_at }}</div>
       </div>
       {% endfor %}
       {% endif %}
@@ -271,29 +266,27 @@ header {
     </div>
   </div>
 
-  <!-- Concluídas -->
-  <div class="tab-panel" id="panel-concluidas">
+  <!-- Tab Concluídas -->
+  <div class="tab-panel" id="panel-concluidas" style="display:none;">
     <div class="req-list">
       {% if concluidas %}
       {% for r in concluidas %}
       <div class="req-card concluida">
-        <span class="req-tipo-badge">
-          {% if r.tipo == 'material' %}🧱 Material
-          {% elif r.tipo == 'equipamento' %}🔧 Equipamento
-          {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
-          {% else %}📝 Outro{% endif %}
-        </span>
-        <div class="req-body">
-          <div class="req-desc">{{ r.descricao }}</div>
-          <div class="req-meta">
-            <span>📅 {{ r.created_at }}</span>
-            <span class="badge-concluida">✅ Concluída</span>
-            {% if r.respondido_em %}<span>· respondido em {{ r.respondido_em }}</span>{% endif %}
-          </div>
-          {% if r.resposta %}
-          <div class="req-resposta">💬 {{ r.resposta }}</div>
-          {% endif %}
+        <div class="req-top">
+          <span class="tipo-badge">
+            {% if r.tipo == 'material' %}🧱 Material
+            {% elif r.tipo == 'equipamento' %}🔧 Equipamento
+            {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
+            {% else %}📝 Outro{% endif %}
+          </span>
+          <span class="badge-concluida">✅ Concluída</span>
+          {% if r.urgente %}<span class="badge-urgente">URGENTE</span>{% endif %}
         </div>
+        <div class="req-desc">{{ r.descricao }}</div>
+        <div class="req-meta">📅 {{ r.created_at }}{% if r.respondido_em %} · respondido em {{ r.respondido_em }}{% endif %}</div>
+        {% if r.resposta %}
+        <div class="req-resposta">💬 {{ r.resposta }}</div>
+        {% endif %}
       </div>
       {% endfor %}
       {% else %}
@@ -306,10 +299,6 @@ header {
   </div>
 
 </div>
-
-<footer class="app-footer">
-  Você é o gestor? <a href="/admin">Acessar o Painel do Gestor →</a>
-</footer>
 
 <div id="toast"></div>
 
@@ -324,9 +313,9 @@ function selecionarTipo(btn) {
 
 function trocarAba(aba, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-pendentes').style.display  = aba === 'pendentes'  ? '' : 'none';
+  document.getElementById('panel-concluidas').style.display = aba === 'concluidas' ? '' : 'none';
   btn.classList.add('active');
-  document.getElementById('panel-' + aba).classList.add('active');
 }
 
 async function enviarSolicitacao() {
@@ -352,39 +341,42 @@ async function enviarSolicitacao() {
     const lista = document.getElementById('lista-pendentes');
     const empty = lista.querySelector('.empty-state');
     if (empty) empty.remove();
+
     const tipoLabels = { material: '🧱 Material', equipamento: '🔧 Equipamento', manutencao: '🛠️ Manutenção', outro: '📝 Outro' };
+    const urgBadge  = r.urgente ? '<span class="badge-urgente">URGENTE</span>' : '';
+    const urgClass  = r.urgente ? ' urgente' : '';
+
     const card = document.createElement('div');
-    card.className = 'req-card ' + (r.urgente ? 'urgente' : 'pendente');
+    card.className = 'req-card' + urgClass;
     card.dataset.id = r.id;
     card.innerHTML = `
-      <span class="req-tipo-badge">${tipoLabels[r.tipo] || r.tipo}</span>
-      <div class="req-body">
-        <div class="req-desc">${r.descricao}</div>
-        <div class="req-meta">
-          <span>🕐 ${r.created_at}</span>
-          ${r.urgente ? '<span class="badge-urgente">⚠️ URGENTE</span>' : ''}
-        </div>
-      </div>`;
-    // Inserir no lugar certo (urgentes no topo, normais após o divisor)
+      <div class="req-top">
+        <span class="tipo-badge">${tipoLabels[r.tipo] || r.tipo}</span>
+        ${urgBadge}
+      </div>
+      <div class="req-desc">${escHtml(r.descricao)}</div>
+      <div class="req-meta">🕐 ${escHtml(r.created_at)}</div>`;
+
     if (r.urgente) {
-      let divider = lista.querySelector('.urgente-divider');
-      if (!divider) {
-        divider = document.createElement('div');
-        divider.className = 'urgente-divider';
-        divider.textContent = '⚠ URGENTE';
-        lista.prepend(divider);
+      let sep = lista.querySelector('.section-sep.urgente');
+      if (!sep) {
+        sep = document.createElement('div');
+        sep.className = 'section-sep urgente';
+        sep.textContent = '🔴 Urgentes';
+        lista.prepend(sep);
       }
-      divider.after(card);
+      sep.after(card);
     } else {
-      let divider = lista.querySelector('.normal-divider');
-      if (!divider) {
-        divider = document.createElement('div');
-        divider.className = 'normal-divider';
-        divider.textContent = 'OUTRAS PENDÊNCIAS';
-        lista.appendChild(divider);
+      let sep = lista.querySelector('.section-sep.normal');
+      if (!sep) {
+        sep = document.createElement('div');
+        sep.className = 'section-sep normal';
+        sep.textContent = 'Outras pendências';
+        lista.appendChild(sep);
       }
       lista.appendChild(card);
     }
+
     const badge = document.getElementById('badge-pendentes');
     badge.textContent = parseInt(badge.textContent || '0') + 1;
   } else {
@@ -392,10 +384,14 @@ async function enviarSolicitacao() {
   }
 }
 
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 function showToast(msg, erro = false) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.style.background = erro ? '#dc2626' : '#7c3aed';
+  t.style.background = erro ? '#dc2626' : '#1e293b';
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
 }
