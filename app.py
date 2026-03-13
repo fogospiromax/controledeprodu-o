@@ -238,7 +238,7 @@ def worker_hub():
 @app.route('/producao')
 def worker_view():
     default_week = next_monday_date().isoformat()
-    return render_template('worker_producao.html', default_week=default_week)
+    return render_template('worker.html', default_week=default_week)
 
 @app.route('/worker/update', methods=['POST'])
 def worker_update():
@@ -427,7 +427,7 @@ def admin_view():
 @login_required
 def admin_producao_view():
     default_week = next_monday_date().isoformat()
-    return render_template('admin_producao.html', default_week=default_week)
+    return render_template('admin.html', default_week=default_week)
 
 # ── API — Produção: buscar semana ─────────────────────────────────────────────
 @app.route('/api/producao-semana')
