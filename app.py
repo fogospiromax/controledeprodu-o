@@ -519,6 +519,24 @@ def admin_requests_delete(req_id):
     conn.close()
     return jsonify({'success': True})
 
+@app.route('/admin/requests/<req_id>/editar', methods=['POST'])
+@login_required
+def admin_requests_editar(req_id):
+    data = request.json
+    tipo     = data.get('tipo', 'outro')
+    descricao = (data.get('descricao') or '').strip()
+    urgente  = bool(data.get('urgente', False))
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        'UPDATE requests SET tipo=%s, descricao=%s, urgente=%s WHERE id=%s',
+        (tipo, descricao, urgente, req_id)
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True})
+
 # ── Gestor / Admin — Pedidos Especiais ────────────────────────────────────────
 @app.route('/admin/pedidos')
 @login_required
