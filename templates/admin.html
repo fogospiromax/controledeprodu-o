@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Produção — Gestor · Fogos Piromax</title>
+<title>Produção – Gestor — Fogos Piromax</title>
 <link rel="manifest" href="/static/manifest.json">
 <link rel="apple-touch-icon" href="/static/logo.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,496 +11,342 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#7c3aed">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8f7ff; color: #2d3748; min-height: 100vh; }
-
-/* ── Header ── */
-header {
-  background: white; border-bottom: 1px solid #ede9fe;
-  box-shadow: 0 1px 8px rgba(124,58,237,0.07);
-  position: sticky; top: 0; z-index: 50;
-}
-.header-top {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 20px; gap: 10px; flex-wrap: wrap;
-}
-.header-left { display: flex; align-items: center; gap: 8px; }
-.back-btn {
-  width: 34px; height: 34px; background: #f5f3ff; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  color: #7c3aed; font-size: 1.1rem; cursor: pointer;
-  border: 1.5px solid #ede9fe; font-family: inherit;
-  flex-shrink: 0; text-decoration: none; font-weight: 700; line-height: 1;
-}
-.back-btn:hover { background: #ede9fe; }
-.header-logo {
-  width: 40px; height: 40px; background: white; border-radius: 10px;
-  overflow: hidden; padding: 3px; border: 1px solid #ede9fe; flex-shrink: 0;
-}
-.header-logo img { width: 100%; height: 100%; object-fit: contain; }
-.header-brand-text .title { font-size: 0.98rem; font-weight: 700; color: #1e1b4b; }
-.header-brand-text .sub { font-size: 0.7rem; color: #9ca3af; }
-.gestor-badge {
-  background: #f5f3ff; color: #7c3aed; border: 1.5px solid #ede9fe;
-  border-radius: 8px; padding: 5px 10px; font-size: 0.72rem; font-weight: 800;
-  letter-spacing: 0.5px;
-}
-/* Ações rápidas */
-.header-actions {
-  display: flex; gap: 6px; flex-wrap: wrap;
-  padding: 8px 20px 10px; border-top: 1px solid #f5f3ff;
-}
-.btn-action {
-  background: #f5f3ff; color: #7c3aed; border: 1.5px solid #ede9fe;
-  border-radius: 8px; padding: 6px 13px; font-size: 0.78rem; font-weight: 600;
-  cursor: pointer; font-family: inherit; transition: all 0.15s;
-}
-.btn-action:hover { background: #ede9fe; }
-.btn-action.danger { background: #fff1f2; color: #dc2626; border-color: #fecaca; }
-.btn-action.danger:hover { background: #fee2e2; }
-
-/* ── Container ── */
-.container { max-width: 900px; margin: 20px auto; padding: 0 16px 40px; }
-
-/* Data */
-.date-bar {
-  background: white; border-radius: 12px; padding: 12px 16px;
-  display: flex; align-items: center; gap: 12px;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.05); border: 1px solid #f3f4f6;
-  margin-bottom: 16px; flex-wrap: wrap;
-}
-.date-bar label { font-weight: 600; font-size: 0.88rem; color: #374151; }
-.date-bar input[type="date"] {
-  border: 1.5px solid #e5e7eb; border-radius: 8px; padding: 7px 12px;
-  font-size: 0.88rem; font-family: inherit; cursor: pointer; outline: none;
-}
-.date-bar input[type="date"]:focus { border-color: #7c3aed; }
-
-/* Adicionar produto */
-.add-card {
-  background: white; border-radius: 14px; padding: 18px 20px;
-  box-shadow: 0 2px 10px rgba(124,58,237,0.05); border: 1.5px solid #ede9fe;
-  margin-bottom: 16px;
-}
-.add-card h2 { font-size: 0.9rem; font-weight: 700; color: #7c3aed; margin-bottom: 14px; }
-.form-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
-.form-group { display: flex; flex-direction: column; gap: 5px; }
-.form-group label {
-  font-size: 0.75rem; font-weight: 700; color: #6b7280;
-  text-transform: uppercase; letter-spacing: 0.3px;
-}
-.form-group input {
-  border: 1.5px solid #e5e7eb; border-radius: 8px; padding: 9px 12px;
-  font-size: 0.9rem; font-family: inherit; outline: none; transition: border-color 0.2s;
-}
-.form-group input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.08); }
-.fg-produto { flex: 1; min-width: 200px; }
-.fg-qtd { width: 120px; }
-.urgencia-check {
-  display: flex; align-items: center; gap: 7px; cursor: pointer;
-  padding: 9px 13px; border: 1.5px solid #fca5a5; border-radius: 8px;
-  background: #fff5f5; user-select: none; white-space: nowrap;
-  font-size: 0.85rem; font-weight: 700; color: #dc2626;
-}
-.urgencia-check input { width: 16px; height: 16px; accent-color: #dc2626; cursor: pointer; }
-.urgencia-check.active { background: #fee2e2; border-color: #ef4444; }
-.btn-add {
-  background: #7c3aed; color: white; padding: 9px 20px;
-  border-radius: 8px; border: none; font-size: 0.9rem;
-  font-weight: 700; cursor: pointer; font-family: inherit; height: 42px;
-  transition: background 0.15s;
-}
-.btn-add:hover { background: #6d28d9; }
-
-/* Tabela */
-.tasks-card {
-  background: white; border-radius: 14px; overflow: hidden;
-  box-shadow: 0 2px 10px rgba(124,58,237,0.05); border: 1px solid #f3f4f6;
-}
-.tasks-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 18px; border-bottom: 1px solid #f3f4f6; flex-wrap: wrap; gap: 8px;
-}
-.tasks-header h2 { font-size: 0.9rem; font-weight: 700; color: #1e1b4b; }
-.count-badge {
-  background: #f5f3ff; color: #7c3aed; border-radius: 20px;
-  padding: 2px 10px; font-size: 0.78rem; font-weight: 700; margin-left: 6px;
-}
-table { width: 100%; border-collapse: collapse; }
-thead { background: #f5f3ff; }
-thead th {
-  padding: 10px 16px; text-align: left; font-size: 0.72rem;
-  font-weight: 700; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.4px;
-}
-tbody tr { border-top: 1px solid #f9fafb; transition: background 0.1s; }
-tbody tr:hover { background: #fafafa; }
-tbody tr.urgente-row { background: #fff5f5; }
-tbody tr.urgente-row:hover { background: #fee2e2; }
-.urgente-sep td {
-  background: #fff5f5; padding: 5px 16px;
-  font-size: 0.68rem; font-weight: 700; color: #dc2626; letter-spacing: 0.5px;
-  border-top: 2px solid #fecaca;
-}
-.normal-sep td {
-  background: #f9fafb; padding: 5px 16px;
-  font-size: 0.68rem; font-weight: 700; color: #9ca3af; letter-spacing: 0.5px;
-}
-td { padding: 12px 16px; font-size: 0.9rem; vertical-align: middle; }
-.produto-cell { font-weight: 600; color: #111827; }
-.urgente-badge {
-  display: inline-flex; align-items: center; gap: 3px;
-  background: #fee2e2; color: #dc2626; border-radius: 20px;
-  padding: 2px 8px; font-size: 0.7rem; font-weight: 700; margin-left: 6px;
-}
-.qtd-badge {
-  background: #f5f3ff; color: #7c3aed; border: 1px solid #ede9fe;
-  padding: 3px 10px; border-radius: 20px; font-weight: 600; font-size: 0.85rem;
-}
-.status-done {
-  background: #dcfce7; color: #16a34a; padding: 3px 10px;
-  border-radius: 20px; font-size: 0.78rem; font-weight: 600;
-}
-.status-pending {
-  background: #fef9c3; color: #854d0e; padding: 3px 10px;
-  border-radius: 20px; font-size: 0.78rem; font-weight: 600;
-}
-.btn-del {
-  background: none; border: 1.5px solid #fca5a5; color: #dc2626;
-  border-radius: 6px; padding: 4px 11px; font-size: 0.78rem; cursor: pointer;
-  transition: all 0.15s; font-family: inherit;
-}
-.btn-del:hover { background: #fee2e2; }
-.empty-state { text-align: center; padding: 50px 20px; color: #9ca3af; }
-.empty-state .icon { font-size: 2.5rem; margin-bottom: 10px; }
-
-/* Toast */
-.toast {
-  position: fixed; bottom: 24px; right: 24px; background: #1e293b;
-  color: white; padding: 12px 20px; border-radius: 8px; font-size: 0.9rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25); opacity: 0;
-  transform: translateY(10px); transition: all 0.3s; z-index: 100;
-}
-.toast.show { opacity: 1; transform: translateY(0); }
-
-@media (max-width: 600px) { table { display: block; overflow-x: auto; } }
-
-/* Impressão */
-@media print {
-  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  body { background: white; }
-  header, .date-bar, .add-card, .toast, .btn-del, .no-print { display: none !important; }
-  .container { max-width: 100%; margin: 0; padding: 0; }
-  .tasks-card { box-shadow: none; border: 1px solid #e2e8f0; border-radius: 0; }
-  thead { background: #7c3aed !important; }
-  thead th { color: white !important; }
-  .print-header { display: block !important; text-align: center; margin-bottom: 20px; font-size: 1.3rem; font-weight: 700; color: #7c3aed; }
-  .print-date { display: block !important; text-align: center; font-size: 0.95rem; color: #64748b; margin-bottom: 14px; }
-}
-.print-header, .print-date { display: none; }
-
-.app-footer {
-  text-align: center; padding: 24px 20px 40px; font-size: 0.78rem; color: #9ca3af;
-  border-top: 1px solid #ede9fe; margin-top: 32px;
-}
-.app-footer a { color: #7c3aed; text-decoration: none; font-weight: 600; }
-.app-footer a:hover { text-decoration: underline; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8f7ff; color: #2d3748; min-height: 100vh; }
+  /* ── Header ── */
+  header {
+    background: white; border-bottom: 1px solid #ede9fe;
+    box-shadow: 0 1px 8px rgba(124,58,237,0.07);
+    position: sticky; top: 0; z-index: 50;
+    padding: 12px 20px; display: flex; align-items: center; gap: 8px;
+  }
+  .header-left { display: flex; align-items: center; gap: 8px; flex: 1; }
+  .back-btn {
+    width: 34px; height: 34px; background: #f5f3ff; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #7c3aed; font-size: 1.1rem; text-decoration: none; font-weight: 700;
+    border: 1.5px solid #ede9fe; flex-shrink: 0; line-height: 1;
+  }
+  .back-btn:hover { background: #ede9fe; }
+  .header-logo {
+    width: 40px; height: 40px; background: white; border-radius: 10px;
+    overflow: hidden; padding: 3px; border: 1px solid #ede9fe; flex-shrink: 0;
+  }
+  .header-logo img { width: 100%; height: 100%; object-fit: contain; }
+  .header-brand-text .title { font-size: 0.98rem; font-weight: 700; color: #1e1b4b; }
+  .header-brand-text .sub { font-size: 0.7rem; color: #9ca3af; }
+  .header-right { display: flex; align-items: center; gap: 8px; }
+  .gestor-badge {
+    background: #f5f3ff; color: #7c3aed; border: 1.5px solid #ede9fe;
+    border-radius: 8px; padding: 5px 10px; font-size: 0.72rem; font-weight: 800;
+    letter-spacing: 0.5px; white-space: nowrap;
+  }
+  .btn-logout {
+    background: none; border: 1.5px solid #e5e7eb; border-radius: 8px;
+    padding: 6px 10px; font-size: 0.78rem; font-weight: 600;
+    color: #6b7280; text-decoration: none; transition: all 0.15s;
+  }
+  .btn-logout:hover { border-color: #c4b5fd; color: #7c3aed; }
+  .btn-print { background:#fff; color:#7c3aed; border:1.5px solid #c4b5fd; border-radius:9px; padding:7px 12px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px; }
+  .btn-print:hover { background:#f3f0ff; }
+  /* ── Footer ── */
+  .app-footer {
+    text-align: center; padding: 24px 20px 40px; font-size: 0.78rem; color: #9ca3af;
+    border-top: 1px solid #ede9fe; margin-top: 20px;
+  }
+  .app-footer a { color: #7c3aed; text-decoration: none; font-weight: 600; }
+  .app-footer a:hover { text-decoration: underline; }
+  .page { max-width:680px; margin:28px auto; padding:0 16px 100px; }
+  .week-nav { background:#fff; border-radius:14px; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+  .week-nav-btn { background:none; border:1.5px solid #e5e7eb; border-radius:8px; width:34px; height:34px; font-size:16px; cursor:pointer; color:#7c3aed; display:flex; align-items:center; justify-content:center; }
+  .week-nav-btn:hover { background:#f3f0ff; }
+  .week-label { text-align:center; }
+  .week-label-main { font-size:16px; font-weight:700; color:#1f1235; }
+  .week-label-sub { font-size:12px; color:#9ca3af; margin-top:2px; }
+  .add-card { background:#fff; border-radius:14px; padding:16px 18px; margin-bottom:14px; box-shadow:0 1px 4px rgba(0,0,0,.06); border:1.5px dashed #c4b5fd; }
+  .add-card-title { font-size:12px; font-weight:600; color:#7c3aed; margin-bottom:10px; text-transform:uppercase; letter-spacing:.5px; }
+  .add-row { display:flex; gap:8px; }
+  .add-input { flex:1; border:1.5px solid #e5e7eb; border-radius:9px; padding:9px 12px; font-size:14px; font-family:inherit; color:#1f1235; outline:none; }
+  .add-input:focus { border-color:#7c3aed; }
+  .btn-add { background:#7c3aed; color:#fff; border:none; border-radius:9px; padding:9px 18px; font-size:14px; font-weight:600; cursor:pointer; white-space:nowrap; }
+  .btn-add:hover { background:#6d28d9; }
+  .emp-card { background:#fff; border-radius:14px; padding:16px 18px; margin-bottom:12px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+  .emp-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .emp-info { display:flex; align-items:center; gap:10px; }
+  .avatar { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#fff; flex-shrink:0; }
+  .emp-name { font-size:15px; font-weight:700; color:#1f1235; }
+  .emp-filled { font-size:12px; color:#9ca3af; }
+  .btn-remove { background:none; border:1.5px solid #fca5a5; color:#ef4444; border-radius:7px; padding:5px 10px; font-size:12px; font-weight:600; cursor:pointer; }
+  .btn-remove:hover { background:#fef2f2; }
+  .day-row { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid #f3f4f6; }
+  .day-row:last-child { border-bottom:none; }
+  .day-label { width:106px; flex-shrink:0; }
+  .day-name-wrap { display:flex; align-items:center; gap:5px; }
+  .day-dot { width:6px; height:6px; border-radius:50%; background:#7c3aed; display:none; }
+  .day-row.monday .day-dot { display:block; }
+  .day-name { font-size:13px; font-weight:600; color:#374151; }
+  .day-row.monday .day-name { color:#7c3aed; }
+  .day-date { font-size:11px; color:#9ca3af; }
+  .day-row.monday .day-date { color:#a78bfa; }
+  .day-input { flex:1; border:1.5px solid #e5e7eb; border-radius:8px; padding:7px 10px; font-size:13px; font-family:inherit; color:#1f1235; outline:none; transition:border-color .15s, background .15s; }
+  .day-input:focus { border-color:#7c3aed; background:#faf5ff; }
+  .day-input.filled { border-color:#a78bfa; background:#faf5ff; color:#6d28d9; font-weight:500; }
+  .day-input::placeholder { color:#d8b4fe; }
+  .save-bar { position:fixed; bottom:0; left:0; right:0; background:linear-gradient(transparent,#f8f7ff 40%); padding:20px 16px 16px; }
+  .save-bar-inner { max-width:680px; margin:0 auto; }
+  .btn-save { width:100%; background:#7c3aed; color:#fff; border:none; border-radius:12px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(124,58,237,.25); }
+  .btn-save:hover { background:#6d28d9; }
+  .btn-save:disabled { background:#a78bfa; cursor:not-allowed; box-shadow:none; }
+  .loading { text-align:center; color:#9ca3af; padding:40px 0; font-size:14px; }
+  .toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(10px); background:#1f1235; color:#fff; padding:9px 20px; border-radius:99px; font-size:13px; font-weight:600; opacity:0; transition:opacity .3s,transform .3s; pointer-events:none; z-index:999; white-space:nowrap; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  .print-header { display:none; text-align:center; margin-bottom:14px; }
+  .print-header h2 { font-size:17px; color:#1f1235; }
+  .print-header p { font-size:12px; color:#6b7280; margin-top:3px; }
+  @media print {
+    header, .app-footer, .add-card, .btn-remove, .week-nav-btn, .save-bar, .btn-print { display:none !important; }
+    body { background:#fff; }
+    .page { margin:0; padding:0; max-width:100%; }
+    .emp-card { box-shadow:none; border:1px solid #e5e7eb; break-inside:avoid; }
+    .day-input { border:none; background:transparent !important; padding:7px 0; }
+    .day-input.filled { color:#1f1235 !important; font-weight:600; }
+    .week-nav { box-shadow:none; border:1px solid #e5e7eb; }
+    .print-header { display:block !important; }
+  }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="header-top">
-    <div class="header-left">
-      <a href="/admin" class="back-btn" title="Voltar ao Hub do Gestor">‹</a>
-      <div class="header-logo">
-        <img src="/static/logo.png" alt="Piromax">
-      </div>
-      <div class="header-brand-text">
-        <div class="title">Fogos Piromax</div>
-        <div class="sub">Área do Gestor · Produção</div>
-      </div>
+  <div class="header-left">
+    <a href="/admin" class="back-btn">←</a>
+    <div class="header-logo">
+      <img src="/static/logo.png" alt="Piromax">
     </div>
-    <div>
-      <span class="gestor-badge">👔 GESTOR</span>
+    <div class="header-brand-text">
+      <div class="title">Fogos Piromax</div>
+      <div class="sub">Área do Gestor</div>
     </div>
   </div>
-  <div class="header-actions">
-    <button class="btn-action" onclick="copyLastDay()">📋 Copiar último dia</button>
-    <button class="btn-action" onclick="printPDF()">🖨️ Imprimir PDF</button>
-    <button class="btn-action danger" onclick="confirmClear()">🗑️ Limpar dia</button>
+  <div class="header-right">
+    <span class="gestor-badge">👔 GESTOR</span>
+    <button class="btn-print" onclick="window.print()">🖨️ PDF</button>
+    <a href="/admin/logout" class="btn-logout">🚪 Sair</a>
   </div>
 </header>
 
-<div class="print-header">Fogos Piromax — Produção do Dia</div>
-<div class="print-date" id="printDateLabel"></div>
+<div class="page">
+  <div class="print-header">
+    <h2>Fogos Piromax — Programação de Produção</h2>
+    <p id="print-week-label"></p>
+  </div>
 
-<div class="container">
-
-  <div class="date-bar">
-    <label for="datePicker">📅 Data:</label>
-    <input type="date" id="datePicker" value="{{ date }}" onchange="changeDate(this.value)">
+  <div class="week-nav">
+    <button class="week-nav-btn" onclick="changeWeek(-1)">‹</button>
+    <div class="week-label">
+      <div class="week-label-main" id="week-range">—</div>
+      <div class="week-label-sub" id="week-year">carregando…</div>
+    </div>
+    <button class="week-nav-btn" onclick="changeWeek(1)">›</button>
   </div>
 
   <div class="add-card">
-    <h2>➕ Adicionar Produto</h2>
-    <div class="form-row">
-      <div class="form-group fg-produto">
-        <label>Nome do Produto</label>
-        <input type="text" id="inputProduto" placeholder="Ex: Foguete Simples" maxlength="100"
-               onkeydown="if(event.key==='Enter') addTask()">
-      </div>
-      <div class="form-group fg-qtd">
-        <label>Quantidade</label>
-        <input type="number" id="inputQtd" placeholder="100" min="1" max="99999"
-               onkeydown="if(event.key==='Enter') addTask()">
-      </div>
-      <div class="form-group">
-        <label style="visibility:hidden">Urgente</label>
-        <label class="urgencia-check" id="urgenciaLabel" for="checkUrgente">
-          <input type="checkbox" id="checkUrgente" onchange="toggleUrgenciaStyle()"> ⚠ Urgente
-        </label>
-      </div>
-      <div class="form-group">
-        <label style="visibility:hidden">Ação</label>
-        <button class="btn-add" onclick="addTask()">+ Adicionar</button>
-      </div>
+    <div class="add-card-title">+ Adicionar Funcionário</div>
+    <div class="add-row">
+      <input class="add-input" type="text" id="new-emp-name" placeholder="Nome do funcionário…" onkeydown="if(event.key==='Enter')addEmployee()">
+      <button class="btn-add" onclick="addEmployee()">Adicionar</button>
     </div>
   </div>
 
-  <div class="tasks-card">
-    <div class="tasks-header">
-      <div>
-        <h2 style="display:inline">Produtos do Dia</h2>
-        <span class="count-badge" id="countBadge">{{ tasks|length }}</span>
-      </div>
-    </div>
-    <div id="tableWrap">
-      {% set urgentes = tasks | selectattr('urgente') | list %}
-      {% set normais = tasks | rejectattr('urgente') | list %}
-
-      {% if tasks|length == 0 %}
-      <div class="empty-state" id="emptyState">
-        <div class="icon">📭</div>
-        <p>Nenhuma tarefa adicionada ainda.</p>
-      </div>
-      {% else %}
-      <table id="taskTable">
-        <thead>
-          <tr><th>#</th><th>Produto</th><th>Qtd</th><th>Status</th><th></th></tr>
-        </thead>
-        <tbody id="taskBody">
-          {% if urgentes %}
-          <tr class="urgente-sep"><td colspan="5">⚠ URGENTE — aparece primeiro</td></tr>
-          {% for task in urgentes %}
-          <tr id="row-{{ task.id }}" class="urgente-row">
-            <td style="color:#d1d5db; font-size:0.82rem;">{{ loop.index }}</td>
-            <td class="produto-cell">
-              {{ task.produto }}
-              <span class="urgente-badge">🔴 URGENTE</span>
-            </td>
-            <td><span class="qtd-badge">{{ task.quantidade }}</span></td>
-            <td>
-              {% if task.concluido %}<span class="status-done">✅ Concluído</span>
-              {% else %}<span class="status-pending">⏳ Pendente</span>{% endif %}
-            </td>
-            <td><button class="btn-del" onclick="deleteTask('{{ task.id }}')">🗑</button></td>
-          </tr>
-          {% endfor %}
-          {% endif %}
-
-          {% if normais %}
-          <tr class="normal-sep"><td colspan="5">DEMAIS ITENS</td></tr>
-          {% for task in normais %}
-          <tr id="row-{{ task.id }}">
-            <td style="color:#d1d5db; font-size:0.82rem;">{{ loop.index + urgentes|length }}</td>
-            <td class="produto-cell">{{ task.produto }}</td>
-            <td><span class="qtd-badge">{{ task.quantidade }}</span></td>
-            <td>
-              {% if task.concluido %}<span class="status-done">✅ Concluído</span>
-              {% else %}<span class="status-pending">⏳ Pendente</span>{% endif %}
-            </td>
-            <td><button class="btn-del" onclick="deleteTask('{{ task.id }}')">🗑</button></td>
-          </tr>
-          {% endfor %}
-          {% endif %}
-        </tbody>
-      </table>
-      {% endif %}
-    </div>
-  </div>
-
+  <div id="emp-list"><div class="loading">Carregando programação…</div></div>
 </div>
 
-<footer class="app-footer no-print">
-  <a href="/">← Ver área dos trabalhadores</a>
-</footer>
+<div class="save-bar">
+  <div class="save-bar-inner">
+    <button class="btn-save" id="btn-save" onclick="saveWeek()">💾 Salvar semana</button>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
-<script>
-let CURRENT_DATE = "{{ date }}";
+<footer class="app-footer">
+  <a href="/">← Ver área dos trabalhadores</a>
+</footer>
 
-function showToast(msg, isError = false) {
+<script>
+const DEFAULT_WEEK = "{{ default_week }}";
+const AVATARS = [
+  ['#7c3aed','#a78bfa'],['#0891b2','#67e8f9'],['#059669','#6ee7b7'],
+  ['#d97706','#fcd34d'],['#dc2626','#fca5a5'],['#be185d','#fbcfe8'],
+];
+
+function parseDate(iso) {
+  const [y,m,d] = iso.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate()+n); return r; }
+function fmt(d) { return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}); }
+function isoDate(d) { return d.toISOString().slice(0,10); }
+
+const DAYS = ['Segunda','Terça','Quarta','Quinta','Sexta'];
+const DAY_KEYS = ['mon','tue','wed','thu','fri'];
+
+let weekStart = parseDate(DEFAULT_WEEK);
+let employees = []; // [{name, mon, tue, wed, thu, fri}]
+let loading = false;
+
+function updateHeader() {
+  const end = addDays(weekStart, 4);
+  const rangeStr = `${fmt(weekStart)} – ${fmt(end)}`;
+  document.getElementById('week-range').textContent = rangeStr;
+  document.getElementById('week-year').textContent =
+    weekStart.toLocaleDateString('pt-BR',{month:'long'}) + ' · ' + weekStart.getFullYear();
+  const pl = document.getElementById('print-week-label');
+  if (pl) pl.textContent = `Semana ${rangeStr} · ${weekStart.getFullYear()}`;
+}
+
+async function loadWeek() {
+  const ws = isoDate(weekStart);
+  document.getElementById('emp-list').innerHTML = '<div class="loading">Carregando…</div>';
+  try {
+    const res = await fetch(`/api/producao-semana?week_start=${ws}`);
+    const rows = await res.json();
+    employees = rows.map(r => ({
+      name: r.employee_name,
+      mon: r.mon||'', tue: r.tue||'', wed: r.wed||'', thu: r.thu||'', fri: r.fri||''
+    }));
+  } catch(e) {
+    employees = [];
+  }
+  renderList();
+}
+
+function renderList() {
+  updateHeader();
+  const list = document.getElementById('emp-list');
+  list.innerHTML = '';
+  if (!employees.length) {
+    list.innerHTML = '<div class="loading">Nenhum funcionário nesta semana. Adicione acima.</div>';
+    return;
+  }
+  employees.forEach((emp, ei) => {
+    const ci = ei % AVATARS.length;
+    const grad = `linear-gradient(135deg,${AVATARS[ci][0]},${AVATARS[ci][1]})`;
+    const initials = emp.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const filled = DAY_KEYS.filter(k => emp[k].trim()).length;
+
+    const card = document.createElement('div');
+    card.className = 'emp-card';
+    card.dataset.ei = ei;
+    card.innerHTML = `
+      <div class="emp-header">
+        <div class="emp-info">
+          <div class="avatar" style="background:${grad}">${initials}</div>
+          <div>
+            <div class="emp-name">${emp.name}</div>
+            <div class="emp-filled">${filled}/5 dias preenchidos</div>
+          </div>
+        </div>
+        <button class="btn-remove" onclick="removeEmployee(${ei})">🗑 remover</button>
+      </div>`;
+
+    DAY_KEYS.forEach((key, di) => {
+      const date = addDays(weekStart, di);
+      const row = document.createElement('div');
+      row.className = 'day-row' + (di===0?' monday':'');
+      const inp = document.createElement('input');
+      inp.type = 'text';
+      inp.className = 'day-input' + (emp[key]?' filled':'');
+      inp.placeholder = 'Produto…';
+      inp.value = emp[key];
+      inp.addEventListener('input', e => {
+        employees[ei][key] = e.target.value;
+        e.target.classList.toggle('filled', !!e.target.value.trim());
+        const f = DAY_KEYS.filter(k=>employees[ei][k].trim()).length;
+        card.querySelector('.emp-filled').textContent = `${f}/5 dias preenchidos`;
+      });
+      row.innerHTML = `
+        <div class="day-label">
+          <div class="day-name-wrap"><div class="day-dot"></div><span class="day-name">${DAYS[di]}</span></div>
+          <span class="day-date">${fmt(date)}</span>
+        </div>`;
+      row.appendChild(inp);
+      card.appendChild(row);
+    });
+    list.appendChild(card);
+  });
+}
+
+function addEmployee() {
+  const inp = document.getElementById('new-emp-name');
+  const name = inp.value.trim();
+  if (!name) { inp.focus(); return; }
+  if (employees.find(e => e.name.toLowerCase() === name.toLowerCase())) {
+    showToast('⚠️ Funcionário já existe nesta semana');
+    return;
+  }
+  employees.push({name, mon:'', tue:'', wed:'', thu:'', fri:''});
+  inp.value = '';
+  renderList();
+  setTimeout(() => {
+    const cards = document.querySelectorAll('.emp-card');
+    cards[cards.length-1]?.scrollIntoView({behavior:'smooth',block:'center'});
+  }, 50);
+}
+
+function removeEmployee(ei) {
+  const emp = employees[ei];
+  const ws = isoDate(weekStart);
+  employees.splice(ei, 1);
+  renderList();
+  // Remove from DB if exists
+  fetch('/admin/producao/remover', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({name: emp.name, week_start: ws})
+  });
+}
+
+async function saveWeek() {
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true;
+  btn.textContent = '⏳ Salvando…';
+  try {
+    const res = await fetch('/admin/producao/salvar', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        week_start: isoDate(weekStart),
+        employees: employees.map(e => ({name:e.name, mon:e.mon, tue:e.tue, wed:e.wed, thu:e.thu, fri:e.fri}))
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('✅ Semana salva com sucesso!');
+    } else {
+      showToast('❌ Erro ao salvar: ' + (data.error||''));
+    }
+  } catch(e) {
+    showToast('❌ Erro de conexão');
+  }
+  btn.disabled = false;
+  btn.textContent = '💾 Salvar semana';
+}
+
+function changeWeek(dir) {
+  weekStart = addDays(weekStart, dir*7);
+  loadWeek();
+}
+
+function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.style.background = isError ? '#dc2626' : '#1e293b';
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-function toggleUrgenciaStyle() {
-  const cb = document.getElementById('checkUrgente');
-  document.getElementById('urgenciaLabel').classList.toggle('active', cb.checked);
-}
-
-function changeDate(val) {
-  CURRENT_DATE = val;
-  window.location.href = '/admin/producao?date=' + val;
-}
-
-async function addTask() {
-  const produto = document.getElementById('inputProduto').value.trim();
-  const qtd = parseInt(document.getElementById('inputQtd').value);
-  const urgente = document.getElementById('checkUrgente').checked;
-  if (!produto) { showToast('Digite o nome do produto.', true); document.getElementById('inputProduto').focus(); return; }
-  if (!qtd || qtd < 1) { showToast('Digite uma quantidade válida.', true); document.getElementById('inputQtd').focus(); return; }
-
-  const res = await fetch('/admin/add', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ produto, quantidade: qtd, date: CURRENT_DATE, urgente })
-  });
-  if (res.ok) {
-    const data = await res.json();
-    appendRow(data.task);
-    document.getElementById('inputProduto').value = '';
-    document.getElementById('inputQtd').value = '';
-    document.getElementById('checkUrgente').checked = false;
-    toggleUrgenciaStyle();
-    document.getElementById('inputProduto').focus();
-    updateCount(1);
-    showToast(urgente ? '🔴 Produto urgente adicionado!' : '✅ Produto adicionado!');
-  } else {
-    showToast('Erro ao adicionar.', true);
-  }
-}
-
-function appendRow(task) {
-  const empty = document.getElementById('emptyState');
-  if (empty) empty.remove();
-
-  let table = document.getElementById('taskTable');
-  if (!table) {
-    document.getElementById('tableWrap').innerHTML = `
-      <table id="taskTable">
-        <thead><tr><th>#</th><th>Produto</th><th>Qtd</th><th>Status</th><th></th></tr></thead>
-        <tbody id="taskBody"></tbody>
-      </table>`;
-  }
-
-  const tbody = document.getElementById('taskBody');
-  const urgBadge = task.urgente ? '<span class="urgente-badge">🔴 URGENTE</span>' : '';
-  const rowClass = task.urgente ? 'urgente-row' : '';
-  const tr = document.createElement('tr');
-  tr.id = 'row-' + task.id;
-  tr.className = rowClass;
-  tr.innerHTML = `
-    <td style="color:#d1d5db; font-size:0.82rem;">${tbody.querySelectorAll('tr:not(.urgente-sep):not(.normal-sep)').length + 1}</td>
-    <td class="produto-cell">${task.produto}${urgBadge}</td>
-    <td><span class="qtd-badge">${task.quantidade}</span></td>
-    <td><span class="status-pending">⏳ Pendente</span></td>
-    <td><button class="btn-del" onclick="deleteTask('${task.id}')">🗑</button></td>`;
-
-  if (task.urgente) {
-    let sep = tbody.querySelector('.urgente-sep');
-    if (!sep) {
-      sep = document.createElement('tr');
-      sep.className = 'urgente-sep';
-      sep.innerHTML = '<td colspan="5">⚠ URGENTE — aparece primeiro</td>';
-      tbody.prepend(sep);
-    }
-    sep.after(tr);
-  } else {
-    let sep = tbody.querySelector('.normal-sep');
-    if (!sep) {
-      sep = document.createElement('tr');
-      sep.className = 'normal-sep';
-      sep.innerHTML = '<td colspan="5">DEMAIS ITENS</td>';
-      tbody.appendChild(sep);
-    }
-    tbody.appendChild(tr);
-  }
-}
-
-async function deleteTask(id) {
-  if (!confirm('Excluir esta tarefa?')) return;
-  const res = await fetch('/admin/delete/' + id, {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ date: CURRENT_DATE })
-  });
-  if (res.ok) {
-    document.getElementById('row-' + id).remove();
-    updateCount(-1);
-    showToast('Tarefa excluída.');
-    const tbody = document.getElementById('taskBody');
-    if (tbody && tbody.querySelectorAll('tr:not(.urgente-sep):not(.normal-sep)').length === 0) {
-      document.getElementById('tableWrap').innerHTML = `<div class="empty-state" id="emptyState"><div class="icon">📭</div><p>Nenhuma tarefa adicionada ainda.</p></div>`;
-    }
-  } else {
-    showToast('Erro ao excluir.', true);
-  }
-}
-
-async function confirmClear() {
-  const rows = document.querySelectorAll('#taskBody tr:not(.urgente-sep):not(.normal-sep)');
-  if (rows.length === 0) { showToast('Nenhuma tarefa para limpar.'); return; }
-  if (!confirm('Limpar TODAS as tarefas deste dia?')) return;
-  const res = await fetch('/admin/clear', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ date: CURRENT_DATE })
-  });
-  if (res.ok) {
-    document.getElementById('tableWrap').innerHTML = `<div class="empty-state" id="emptyState"><div class="icon">📭</div><p>Nenhuma tarefa adicionada ainda.</p></div>`;
-    document.getElementById('countBadge').textContent = '0';
-    showToast('Tarefas removidas.');
-  }
-}
-
-async function copyLastDay() {
-  if (!confirm('Copiar as tarefas do último dia lançado para este dia?')) return;
-  const res = await fetch('/admin/copy-yesterday', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ date: CURRENT_DATE })
-  });
-  const data = await res.json();
-  if (data.success) {
-    showToast('✅ Tarefas copiadas de ' + data.copied_from + '!');
-    setTimeout(() => location.reload(), 1200);
-  } else {
-    showToast(data.message || 'Nenhum dia anterior com tarefas encontrado.', true);
-  }
-}
-
-function updateCount(delta) {
-  const badge = document.getElementById('countBadge');
-  badge.textContent = parseInt(badge.textContent || '0') + delta;
-}
-
-function printPDF() {
-  const parts = CURRENT_DATE.split('-');
-  const label = document.getElementById('printDateLabel');
-  if (label) label.textContent = parts[2] + '/' + parts[1] + '/' + parts[0];
-  window.print();
-}
-
-(function() {
-  const parts = CURRENT_DATE.split('-');
-  const label = document.getElementById('printDateLabel');
-  if (label) label.textContent = parts[2] + '/' + parts[1] + '/' + parts[0];
-})();
+// Init
+loadWeek();
 </script>
 </body>
 </html>
