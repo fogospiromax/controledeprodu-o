@@ -82,12 +82,9 @@
   .day-row:last-child { border-bottom:none; }
   .day-label { width:106px; flex-shrink:0; }
   .day-name-wrap { display:flex; align-items:center; gap:5px; }
-  .day-dot { width:6px; height:6px; border-radius:50%; background:#7c3aed; display:none; }
-  .day-row.monday .day-dot { display:block; }
+  .day-dot { display:none; }
   .day-name { font-size:13px; font-weight:600; color:#374151; }
-  .day-row.monday .day-name { color:#7c3aed; }
   .day-date { font-size:11px; color:#9ca3af; }
-  .day-row.monday .day-date { color:#a78bfa; }
   .day-input { flex:1; border:1.5px solid #e5e7eb; border-radius:8px; padding:7px 10px; font-size:13px; font-family:inherit; color:#1f1235; outline:none; transition:border-color .15s, background .15s; }
   .day-input:focus { border-color:#7c3aed; background:#faf5ff; }
   .day-input.filled { border-color:#a78bfa; background:#faf5ff; color:#6d28d9; font-weight:500; }
@@ -253,7 +250,7 @@ function renderList() {
     DAY_KEYS.forEach((key, di) => {
       const date = addDays(weekStart, di);
       const row = document.createElement('div');
-      row.className = 'day-row' + (di===0?' monday':'');
+      row.className = 'day-row';
       const inp = document.createElement('input');
       inp.type = 'text';
       inp.className = 'day-input' + (emp[key]?' filled':'');
@@ -275,10 +272,22 @@ function renderList() {
     });
     list.appendChild(card);
   });
+
+  // Bottom add-employee card
+  const bottomAdd = document.createElement('div');
+  bottomAdd.className = 'add-card';
+  bottomAdd.innerHTML = `
+    <div class="add-card-title">+ Adicionar Funcionário</div>
+    <div class="add-row">
+      <input class="add-input" type="text" id="new-emp-name-bottom" placeholder="Nome do funcionário…" onkeydown="if(event.key==='Enter')addEmployee('bottom')">
+      <button class="btn-add" onclick="addEmployee('bottom')">Adicionar</button>
+    </div>`;
+  list.appendChild(bottomAdd);
 }
 
-function addEmployee() {
-  const inp = document.getElementById('new-emp-name');
+function addEmployee(source) {
+  const inputId = source === 'bottom' ? 'new-emp-name-bottom' : 'new-emp-name';
+  const inp = document.getElementById(inputId);
   const name = inp.value.trim();
   if (!name) { inp.focus(); return; }
   if (employees.find(e => e.name.toLowerCase() === name.toLowerCase())) {
