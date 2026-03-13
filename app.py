@@ -127,6 +127,19 @@ def init_db():
         )
     ''')
     cur.execute('''
+        CREATE TABLE IF NOT EXISTS production_schedule (
+            id TEXT PRIMARY KEY,
+            employee_name TEXT NOT NULL,
+            week_start DATE NOT NULL,
+            mon TEXT DEFAULT '',
+            tue TEXT DEFAULT '',
+            wed TEXT DEFAULT '',
+            thu TEXT DEFAULT '',
+            fri TEXT DEFAULT '',
+            CONSTRAINT uq_emp_week UNIQUE (employee_name, week_start)
+        )
+    ''')
+    cur.execute('''
         CREATE TABLE IF NOT EXISTS special_orders (
             id TEXT PRIMARY KEY,
             produto TEXT NOT NULL,
@@ -153,6 +166,14 @@ try:
     init_db()
 except Exception as e:
     print(f"[init_db] Aviso: {e}")
+
+def next_monday_date():
+    """Retorna a próxima segunda-feira (SP). Se hoje já for segunda, vai para a seguinte."""
+    today = now_sp().date()
+    days_until = (7 - today.weekday()) % 7  # weekday() 0=Seg
+    if days_until == 0:
+        days_until = 7
+    return today + timedelta(days=days_until)
 
 def get_tasks(date_str):
     conn = get_db()
@@ -213,16 +234,11 @@ def worker_hub():
                            pedidos_pendentes_count=pedidos_pendentes_count,
                            solicitacoes_pendentes_count=solicitacoes_pendentes_count)
 
-# ── Trabalhador — Produção ─────────────────────────────────────────────────────
+# ── Trabalhador — Produção por Semana ─────────────────────────────────────────
 @app.route('/producao')
 def worker_view():
-    today = today_sp()
-    date_str = request.args.get('date', today)
-    tasks = get_tasks(date_str)
-    total = len(tasks)
-    concluidos = sum(1 for t in tasks if t['concluido'])
-    return render_template('worker.html', tasks=tasks, date=date_str, today=today,
-                           total=total, concluidos=concluidos)
+    default_week = next_monday_date().isoformat()
+    return render_template('worker_producao.html', default_week=default_week)
 
 @app.route('/worker/update', methods=['POST'])
 def worker_update():
@@ -406,13 +422,84 @@ def admin_view():
                            pendentes_count=pendentes_count,
                            pedidos_pendentes_count=pedidos_pendentes_count)
 
-# ── Gestor / Admin — Produção ──────────────────────────────────────────────────
+# ── Gestor / Admin — Produção por Semana ──────────────────────────────────────
 @app.route('/admin/producao')
 @login_required
 def admin_producao_view():
-    date_str = request.args.get('date', today_sp())
-    tasks = get_tasks(date_str)
-    return render_template('admin.html', tasks=tasks, date=date_str, today=today_sp())
+    default_week = next_monday_date().isoformat()
+    return render_template('admin_producao.html', default_week=default_week)
+
+# ── API — Produção: buscar semana ─────────────────────────────────────────────
+@app.route('/api/producao-semana')
+def api_producao_semana():
+    week_start = request.args.get('week_start', '')
+    if not week_start:
+        week_start = next_monday_date().isoformat()
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute(
+        'SELECT * FROM production_schedule WHERE week_start=%s ORDER BY employee_name',
+        (week_start,)
+    )
+    rows = [dict(r) for r in cur.fetchall()]
+    cur.close()
+    conn.close()
+    for r in rows:
+        if hasattr(r.get('week_start'), 'isoformat'):
+            r['week_start'] = r['week_start'].isoformat()
+    return jsonify(rows)
+
+# ── Admin — Produção: salvar semana ───────────────────────────────────────────
+@app.route('/admin/producao/salvar', methods=['POST'])
+@login_required
+def admin_producao_salvar():
+    data = request.json
+    week_start = data.get('week_start', '')
+    employees  = data.get('employees', [])
+    if not week_start or not employees:
+        return jsonify({'success': False, 'error': 'Dados incompletos'}), 400
+    conn = get_db()
+    cur = conn.cursor()
+    for emp in employees:
+        name = (emp.get('name') or '').strip()
+        if not name:
+            continue
+        mon = emp.get('mon', '') or ''
+        tue = emp.get('tue', '') or ''
+        wed = emp.get('wed', '') or ''
+        thu = emp.get('thu', '') or ''
+        fri = emp.get('fri', '') or ''
+        cur.execute('''
+            INSERT INTO production_schedule (id, employee_name, week_start, mon, tue, wed, thu, fri)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (employee_name, week_start)
+            DO UPDATE SET mon=%s, tue=%s, wed=%s, thu=%s, fri=%s
+        ''', (str(uuid.uuid4()), name, week_start, mon, tue, wed, thu, fri,
+              mon, tue, wed, thu, fri))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True, 'saved': len(employees)})
+
+# ── Admin — Produção: remover funcionário da semana ──────────────────────────
+@app.route('/admin/producao/remover', methods=['POST'])
+@login_required
+def admin_producao_remover():
+    data = request.json
+    name       = data.get('name', '').strip()
+    week_start = data.get('week_start', '')
+    if not name or not week_start:
+        return jsonify({'success': False}), 400
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        'DELETE FROM production_schedule WHERE employee_name=%s AND week_start=%s',
+        (name, week_start)
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True})
 
 @app.route('/admin/add', methods=['POST'])
 @login_required
