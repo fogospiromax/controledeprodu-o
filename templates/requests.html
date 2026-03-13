@@ -145,6 +145,39 @@ header {
 }
 .req-meta { font-size: 0.74rem; color: #9ca3af; }
 
+/* ── Botão editar inline (worker) ── */
+.btn-edit-worker {
+  margin-left: auto; padding: 2px 9px;
+  background: #f5f3ff; color: #7c3aed;
+  border: 1.5px solid #ede9fe; border-radius: 7px;
+  font-size: 0.75rem; cursor: pointer; font-family: inherit;
+  transition: all 0.15s; flex-shrink: 0;
+}
+.btn-edit-worker:hover { background: #ede9fe; }
+
+.edit-inline {
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid #e5e7eb;
+}
+.edit-inline .tipo-grid { margin-bottom: 8px; }
+.edit-inline .form-textarea { margin-bottom: 8px; min-height: 60px; }
+.edit-inline-footer {
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 8px;
+}
+.btn-salvar-edit {
+  padding: 8px 16px; background: #7c3aed; color: white; border: none;
+  border-radius: 8px; font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.btn-salvar-edit:hover { background: #6d28d9; }
+.btn-cancelar-edit {
+  padding: 8px 12px; background: white; color: #6b7280;
+  border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.82rem;
+  cursor: pointer; font-family: inherit; transition: all 0.15s;
+}
+.btn-cancelar-edit:hover { background: #f9fafb; }
+
 .req-resposta {
   margin-top: 8px; background: #f0fdf4; border-radius: 8px;
   padding: 8px 11px; font-size: 0.82rem; color: #166534;
@@ -231,7 +264,7 @@ header {
       {% if urgentes %}
       <div class="section-sep urgente">🔴 Urgentes</div>
       {% for r in urgentes %}
-      <div class="req-card urgente" data-id="{{ r.id }}">
+      <div class="req-card urgente" id="req-{{ r.id }}" data-id="{{ r.id }}" data-tipo="{{ r.tipo }}" data-urgente="true">
         <div class="req-top">
           <span class="tipo-badge">
             {% if r.tipo == 'material' %}🧱 Material
@@ -240,6 +273,7 @@ header {
             {% else %}📝 Outro{% endif %}
           </span>
           <span class="badge-urgente">URGENTE</span>
+          <button class="btn-edit-worker" onclick="toggleEditWorker(this)">✏️ Editar</button>
         </div>
         <div class="req-desc">{{ r.descricao }}</div>
         <div class="req-meta">🕐 {{ r.created_at }}</div>
@@ -250,7 +284,7 @@ header {
       {% if normais %}
       <div class="section-sep normal">Outras pendências</div>
       {% for r in normais %}
-      <div class="req-card" data-id="{{ r.id }}">
+      <div class="req-card" id="req-{{ r.id }}" data-id="{{ r.id }}" data-tipo="{{ r.tipo }}" data-urgente="false">
         <div class="req-top">
           <span class="tipo-badge">
             {% if r.tipo == 'material' %}🧱 Material
@@ -258,6 +292,7 @@ header {
             {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
             {% else %}📝 Outro{% endif %}
           </span>
+          <button class="btn-edit-worker" onclick="toggleEditWorker(this)">✏️ Editar</button>
         </div>
         <div class="req-desc">{{ r.descricao }}</div>
         <div class="req-meta">🕐 {{ r.created_at }}</div>
@@ -356,11 +391,15 @@ async function enviarSolicitacao() {
 
     const card = document.createElement('div');
     card.className = 'req-card' + urgClass;
+    card.id = 'req-' + r.id;
     card.dataset.id = r.id;
+    card.dataset.tipo = r.tipo;
+    card.dataset.urgente = r.urgente ? 'true' : 'false';
     card.innerHTML = `
       <div class="req-top">
         <span class="tipo-badge">${tipoLabels[r.tipo] || r.tipo}</span>
         ${urgBadge}
+        <button class="btn-edit-worker" onclick="toggleEditWorker(this)">✏️ Editar</button>
       </div>
       <div class="req-desc">${escHtml(r.descricao)}</div>
       <div class="req-meta">🕐 ${escHtml(r.created_at)}</div>`;
@@ -389,6 +428,94 @@ async function enviarSolicitacao() {
     badge.textContent = parseInt(badge.textContent || '0') + 1;
   } else {
     showToast('Erro ao enviar.', true);
+  }
+}
+
+/* ── Edição inline (worker) ── */
+const TIPO_LABELS = { material: '🧱 Material', equipamento: '🔧 Equipamento', manutencao: '🛠️ Manutenção', outro: '📝 Outro' };
+
+function toggleEditWorker(btn) {
+  const card = btn.closest('.req-card');
+  const existing = card.querySelector('.edit-inline');
+  if (existing) { existing.remove(); return; }
+
+  const id            = card.dataset.id;
+  const currentTipo   = card.dataset.tipo || 'outro';
+  const currentUrgente = card.dataset.urgente === 'true';
+  const currentDesc   = card.querySelector('.req-desc')?.textContent.trim() || '';
+
+  const tipoBtns = Object.entries(TIPO_LABELS).map(([val, label]) =>
+    `<button class="tipo-btn${val === currentTipo ? ' active' : ''}" data-value="${val}"
+             onclick="selEditTipoWorker(this,'${id}')">${label}</button>`
+  ).join('');
+
+  const editDiv = document.createElement('div');
+  editDiv.className = 'edit-inline';
+  editDiv.innerHTML = `
+    <div class="tipo-grid" id="etg-${id}">${tipoBtns}</div>
+    <textarea class="form-textarea" id="ed-${id}"></textarea>
+    <div class="edit-inline-footer">
+      <label class="urgente-toggle">
+        <input type="checkbox" id="eu-${id}" ${currentUrgente ? 'checked' : ''}> ⚠ Urgente
+      </label>
+      <div style="display:flex;gap:7px;">
+        <button class="btn-cancelar-edit" onclick="toggleEditWorker(document.querySelector('#req-${id} .btn-edit-worker'))">Cancelar</button>
+        <button class="btn-salvar-edit"   onclick="salvarEdicaoWorker('${id}', this)">💾 Salvar</button>
+      </div>
+    </div>`;
+  editDiv.querySelector(`#ed-${id}`).value = currentDesc;
+  card.appendChild(editDiv);
+}
+
+function selEditTipoWorker(btn, id) {
+  document.querySelectorAll(`#etg-${id} .tipo-btn`).forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function salvarEdicaoWorker(id, btn) {
+  const grid    = document.getElementById('etg-' + id);
+  const tipo    = grid?.querySelector('.tipo-btn.active')?.dataset.value || 'outro';
+  const desc    = (document.getElementById('ed-' + id)?.value || '').trim();
+  const urgente = document.getElementById('eu-' + id)?.checked || false;
+
+  if (!desc) { showToast('⚠️ Preencha a descrição.', true); return; }
+
+  btn.disabled = true; btn.textContent = '…';
+
+  const res = await fetch('/requests/' + id + '/editar', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tipo, descricao: desc, urgente })
+  });
+  const data = await res.json();
+
+  if (data.success) {
+    showToast('✅ Solicitação atualizada!');
+    // Atualiza o card sem recarregar a página
+    const card = document.getElementById('req-' + id);
+    if (card) {
+      card.dataset.tipo    = tipo;
+      card.dataset.urgente = urgente ? 'true' : 'false';
+      card.querySelector('.req-desc').textContent = desc;
+      const tipoBadge = card.querySelector('.tipo-badge');
+      if (tipoBadge) tipoBadge.textContent = TIPO_LABELS[tipo] || tipo;
+      // Atualiza badge urgente
+      let urgBadgeEl = card.querySelector('.badge-urgente');
+      if (urgente && !urgBadgeEl) {
+        urgBadgeEl = document.createElement('span');
+        urgBadgeEl.className = 'badge-urgente';
+        urgBadgeEl.textContent = 'URGENTE';
+        card.querySelector('.req-top').insertBefore(urgBadgeEl, card.querySelector('.btn-edit-worker'));
+        card.classList.add('urgente');
+      } else if (!urgente && urgBadgeEl) {
+        urgBadgeEl.remove();
+        card.classList.remove('urgente');
+      }
+      card.querySelector('.edit-inline')?.remove();
+    }
+  } else {
+    showToast('Erro ao salvar.', true);
+    btn.disabled = false; btn.textContent = '💾 Salvar';
   }
 }
 
