@@ -427,10 +427,10 @@ header {
             </div>
             <div class="line-actions">
               <button class="btn-check {% if o.quantidade_produzida and o.quantidade_produzida > 0 %}partial{% endif %}"
-                      data-id="{{ o.id }}" data-produto="{{ o.produto | replace('"', '&quot;') }}"
+                      data-id="{{ o.id }}" data-produto="{{ o.produto }}"
                       data-saldo="{{ saldo }}" onclick="abrirModal(this)">✓</button>
               <button class="btn-edit" data-id="{{ o.id }}"
-                      data-produto="{{ o.produto | replace('"', '&quot;') }}"
+                      data-produto="{{ o.produto }}"
                       data-quantidade="{{ o.quantidade }}"
                       data-entrega="{{ o.data_entrega or '' }}"
                       data-urgente="{{ 'true' if o.urgente else 'false' }}"
@@ -476,10 +476,10 @@ header {
             </div>
             <div class="line-actions">
               <button class="btn-check {% if o.quantidade_produzida and o.quantidade_produzida > 0 %}partial{% endif %}"
-                      data-id="{{ o.id }}" data-produto="{{ o.produto | replace('"', '&quot;') }}"
+                      data-id="{{ o.id }}" data-produto="{{ o.produto }}"
                       data-saldo="{{ saldo }}" onclick="abrirModal(this)">✓</button>
               <button class="btn-edit" data-id="{{ o.id }}"
-                      data-produto="{{ o.produto | replace('"', '&quot;') }}"
+                      data-produto="{{ o.produto }}"
                       data-quantidade="{{ o.quantidade }}"
                       data-entrega="{{ o.data_entrega or '' }}"
                       data-urgente="{{ 'true' if o.urgente else 'false' }}"
@@ -691,9 +691,9 @@ function toggleEdit(btn) {
   editForm.className = 'edit-form';
   editForm.innerHTML = `
     <div class="edit-grid">
-      <input type="text"   class="e-produto"  value="${escHtml(produto)}" placeholder="Produto">
+      <input type="text"   class="e-produto"  placeholder="Produto">
       <input type="number" class="e-qtd"      value="${qtd}" placeholder="Qtd" min="1">
-      <input type="date"   class="e-data"     value="${escHtml(entrega)}">
+      <input type="date"   class="e-data"     placeholder="">
     </div>
     <div class="edit-actions">
       <button class="btn-edit-urgente ${urgente ? 'on' : ''}" onclick="this.classList.toggle('on')">🔴 Urgente</button>
@@ -701,6 +701,9 @@ function toggleEdit(btn) {
       <button class="btn-cancel-edit" onclick="cancelarEdicao(this)">Cancelar</button>
     </div>
   `;
+  // Setar via .value evita problemas de escaping com caracteres especiais
+  editForm.querySelector('.e-produto').value = produto;
+  editForm.querySelector('.e-data').value    = entrega;
   line.appendChild(editForm);
 }
 
