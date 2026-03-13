@@ -108,7 +108,7 @@ header {
         <div class="module-desc">Gerencie pedidos especiais por cliente</div>
       </div>
       {% if pedidos_pendentes_count > 0 %}
-      <span class="module-badge">{{ pedidos_pendentes_count }} pendente{{ 's' if pedidos_pendentes_count != 1 else '' }}</span>
+      <span class="module-badge">{{ pedidos_pendentes_count }}</span>
       {% endif %}
       <div class="module-arrow">›</div>
     </a>
@@ -129,7 +129,7 @@ header {
         <div class="module-desc">Responda às solicitações dos trabalhadores</div>
       </div>
       {% if pendentes_count > 0 %}
-      <span class="module-badge">{{ pendentes_count }} nova{{ 's' if pendentes_count != 1 else '' }}</span>
+      <span class="module-badge">{{ pendentes_count }}</span>
       {% endif %}
       <div class="module-arrow">›</div>
     </a>
