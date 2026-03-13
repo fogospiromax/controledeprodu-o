@@ -26,6 +26,12 @@ header {
 .header-logo img { width: 100%; height: 100%; object-fit: contain; }
 .header-brand-text .title { font-size: 0.98rem; font-weight: 700; color: #1e1b4b; }
 .header-brand-text .sub { font-size: 0.7rem; color: #9ca3af; }
+.header-right { display: flex; align-items: center; }
+.worker-badge {
+  background: #f0fdf4; color: #16a34a; border: 1.5px solid #bbf7d0;
+  border-radius: 8px; padding: 5px 10px; font-size: 0.72rem; font-weight: 800;
+  letter-spacing: 0.5px;
+}
 
 .container { max-width: 480px; margin: 48px auto; padding: 0 20px; }
 .hub-title { font-size: 1.35rem; font-weight: 800; color: #1e1b4b; text-align: center; margin-bottom: 6px; }
@@ -52,6 +58,11 @@ header {
 .module-title { font-size: 1rem; font-weight: 700; color: #1e1b4b; margin-bottom: 3px; }
 .module-desc { font-size: 0.8rem; color: #6b7280; }
 .module-arrow { color: #c4b5fd; font-size: 1.4rem; flex-shrink: 0; }
+.module-badge {
+  background: #dc2626; color: white; border-radius: 20px;
+  padding: 2px 9px; font-size: 0.72rem; font-weight: 700;
+  white-space: nowrap; flex-shrink: 0;
+}
 
 .app-footer {
   text-align: center; padding: 24px 20px 40px; font-size: 0.78rem; color: #9ca3af;
@@ -67,9 +78,12 @@ header {
   <div class="header-logo">
     <img src="/static/logo.png" alt="Piromax">
   </div>
-  <div class="header-brand-text">
+  <div class="header-brand-text" style="flex:1;">
     <div class="title">Fogos Piromax</div>
     <div class="sub">Gestão da Produção</div>
+  </div>
+  <div class="header-right">
+    <span class="worker-badge">👷 TRABALHADOR</span>
   </div>
 </header>
 
@@ -85,6 +99,9 @@ header {
         <div class="module-title">Pedidos Especiais</div>
         <div class="module-desc">Pedidos com produção estendida por cliente</div>
       </div>
+      {% if pedidos_pendentes_count > 0 %}
+      <span class="module-badge">{{ pedidos_pendentes_count }}</span>
+      {% endif %}
       <div class="module-arrow">›</div>
     </a>
 
@@ -103,6 +120,9 @@ header {
         <div class="module-title">Solicitações</div>
         <div class="module-desc">Envie e acompanhe suas solicitações</div>
       </div>
+      {% if solicitacoes_pendentes_count > 0 %}
+      <span class="module-badge">{{ solicitacoes_pendentes_count }}</span>
+      {% endif %}
       <div class="module-arrow">›</div>
     </a>
 
