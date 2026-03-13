@@ -66,12 +66,9 @@
   .day-row:last-child { border-bottom:none; }
   .day-label { width:106px; flex-shrink:0; }
   .day-name-wrap { display:flex; align-items:center; gap:5px; }
-  .day-dot { width:6px; height:6px; border-radius:50%; background:#7c3aed; display:none; }
-  .day-row.monday .day-dot { display:block; }
+  .day-dot { display:none; }
   .day-name { font-size:13px; font-weight:600; color:#374151; }
-  .day-row.monday .day-name { color:#7c3aed; }
   .day-date { font-size:11px; color:#9ca3af; }
-  .day-row.monday .day-date { color:#a78bfa; }
   .day-product { flex:1; font-size:13px; }
   .day-product.filled { font-weight:600; color:#1f1235; background:#f3f0ff; border-radius:8px; padding:6px 11px; border-left:3px solid #7c3aed; }
   .day-product.empty { color:#d8b4fe; font-style:italic; padding:6px 11px; }
@@ -84,6 +81,7 @@
     header, .app-footer, .week-nav-btn, .btn-print { display:none !important; }
     body { background:#fff; }
     .page { margin:0; padding:0; max-width:100%; }
+    #emp-list { display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:start; }
     .emp-card { box-shadow:none; border:1px solid #e5e7eb; break-inside:avoid; }
     .week-nav { box-shadow:none; border:1px solid #e5e7eb; }
     .print-header { display:block !important; }
@@ -204,7 +202,7 @@ function renderList(employees) {
       const date = addDays(weekStart, di);
       const product = emp[key] || '';
       const row = document.createElement('div');
-      row.className = 'day-row' + (di===0?' monday':'');
+      row.className = 'day-row';
       row.innerHTML = `
         <div class="day-label">
           <div class="day-name-wrap"><div class="day-dot"></div><span class="day-name">${DAYS[di]}</span></div>
