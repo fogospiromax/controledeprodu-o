@@ -150,7 +150,7 @@ header {
   padding: 9px 14px 8px; border-bottom: 1px solid #f3f4f6;
   background: #fafaf9;
 }
-.client-name { font-size: 0.8rem; font-weight: 800; color: #374151; }
+.client-name { font-size: 1rem; font-weight: 800; color: #374151; text-transform: uppercase; letter-spacing: 0.5px; }
 .client-count { font-size: 0.7rem; color: #9ca3af; }
 
 /* ── Product line ── */
@@ -286,6 +286,14 @@ header {
 }
 .empty-state div { font-size: 2.2rem; margin-bottom: 10px; }
 
+/* ── Footer ── */
+.app-footer {
+  text-align: center; padding: 24px 20px 40px; font-size: 0.78rem; color: #9ca3af;
+  border-top: 1px solid #ede9fe; margin-top: 32px;
+}
+.app-footer a { color: #7c3aed; text-decoration: none; font-weight: 600; }
+.app-footer a:hover { text-decoration: underline; }
+
 /* ── Toast ── */
 .toast {
   position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
@@ -405,7 +413,7 @@ header {
               <div class="product-name">{{ o.produto }}</div>
               <div class="product-meta">
                 <span class="badge-urgent">URGENTE</span>
-                <span class="badge-qty">📦 {{ saldo }}</span>
+                <span class="badge-qty">Quant.: {{ saldo }}</span>
                 {% if o.data_entrega %}
                 <span class="badge-date">⏰ {{ o.data_entrega[8:10] }}/{{ o.data_entrega[5:7] }}</span>
                 {% endif %}
@@ -454,7 +462,7 @@ header {
             <div class="product-body">
               <div class="product-name">{{ o.produto }}</div>
               <div class="product-meta">
-                <span class="badge-qty">📦 {{ saldo }}</span>
+                <span class="badge-qty">Quant.: {{ saldo }}</span>
                 {% if o.data_entrega %}
                 <span class="badge-date">⏰ {{ o.data_entrega[8:10] }}/{{ o.data_entrega[5:7] }}</span>
                 {% endif %}
@@ -829,5 +837,9 @@ function escHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 </script>
+
+<footer class="app-footer">
+  <a href="/">← Ver área dos trabalhadores</a>
+</footer>
 </body>
 </html>
