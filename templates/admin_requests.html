@@ -52,6 +52,50 @@ header {
 
 .container { max-width: 600px; margin: 0 auto; padding: 20px 16px 60px; }
 
+/* ── Formulário nova solicitação ── */
+.add-card {
+  background: white; border-radius: 14px; padding: 16px 18px;
+  border: 1.5px solid #ede9fe; box-shadow: 0 2px 10px rgba(124,58,237,0.06);
+  margin-bottom: 18px;
+}
+.add-card-title {
+  font-size: 0.75rem; font-weight: 800; color: #7c3aed;
+  text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 12px;
+}
+.tipo-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-bottom: 10px;
+}
+.tipo-btn {
+  background: #f5f3ff; border: 1.5px solid #ede9fe; border-radius: 9px;
+  padding: 8px 4px; font-size: 0.78rem; font-weight: 600; color: #6b7280;
+  cursor: pointer; font-family: inherit; text-align: center; transition: all 0.15s;
+}
+.tipo-btn:hover { border-color: #c4b5fd; color: #7c3aed; }
+.tipo-btn.active { background: #7c3aed; border-color: #7c3aed; color: white; }
+
+.form-textarea {
+  width: 100%; border: 1.5px solid #e5e7eb; border-radius: 9px;
+  padding: 10px 13px; font-size: 0.9rem; font-family: inherit;
+  color: #1e1b4b; resize: vertical; min-height: 76px; outline: none;
+  transition: border-color 0.2s; margin-bottom: 10px;
+}
+.form-textarea:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.08); }
+
+.form-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.urgente-toggle {
+  display: flex; align-items: center; gap: 7px; cursor: pointer;
+  padding: 8px 11px; border: 1.5px solid #fca5a5; border-radius: 8px;
+  background: #fff8f8; user-select: none; font-size: 0.82rem;
+  font-weight: 700; color: #dc2626;
+}
+.urgente-toggle input { width: 15px; height: 15px; accent-color: #dc2626; cursor: pointer; }
+.btn-submit {
+  padding: 9px 20px; background: #7c3aed; color: white; border: none;
+  border-radius: 9px; font-size: 0.88rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.15s; white-space: nowrap;
+}
+.btn-submit:hover { background: #6d28d9; }
+
 /* ── Tabs ── */
 .tabs {
   display: flex; background: white; border-radius: 12px;
@@ -141,12 +185,43 @@ header {
   cursor: pointer; font-family: inherit; transition: background 0.15s;
 }
 .btn-concluir:hover { background: #6d28d9; }
+.btn-editar {
+  padding: 8px 11px; background: #f5f3ff; color: #7c3aed;
+  border: 1.5px solid #ede9fe; border-radius: 8px; font-size: 0.82rem;
+  cursor: pointer; font-family: inherit; transition: all 0.15s;
+}
+.btn-editar:hover { background: #ede9fe; }
 .btn-excluir {
   padding: 8px 11px; background: #fef2f2; color: #dc2626;
   border: 1.5px solid #fecaca; border-radius: 8px; font-size: 0.82rem;
   cursor: pointer; font-family: inherit; transition: all 0.15s;
 }
 .btn-excluir:hover { background: #fee2e2; }
+
+/* Inline edit form */
+.edit-form {
+  border-top: 1px solid #e5e7eb; padding: 12px 14px 14px;
+  background: #fafaf9; display: flex; flex-direction: column; gap: 8px;
+}
+.edit-form-title {
+  font-size: 0.72rem; font-weight: 800; color: #7c3aed;
+  text-transform: uppercase; letter-spacing: 0.3px;
+}
+.edit-form .tipo-grid { margin-bottom: 0; }
+.edit-form .form-textarea { margin-bottom: 0; min-height: 66px; }
+.edit-form-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.btn-salvar {
+  padding: 8px 18px; background: #7c3aed; color: white; border: none;
+  border-radius: 8px; font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.btn-salvar:hover { background: #6d28d9; }
+.btn-cancelar-edit {
+  padding: 8px 14px; background: white; color: #6b7280;
+  border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.82rem;
+  cursor: pointer; font-family: inherit; transition: all 0.15s;
+}
+.btn-cancelar-edit:hover { background: #f9fafb; }
 
 /* ── Empty ── */
 .empty-state { text-align: center; padding: 40px 20px; color: #9ca3af; font-size: 0.92rem; }
@@ -160,6 +235,10 @@ header {
   opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; white-space: nowrap;
 }
 #toast.show { opacity: 1; }
+
+@media (max-width: 480px) {
+  .tipo-grid { grid-template-columns: repeat(2, 1fr); }
+}
 </style>
 </head>
 <body>
@@ -181,6 +260,24 @@ header {
 </header>
 
 <div class="container">
+
+  <!-- Formulário nova solicitação -->
+  <div class="add-card">
+    <div class="add-card-title">+ Nova Solicitação</div>
+    <div class="tipo-grid" id="tipoGrid">
+      <button class="tipo-btn active" data-value="material"    onclick="selecionarTipo(this)">🧱 Material</button>
+      <button class="tipo-btn"        data-value="equipamento" onclick="selecionarTipo(this)">🔧 Equipamento</button>
+      <button class="tipo-btn"        data-value="manutencao"  onclick="selecionarTipo(this)">🛠️ Manutenção</button>
+      <button class="tipo-btn"        data-value="outro"       onclick="selecionarTipo(this)">📝 Outro</button>
+    </div>
+    <textarea class="form-textarea" id="descricao" placeholder="Descreva o que está sendo solicitado..."></textarea>
+    <div class="form-footer">
+      <label class="urgente-toggle">
+        <input type="checkbox" id="urgente"> ⚠ Urgente
+      </label>
+      <button class="btn-submit" onclick="adicionarSolicitacao()">📤 Enviar</button>
+    </div>
+  </div>
 
   <!-- Tabs -->
   <div class="tabs">
@@ -218,7 +315,8 @@ header {
         <div class="req-actions">
           <textarea class="resposta-input" id="resp-{{ r.id }}" placeholder="Resposta opcional..."></textarea>
           <div class="req-actions-btns">
-            <button class="btn-concluir" onclick="concluirSolicitacao('{{ r.id }}')">✅ Marcar como concluída</button>
+            <button class="btn-concluir" onclick="concluirSolicitacao('{{ r.id }}')">✅ Concluir</button>
+            <button class="btn-editar"   onclick="toggleEditReq('{{ r.id }}', '{{ r.tipo }}', {{ r.descricao | tojson }}, {{ r.urgente | tojson }})">✏️</button>
             <button class="btn-excluir"  onclick="excluirSolicitacao('{{ r.id }}', 'pendente')">🗑</button>
           </div>
         </div>
@@ -245,7 +343,8 @@ header {
         <div class="req-actions">
           <textarea class="resposta-input" id="resp-{{ r.id }}" placeholder="Resposta opcional..."></textarea>
           <div class="req-actions-btns">
-            <button class="btn-concluir" onclick="concluirSolicitacao('{{ r.id }}')">✅ Marcar como concluída</button>
+            <button class="btn-concluir" onclick="concluirSolicitacao('{{ r.id }}')">✅ Concluir</button>
+            <button class="btn-editar"   onclick="toggleEditReq('{{ r.id }}', '{{ r.tipo }}', {{ r.descricao | tojson }}, {{ r.urgente | tojson }})">✏️</button>
             <button class="btn-excluir"  onclick="excluirSolicitacao('{{ r.id }}', 'pendente')">🗑</button>
           </div>
         </div>
@@ -308,6 +407,167 @@ header {
 <div id="toast"></div>
 
 <script>
+/* ── Nova solicitação ── */
+let tipoSelecionado = 'material';
+
+function selecionarTipo(btn) {
+  document.querySelectorAll('#tipoGrid .tipo-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  tipoSelecionado = btn.dataset.value;
+}
+
+async function adicionarSolicitacao() {
+  const desc = document.getElementById('descricao').value.trim();
+  if (!desc) { showToast('⚠️ Preencha a descrição.', true); return; }
+
+  const payload = {
+    tipo: tipoSelecionado,
+    descricao: desc,
+    urgente: document.getElementById('urgente').checked
+  };
+  const res = await fetch('/requests/add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  if (data.success) {
+    showToast('✅ Solicitação enviada!');
+    document.getElementById('descricao').value = '';
+    document.getElementById('urgente').checked = false;
+    const r = data.request;
+    const lista = document.getElementById('lista-pendentes');
+    const empty = lista.querySelector('.empty-state');
+    if (empty) empty.remove();
+
+    const tipoLabels = { material: '🧱 Material', equipamento: '🔧 Equipamento', manutencao: '🛠️ Manutenção', outro: '📝 Outro' };
+    const urgBadge = r.urgente ? '<span class="badge-urgente">URGENTE</span>' : '';
+    const urgClass = r.urgente ? ' urgente' : '';
+
+    const card = document.createElement('div');
+    card.className = 'req-card' + urgClass;
+    card.id = 'req-' + r.id;
+    const descEscaped = escHtml(r.descricao);
+    const descJson    = JSON.stringify(r.descricao);
+    const urgenteJson = JSON.stringify(!!r.urgente);
+    card.innerHTML = `
+      <div class="req-card-body">
+        <div class="req-top">
+          <span class="tipo-badge">${tipoLabels[r.tipo] || r.tipo}</span>
+          ${urgBadge}
+        </div>
+        <div class="req-desc">${descEscaped}</div>
+        <div class="req-meta">🕐 ${escHtml(r.created_at)}</div>
+      </div>
+      <div class="req-actions">
+        <textarea class="resposta-input" id="resp-${r.id}" placeholder="Resposta opcional..."></textarea>
+        <div class="req-actions-btns">
+          <button class="btn-concluir" onclick="concluirSolicitacao('${r.id}')">✅ Concluir</button>
+          <button class="btn-editar"   onclick="toggleEditReq('${r.id}', '${r.tipo}', ${descJson}, ${urgenteJson})">✏️</button>
+          <button class="btn-excluir"  onclick="excluirSolicitacao('${r.id}', 'pendente')">🗑</button>
+        </div>
+      </div>`;
+
+    if (r.urgente) {
+      let sep = lista.querySelector('.section-sep.urgente');
+      if (!sep) {
+        sep = document.createElement('div');
+        sep.className = 'section-sep urgente';
+        sep.textContent = '🔴 Urgentes';
+        lista.prepend(sep);
+      }
+      sep.after(card);
+    } else {
+      let sep = lista.querySelector('.section-sep.normal');
+      if (!sep) {
+        sep = document.createElement('div');
+        sep.className = 'section-sep normal';
+        sep.textContent = 'Outras pendências';
+        lista.appendChild(sep);
+      }
+      lista.appendChild(card);
+    }
+
+    const badge = document.getElementById('badge-pendentes');
+    badge.textContent = parseInt(badge.textContent || '0') + 1;
+  } else {
+    showToast('Erro ao enviar.', true);
+  }
+}
+
+/* ── Edição inline ── */
+function toggleEditReq(id, currentTipo, currentDesc, currentUrgente) {
+  const card = document.getElementById('req-' + id);
+  if (!card) return;
+
+  // Se já existe o form, remove (toggle off)
+  const existing = card.querySelector('.edit-form');
+  if (existing) { existing.remove(); return; }
+
+  const tipoLabels = [
+    { value: 'material',    label: '🧱 Material' },
+    { value: 'equipamento', label: '🔧 Equipamento' },
+    { value: 'manutencao',  label: '🛠️ Manutenção' },
+    { value: 'outro',       label: '📝 Outro' }
+  ];
+
+  const tipoBtns = tipoLabels.map(t =>
+    `<button class="tipo-btn${t.value === currentTipo ? ' active' : ''}"
+             data-value="${t.value}"
+             onclick="selEditTipo(this,'${id}')">${t.label}</button>`
+  ).join('');
+
+  const urgenteChecked = currentUrgente ? 'checked' : '';
+
+  const form = document.createElement('div');
+  form.className = 'edit-form';
+  form.id = 'edit-form-' + id;
+  form.innerHTML = `
+    <div class="edit-form-title">✏️ Editar solicitação</div>
+    <div class="tipo-grid" id="edit-tipo-grid-${id}">${tipoBtns}</div>
+    <textarea class="form-textarea" id="edit-desc-${id}">${escHtml(currentDesc)}</textarea>
+    <div class="edit-form-footer">
+      <label class="urgente-toggle">
+        <input type="checkbox" id="edit-urgente-${id}" ${urgenteChecked}> ⚠ Urgente
+      </label>
+      <div style="display:flex;gap:7px;">
+        <button class="btn-cancelar-edit" onclick="toggleEditReq('${id}')">Cancelar</button>
+        <button class="btn-salvar"        onclick="salvarEdicaoReq('${id}')">💾 Salvar</button>
+      </div>
+    </div>`;
+
+  card.appendChild(form);
+}
+
+function selEditTipo(btn, id) {
+  document.querySelectorAll(`#edit-tipo-grid-${id} .tipo-btn`).forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function salvarEdicaoReq(id) {
+  const grid    = document.getElementById('edit-tipo-grid-' + id);
+  const tipoBtn = grid ? grid.querySelector('.tipo-btn.active') : null;
+  const tipo    = tipoBtn ? tipoBtn.dataset.value : 'outro';
+  const desc    = (document.getElementById('edit-desc-' + id)?.value || '').trim();
+  const urgente = document.getElementById('edit-urgente-' + id)?.checked || false;
+
+  if (!desc) { showToast('⚠️ Preencha a descrição.', true); return; }
+
+  const res = await fetch('/admin/requests/' + id + '/editar', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tipo, descricao: desc, urgente })
+  });
+  const data = await res.json();
+  if (data.success) {
+    showToast('✅ Solicitação atualizada!');
+    window.location.reload();
+  } else {
+    showToast('Erro ao salvar.', true);
+  }
+}
+
+/* ── Concluir / Excluir ── */
 function trocarAba(aba, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('panel-pendentes').style.display  = aba === 'pendentes'  ? '' : 'none';
@@ -359,6 +619,11 @@ function checkEmpty(painel) {
       : '<div class="empty-icon">✅</div>Nenhuma solicitação concluída ainda.';
     lista.innerHTML = `<div class="empty-state">${emptyMsg}</div>`;
   }
+}
+
+/* ── Utils ── */
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function showToast(msg, erro = false) {
