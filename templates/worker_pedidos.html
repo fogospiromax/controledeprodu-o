@@ -301,7 +301,7 @@ header {
           </div>
           <button class="btn-check {% if o.quantidade_produzida and o.quantidade_produzida > 0 %}partial{% endif %}"
                   data-id="{{ o.id }}"
-                  data-produto="{{ o.produto | replace('"', '&quot;') }}"
+                  data-produto="{{ o.produto }}"
                   data-saldo="{{ saldo }}"
                   onclick="abrirModal(this)">✓</button>
         </div>
@@ -340,7 +340,7 @@ header {
           </div>
           <button class="btn-check {% if o.quantidade_produzida and o.quantidade_produzida > 0 %}partial{% endif %}"
                   data-id="{{ o.id }}"
-                  data-produto="{{ o.produto | replace('"', '&quot;') }}"
+                  data-produto="{{ o.produto }}"
                   data-saldo="{{ saldo }}"
                   onclick="abrirModal(this)">✓</button>
         </div>
