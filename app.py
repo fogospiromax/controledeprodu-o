@@ -289,6 +289,30 @@ def requests_add():
 
     return jsonify({'success': True, 'request': req})
 
+@app.route('/requests/<req_id>/editar', methods=['POST'])
+def worker_requests_editar(req_id):
+    """Permite que o trabalhador edite uma solicitação ainda pendente."""
+    data = request.json
+    tipo      = data.get('tipo', 'outro')
+    descricao = (data.get('descricao') or '').strip()
+    urgente   = bool(data.get('urgente', False))
+    if not descricao:
+        return jsonify({'success': False, 'error': 'Descrição vazia'}), 400
+    conn = get_db()
+    cur = conn.cursor()
+    # Só edita se ainda estiver pendente
+    cur.execute(
+        "UPDATE requests SET tipo=%s, descricao=%s, urgente=%s WHERE id=%s AND status='pendente'",
+        (tipo, descricao, urgente, req_id)
+    )
+    updated = cur.rowcount
+    conn.commit()
+    cur.close()
+    conn.close()
+    if updated == 0:
+        return jsonify({'success': False, 'error': 'Não encontrado ou já concluído'}), 404
+    return jsonify({'success': True})
+
 # ── Trabalhador — Pedidos Especiais ───────────────────────────────────────────
 @app.route('/pedidos')
 def worker_pedidos_view():
