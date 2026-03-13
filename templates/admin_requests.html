@@ -43,12 +43,12 @@ header {
   background: #f5f3ff; color: #7c3aed; border: 1.5px solid #ede9fe;
   border-radius: 8px; padding: 5px 10px; font-size: 0.72rem; font-weight: 800;
 }
-.btn-logout {
-  background: none; border: 1.5px solid #e5e7eb; border-radius: 8px;
-  padding: 5px 10px; font-size: 0.72rem; font-weight: 600;
-  color: #6b7280; text-decoration: none; transition: all 0.15s;
+.app-footer {
+  text-align: center; padding: 24px 20px 40px; font-size: 0.78rem; color: #9ca3af;
+  border-top: 1px solid #ede9fe; margin-top: 32px;
 }
-.btn-logout:hover { border-color: #c4b5fd; color: #7c3aed; }
+.app-footer a { color: #7c3aed; text-decoration: none; font-weight: 600; }
+.app-footer a:hover { text-decoration: underline; }
 
 .container { max-width: 600px; margin: 0 auto; padding: 20px 16px 60px; }
 
@@ -177,7 +177,6 @@ header {
   </div>
   <div class="header-right">
     <span class="gestor-badge">👔 GESTOR</span>
-    <a href="/admin/logout" class="btn-logout">🚪 Sair</a>
   </div>
 </header>
 
@@ -301,6 +300,10 @@ header {
   </div>
 
 </div>
+
+<footer class="app-footer">
+  <a href="/">← Ver área dos trabalhadores</a>
+</footer>
 
 <div id="toast"></div>
 
