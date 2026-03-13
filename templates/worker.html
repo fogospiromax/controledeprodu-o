@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Controle de Produção — Fogos Piromax</title>
+<title>Produção – Semana — Fogos Piromax</title>
 <link rel="manifest" href="/static/manifest.json">
 <link rel="apple-touch-icon" href="/static/logo.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,391 +11,218 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#7c3aed">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8f7ff; color: #2d3748; min-height: 100vh; }
-
-/* ── Header ── */
-header {
-  background: white; border-bottom: 1px solid #ede9fe;
-  box-shadow: 0 1px 8px rgba(124,58,237,0.07);
-  position: sticky; top: 0; z-index: 50;
-  padding: 12px 20px;
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-}
-.header-left { display: flex; align-items: center; gap: 8px; }
-.back-btn {
-  width: 34px; height: 34px; background: #f5f3ff; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  color: #7c3aed; font-size: 1.1rem; cursor: pointer;
-  border: 1.5px solid #ede9fe; font-family: inherit;
-  flex-shrink: 0; text-decoration: none; font-weight: 700; line-height: 1;
-}
-.back-btn:hover { background: #ede9fe; }
-.header-logo {
-  width: 40px; height: 40px; background: white; border-radius: 10px;
-  overflow: hidden; padding: 3px; border: 1px solid #ede9fe; flex-shrink: 0;
-}
-.header-logo img { width: 100%; height: 100%; object-fit: contain; }
-.header-brand-text .title { font-size: 0.98rem; font-weight: 700; color: #1e1b4b; }
-.header-brand-text .sub { font-size: 0.7rem; color: #9ca3af; }
-.btn-print {
-  background: #f5f3ff; color: #7c3aed; border: 1.5px solid #ede9fe;
-  border-radius: 8px; padding: 7px 13px; font-size: 0.8rem; font-weight: 600;
-  cursor: pointer; font-family: inherit; transition: background 0.15s; white-space: nowrap;
-}
-.btn-print:hover { background: #ede9fe; }
-
-/* ── Container ── */
-.container { max-width: 900px; margin: 20px auto; padding: 0 16px 40px; }
-
-/* ── Navegação de data ── */
-.date-nav {
-  background: white; border-radius: 12px; padding: 10px 14px;
-  display: flex; align-items: center; gap: 8px;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.05); border: 1px solid #f3f4f6;
-  margin-bottom: 14px;
-}
-.nav-btn-arrow {
-  background: #f5f3ff; color: #7c3aed; border: 1.5px solid #ede9fe;
-  border-radius: 7px; padding: 6px 12px; font-size: 0.82rem;
-  font-weight: 700; cursor: pointer; font-family: inherit; flex-shrink: 0;
-  transition: background 0.15s;
-}
-.nav-btn-arrow:hover { background: #ede9fe; }
-.date-center {
-  flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
-}
-.date-display { font-size: 0.88rem; font-weight: 700; color: #1e1b4b; }
-.cal-wrap { position: relative; display: inline-flex; align-items: center; }
-.cal-btn {
-  background: #f5f3ff; color: #7c3aed; border: 1.5px solid #ede9fe;
-  border-radius: 7px; padding: 5px 9px; font-size: 0.9rem; cursor: pointer; font-family: inherit;
-}
-.cal-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-
-/* ── Avisos data passada/futura ── */
-.readonly-notice {
-  border-radius: 10px; padding: 10px 16px; font-size: 0.875rem;
-  margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
-}
-.readonly-notice.past { background: #f5f3ff; border: 1px solid #c4b5fd; color: #5b21b6; }
-.readonly-notice.future { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
-.today-link {
-  background: #f5f3ff; color: #7c3aed; border: 1.5px solid #ede9fe;
-  border-radius: 7px; padding: 4px 10px; font-size: 0.8rem;
-  font-weight: 600; text-decoration: none; margin-left: 8px; white-space: nowrap;
-}
-.today-link:hover { background: #ede9fe; }
-
-/* ── Barra de progresso ── */
-.progress-section {
-  background: white; border-radius: 12px; padding: 12px 16px;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.05); border: 1px solid #f3f4f6;
-  margin-bottom: 16px;
-}
-.progress-label {
-  font-size: 0.78rem; color: #6b7280; margin-bottom: 7px;
-  display: flex; justify-content: space-between; align-items: center;
-}
-.progress-label span { font-weight: 700; color: #7c3aed; }
-.progress-bar-wrap {
-  background: #ede9fe; border-radius: 20px; height: 7px; overflow: hidden;
-}
-.progress-bar-fill {
-  background: #7c3aed; height: 100%; border-radius: 20px; transition: width 0.4s ease;
-}
-
-/* ── Tabela ── */
-.tasks-card {
-  background: white; border-radius: 14px; overflow: hidden;
-  box-shadow: 0 2px 10px rgba(124,58,237,0.05); border: 1px solid #f3f4f6;
-}
-.empty-state { text-align: center; padding: 60px 20px; color: #9ca3af; }
-.empty-state .icon { font-size: 2.5rem; margin-bottom: 10px; }
-table { width: 100%; border-collapse: collapse; }
-thead { background: #7c3aed; }
-thead th {
-  padding: 12px 16px; text-align: left; font-size: 0.72rem;
-  font-weight: 700; color: white; text-transform: uppercase; letter-spacing: 0.5px;
-}
-tbody tr { border-top: 1px solid #f9fafb; transition: background 0.1s; }
-tbody tr:hover { background: #fafafa; }
-tbody tr.urgente { background: #fff5f5; }
-tbody tr.urgente:hover { background: #fee2e2; }
-tbody tr.done { background: #f0fff4 !important; }
-tbody tr.done:hover { background: #e6ffed !important; }
-td { padding: 13px 16px; font-size: 0.93rem; vertical-align: middle; }
-.produto-name { font-weight: 600; color: #111827; }
-.urgente-badge {
-  display: inline-flex; align-items: center; gap: 3px;
-  background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5;
-  border-radius: 20px; padding: 2px 8px; font-size: 0.7rem;
-  font-weight: 700; margin-left: 7px; vertical-align: middle;
-}
-.quantidade-badge {
-  background: #f5f3ff; color: #7c3aed; border: 1px solid #ede9fe;
-  padding: 3px 10px; border-radius: 20px; font-weight: 600; font-size: 0.86rem;
-}
-.check-wrap { display: flex; align-items: center; gap: 9px; }
-.check-wrap input[type="checkbox"] {
-  width: 22px; height: 22px; cursor: pointer; accent-color: #16a34a; flex-shrink: 0;
-}
-.check-wrap input[type="checkbox"]:disabled { cursor: not-allowed; opacity: 0.55; }
-.check-label { font-size: 0.85rem; color: #64748b; }
-.check-label.done-label { color: #16a34a; font-weight: 600; }
-
-/* ── Toast ── */
-.toast {
-  position: fixed; bottom: 24px; right: 24px;
-  background: #1e293b; color: white; padding: 12px 20px;
-  border-radius: 8px; font-size: 0.9rem; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-  opacity: 0; transform: translateY(10px); transition: all 0.3s; z-index: 100;
-}
-.toast.show { opacity: 1; transform: translateY(0); }
-
-@media (max-width: 640px) { table { display: block; overflow-x: auto; } }
-
-/* ── Impressão ── */
-@media print {
-  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  body { background: white; }
-  header, .date-nav, .progress-section, .readonly-notice, .toast, .no-print { display: none !important; }
-  .container { max-width: 100%; margin: 0; padding: 0; }
-  .tasks-card { box-shadow: none; border: 1px solid #e2e8f0; border-radius: 0; }
-  .print-header { display: block !important; text-align: center; margin-bottom: 6px; font-size: 1.4rem; font-weight: 700; color: #7c3aed; }
-  .print-company { display: block !important; text-align: center; font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 4px; }
-  .print-date { display: block !important; text-align: center; font-size: 0.9rem; color: #64748b; margin-bottom: 16px; }
-  thead { background: #7c3aed !important; }
-  thead th { color: white !important; padding: 10px 12px; font-size: 0.82rem; }
-  td { padding: 10px 12px; font-size: 0.9rem; }
-  tbody tr.urgente { background: #fff1f2 !important; }
-  tbody tr.done { background: #f0fff4 !important; }
-}
-.print-header, .print-company, .print-date { display: none; }
-
-.app-footer {
-  text-align: center; padding: 24px 20px 40px; font-size: 0.78rem; color: #9ca3af;
-  border-top: 1px solid #ede9fe; margin-top: 32px;
-}
-.app-footer a { color: #7c3aed; text-decoration: none; font-weight: 600; }
-.app-footer a:hover { text-decoration: underline; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8f7ff; color: #2d3748; min-height: 100vh; }
+  /* ── Header ── */
+  header {
+    background: white; border-bottom: 1px solid #ede9fe;
+    box-shadow: 0 1px 8px rgba(124,58,237,0.07);
+    position: sticky; top: 0; z-index: 50;
+    padding: 12px 20px; display: flex; align-items: center; gap: 8px;
+  }
+  .header-left { display: flex; align-items: center; gap: 8px; flex: 1; }
+  .back-btn {
+    width: 34px; height: 34px; background: #f5f3ff; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #7c3aed; font-size: 1.1rem; text-decoration: none; font-weight: 700;
+    border: 1.5px solid #ede9fe; flex-shrink: 0; line-height: 1;
+  }
+  .back-btn:hover { background: #ede9fe; }
+  .header-logo {
+    width: 40px; height: 40px; background: white; border-radius: 10px;
+    overflow: hidden; padding: 3px; border: 1px solid #ede9fe; flex-shrink: 0;
+  }
+  .header-logo img { width: 100%; height: 100%; object-fit: contain; }
+  .header-brand-text .title { font-size: 0.98rem; font-weight: 700; color: #1e1b4b; }
+  .header-brand-text .sub { font-size: 0.7rem; color: #9ca3af; }
+  .header-right { display: flex; align-items: center; gap: 8px; }
+  .worker-badge {
+    background: #f0fdf4; color: #16a34a; border: 1.5px solid #bbf7d0;
+    border-radius: 8px; padding: 5px 10px; font-size: 0.72rem; font-weight: 800;
+    letter-spacing: 0.5px; white-space: nowrap;
+  }
+  .btn-print { background:#fff; color:#7c3aed; border:1.5px solid #c4b5fd; border-radius:9px; padding:7px 12px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px; }
+  .btn-print:hover { background:#f3f0ff; }
+  /* ── Footer ── */
+  .app-footer {
+    text-align: center; padding: 24px 20px 40px; font-size: 0.78rem; color: #9ca3af;
+    border-top: 1px solid #ede9fe; margin-top: 20px;
+  }
+  .app-footer a { color: #7c3aed; text-decoration: none; font-weight: 600; }
+  .app-footer a:hover { text-decoration: underline; }
+  .page { max-width:640px; margin:28px auto; padding:0 16px 60px; }
+  .week-nav { background:#fff; border-radius:14px; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+  .week-nav-btn { background:none; border:1.5px solid #e5e7eb; border-radius:8px; width:34px; height:34px; font-size:16px; cursor:pointer; color:#7c3aed; display:flex; align-items:center; justify-content:center; }
+  .week-nav-btn:hover { background:#f3f0ff; }
+  .week-label { text-align:center; }
+  .week-label-main { font-size:16px; font-weight:700; color:#1f1235; }
+  .week-label-sub { font-size:12px; color:#9ca3af; margin-top:2px; }
+  .emp-card { background:#fff; border-radius:14px; padding:16px 18px; margin-bottom:12px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+  .emp-header { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .avatar { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#fff; flex-shrink:0; }
+  .emp-name { font-size:15px; font-weight:700; color:#1f1235; }
+  .emp-role { font-size:12px; color:#9ca3af; }
+  .day-row { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #f3f4f6; }
+  .day-row:last-child { border-bottom:none; }
+  .day-label { width:106px; flex-shrink:0; }
+  .day-name-wrap { display:flex; align-items:center; gap:5px; }
+  .day-dot { width:6px; height:6px; border-radius:50%; background:#7c3aed; display:none; }
+  .day-row.monday .day-dot { display:block; }
+  .day-name { font-size:13px; font-weight:600; color:#374151; }
+  .day-row.monday .day-name { color:#7c3aed; }
+  .day-date { font-size:11px; color:#9ca3af; }
+  .day-row.monday .day-date { color:#a78bfa; }
+  .day-product { flex:1; font-size:13px; }
+  .day-product.filled { font-weight:600; color:#1f1235; background:#f3f0ff; border-radius:8px; padding:6px 11px; border-left:3px solid #7c3aed; }
+  .day-product.empty { color:#d8b4fe; font-style:italic; padding:6px 11px; }
+  .loading { text-align:center; color:#9ca3af; padding:40px 0; font-size:14px; }
+  .empty-week { text-align:center; color:#9ca3af; padding:40px 0; font-size:14px; }
+  .print-header { display:none; text-align:center; margin-bottom:14px; }
+  .print-header h2 { font-size:17px; color:#1f1235; }
+  .print-header p { font-size:12px; color:#6b7280; margin-top:3px; }
+  @media print {
+    header, .app-footer, .week-nav-btn, .btn-print { display:none !important; }
+    body { background:#fff; }
+    .page { margin:0; padding:0; max-width:100%; }
+    .emp-card { box-shadow:none; border:1px solid #e5e7eb; break-inside:avoid; }
+    .week-nav { box-shadow:none; border:1px solid #e5e7eb; }
+    .print-header { display:block !important; }
+    .day-product.filled { background:#f9f5ff; border-left:2px solid #7c3aed; }
+  }
 </style>
 </head>
 <body>
 
 <header>
   <div class="header-left">
-    <a href="/" class="back-btn" title="Voltar ao início">‹</a>
+    <a href="/" class="back-btn">←</a>
     <div class="header-logo">
       <img src="/static/logo.png" alt="Piromax">
     </div>
     <div class="header-brand-text">
       <div class="title">Fogos Piromax</div>
-      <div class="sub">Controle de Produção</div>
+      <div class="sub">Programação de Produção</div>
     </div>
   </div>
-  <button class="btn-print no-print" onclick="printPDF()">🖨️ Imprimir</button>
+  <div class="header-right">
+    <span class="worker-badge">👷 TRABALHADOR</span>
+    <button class="btn-print" onclick="window.print()">🖨️ PDF</button>
+  </div>
 </header>
 
-<!-- Cabeçalho visível somente no PDF -->
-<div class="print-company">Fogos Piromax</div>
-<div class="print-header">📋 Produção do Dia</div>
-<div class="print-date" id="printDateLabel"></div>
-
-<div class="container">
-
-  <!-- Navegação de data -->
-  <div class="date-nav no-print">
-    <button class="nav-btn-arrow" onclick="navegarDia(-1)">◀ Anterior</button>
-    <div class="date-center">
-      <span class="date-display" id="dateLabel"></span>
-      <div class="cal-wrap" title="Escolher data">
-        <button class="cal-btn">📅</button>
-        <input type="date" class="cal-input" id="datePicker" value="{{ date }}" onchange="irParaData(this.value)">
-      </div>
-    </div>
-    <button class="nav-btn-arrow" onclick="navegarDia(1)">Próximo ▶</button>
+<div class="page">
+  <div class="print-header">
+    <h2>Fogos Piromax — Programação de Produção</h2>
+    <p id="print-week-label"></p>
   </div>
 
-  {% if date != today %}
-  {% set dp = date.split('-') %}
-  <div class="readonly-notice {{ 'future' if date > today else 'past' }}">
-    {% if date > today %}
-    📅 Visualizando agenda de <strong>{{ dp[2] }}/{{ dp[1] }}/{{ dp[0] }}</strong> — modo somente leitura.
-    {% else %}
-    ✏️ Editando produção de <strong>{{ dp[2] }}/{{ dp[1] }}/{{ dp[0] }}</strong> — itens podem ser marcados como concluídos.
-    {% endif %}
-    <a href="/producao" class="today-link">↩ Hoje</a>
-  </div>
-  {% endif %}
-
-  {% if total > 0 %}
-  <div class="progress-section">
-    <div class="progress-label">
-      <span id="progressText">{{ concluidos }} de {{ total }} itens concluídos</span>
-      <span id="progressPct">{{ (concluidos / total * 100)|round|int }}%</span>
+  <div class="week-nav">
+    <button class="week-nav-btn" onclick="changeWeek(-1)">‹</button>
+    <div class="week-label">
+      <div class="week-label-main" id="week-range">—</div>
+      <div class="week-label-sub" id="week-year">carregando…</div>
     </div>
-    <div class="progress-bar-wrap">
-      <div class="progress-bar-fill" id="progressFill" style="width: {{ (concluidos / total * 100)|round|int }}%"></div>
-    </div>
-  </div>
-  {% endif %}
-
-  <div class="tasks-card">
-    {% if tasks|length == 0 %}
-    <div class="empty-state">
-      <div class="icon">{{ '📭' if date == today else ('📅' if date > today else '📂') }}</div>
-      <p>{{ 'Nenhuma tarefa cadastrada para hoje.' if date == today else ('Nenhuma tarefa agendada para este dia.' if date > today else 'Nenhuma tarefa registrada para este dia.') }}</p>
-      {% if date == today %}
-      <p style="margin-top:8px; font-size:0.85rem; color:#9ca3af;">Aguarde o gestor adicionar os itens.</p>
-      {% endif %}
-    </div>
-    {% else %}
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Produto</th>
-          <th>Qtd</th>
-          <th>Concluído</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for task in tasks %}
-        <tr id="row-{{ task.id }}"
-            class="{{ 'done' if task.concluido else ('urgente' if task.urgente else '') }}"
-            data-urgente="{{ 'true' if task.urgente else 'false' }}">
-          <td style="color:#d1d5db; font-size:0.82rem;">{{ loop.index }}</td>
-          <td class="produto-name">
-            {{ task.produto }}
-            {% if task.urgente and not task.concluido %}
-            <span class="urgente-badge">🔴 URGENTE</span>
-            {% endif %}
-          </td>
-          <td><span class="quantidade-badge">{{ task.quantidade }}</span></td>
-          <td>
-            <div class="check-wrap">
-              <input type="checkbox" id="check-{{ task.id }}"
-                     {{ 'checked' if task.concluido else '' }}
-                     {{ 'disabled' if date > today else '' }}
-                     onchange="autoSave('{{ task.id }}')">
-              <span class="check-label {{ 'done-label' if task.concluido else '' }}" id="chklabel-{{ task.id }}">
-                {{ 'Feito!' if task.concluido else 'Pendente' }}
-              </span>
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% endif %}
+    <button class="week-nav-btn" onclick="changeWeek(1)">›</button>
   </div>
 
+  <div id="emp-list"><div class="loading">Carregando programação…</div></div>
 </div>
 
-<footer class="app-footer no-print">
+<footer class="app-footer">
   Você é o gestor? <a href="/admin">Acessar o Painel do Gestor →</a>
 </footer>
 
-<div class="toast" id="toast"></div>
-
 <script>
-const TODAY = "{{ today }}";
-const CURRENT_DATE = "{{ date }}";
+const DEFAULT_WEEK = "{{ default_week }}";
+const AVATARS = [
+  ['#7c3aed','#a78bfa'],['#0891b2','#67e8f9'],['#059669','#6ee7b7'],
+  ['#d97706','#fcd34d'],['#dc2626','#fca5a5'],['#be185d','#fbcfe8'],
+];
 
-(function() {
-  const parts = CURRENT_DATE.split('-');
-  const label = parts[2] + '/' + parts[1] + '/' + parts[0];
-  document.getElementById('dateLabel').textContent = label;
-  const printLbl = document.getElementById('printDateLabel');
-  if (printLbl) printLbl.textContent = label;
-})();
+function parseDate(iso) { const [y,m,d]=iso.split('-').map(Number); return new Date(y,m-1,d); }
+function addDays(d,n) { const r=new Date(d); r.setDate(r.getDate()+n); return r; }
+function fmt(d) { return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}); }
+function isoDate(d) { return d.toISOString().slice(0,10); }
 
-function navegarDia(delta) {
-  const d = new Date(CURRENT_DATE + 'T00:00:00');
-  d.setDate(d.getDate() + delta);
-  window.location.href = '/producao?date=' + d.toISOString().split('T')[0];
+const DAYS = ['Segunda','Terça','Quarta','Quinta','Sexta'];
+const DAY_KEYS = ['mon','tue','wed','thu','fri'];
+
+let weekStart = parseDate(DEFAULT_WEEK);
+
+function updateHeader() {
+  const end = addDays(weekStart,4);
+  const rangeStr = `${fmt(weekStart)} – ${fmt(end)}`;
+  document.getElementById('week-range').textContent = rangeStr;
+  document.getElementById('week-year').textContent =
+    weekStart.toLocaleDateString('pt-BR',{month:'long'}) + ' · ' + weekStart.getFullYear();
+  const pl = document.getElementById('print-week-label');
+  if (pl) pl.textContent = `Semana ${rangeStr} · ${weekStart.getFullYear()}`;
 }
 
-function irParaData(val) {
-  if (!val) return;
-  window.location.href = '/producao?date=' + val;
-}
-
-function printPDF() {
-  const parts = CURRENT_DATE.split('-');
-  const printLbl = document.getElementById('printDateLabel');
-  if (printLbl) printLbl.textContent = parts[2] + '/' + parts[1] + '/' + parts[0];
-  window.print();
-}
-
-function showToast(msg, isError = false) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.background = isError ? '#dc2626' : '#1e293b';
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-async function autoSave(id) {
-  const cb = document.getElementById('check-' + id);
-  const concluido = cb.checked;
-  cb.disabled = true;
+async function loadWeek() {
+  const ws = isoDate(weekStart);
+  document.getElementById('emp-list').innerHTML = '<div class="loading">Carregando…</div>';
+  updateHeader();
+  let employees = [];
   try {
-    const res = await fetch('/worker/update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, date: CURRENT_DATE, concluido, assinatura: '' })
-    });
-    if (res.ok) {
-      const data = await res.json();
-      const row = document.getElementById('row-' + id);
-      const lbl = document.getElementById('chklabel-' + id);
-      if (concluido) {
-        row.classList.remove('urgente');
-        row.classList.add('done');
-        lbl.textContent = 'Feito!';
-        lbl.className = 'check-label done-label';
-        const badge = row.querySelector('.urgente-badge');
-        if (badge) badge.style.display = 'none';
-        showToast('✅ Concluído!');
-      } else {
-        row.classList.remove('done');
-        if (row.dataset.urgente === 'true') row.classList.add('urgente');
-        lbl.textContent = 'Pendente';
-        lbl.className = 'check-label';
-        const badge = row.querySelector('.urgente-badge');
-        if (badge) badge.style.display = '';
-        showToast('Tarefa reaberta.');
-      }
-      updateProgress();
-    } else {
-      throw new Error('server');
-    }
-  } catch (e) {
-    showToast('Erro ao salvar. Tente novamente.', true);
-    cb.checked = !concluido;
-  } finally {
-    cb.disabled = false;
+    const res = await fetch(`/api/producao-semana?week_start=${ws}`);
+    const rows = await res.json();
+    employees = rows.map(r => ({
+      name: r.employee_name,
+      mon: r.mon||'', tue: r.tue||'', wed: r.wed||'', thu: r.thu||'', fri: r.fri||''
+    }));
+  } catch(e) {
+    employees = [];
   }
+  renderList(employees);
 }
 
-function updateProgress() {
-  const checks = document.querySelectorAll('input[type="checkbox"]');
-  const total = checks.length;
-  const done = [...checks].filter(c => c.checked).length;
-  const pct = total > 0 ? Math.round(done / total * 100) : 0;
-  const fill = document.getElementById('progressFill');
-  const txt = document.getElementById('progressText');
-  const pctEl = document.getElementById('progressPct');
-  if (fill) fill.style.width = pct + '%';
-  if (txt) txt.textContent = done + ' de ' + total + ' itens concluídos';
-  if (pctEl) pctEl.textContent = pct + '%';
+function renderList(employees) {
+  const list = document.getElementById('emp-list');
+  list.innerHTML = '';
+  if (!employees.length) {
+    list.innerHTML = '<div class="empty-week">Sem programação para esta semana.</div>';
+    return;
+  }
+  employees.forEach((emp, ei) => {
+    const ci = ei % AVATARS.length;
+    const grad = `linear-gradient(135deg,${AVATARS[ci][0]},${AVATARS[ci][1]})`;
+    const initials = emp.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+
+    const card = document.createElement('div');
+    card.className = 'emp-card';
+    card.innerHTML = `
+      <div class="emp-header">
+        <div class="avatar" style="background:${grad}">${initials}</div>
+        <div>
+          <div class="emp-name">${emp.name}</div>
+          <div class="emp-role">Produção</div>
+        </div>
+      </div>`;
+
+    DAY_KEYS.forEach((key, di) => {
+      const date = addDays(weekStart, di);
+      const product = emp[key] || '';
+      const row = document.createElement('div');
+      row.className = 'day-row' + (di===0?' monday':'');
+      row.innerHTML = `
+        <div class="day-label">
+          <div class="day-name-wrap"><div class="day-dot"></div><span class="day-name">${DAYS[di]}</span></div>
+          <span class="day-date">${fmt(date)}</span>
+        </div>
+        <div class="day-product ${product?'filled':'empty'}">${product||'sem programação'}</div>`;
+      card.appendChild(row);
+    });
+    list.appendChild(card);
+  });
 }
 
-{% if date == today %}
-setTimeout(() => location.reload(), 60000);
-{% endif %}
+function changeWeek(dir) {
+  weekStart = addDays(weekStart, dir*7);
+  loadWeek();
+}
+
+loadWeek();
 </script>
 </body>
 </html>
