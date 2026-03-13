@@ -1,5 +1,8 @@
 import os
 import uuid
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from datetime import datetime, date, timedelta
 from functools import wraps
 from zoneinfo import ZoneInfo
@@ -30,6 +33,60 @@ def get_db():
     if database_url.startswith('postgres://'):
         database_url = database_url.replace('postgres://', 'postgresql://', 1)
     return psycopg2.connect(database_url)
+
+def send_email_notificacao(req):
+    """Envia e-mail de notificação para flavia@piromax.com.br quando uma nova
+    solicitação é inserida. Falhas silenciosas — nunca interrompem o fluxo."""
+    smtp_host = os.environ.get('SMTP_HOST', '')
+    smtp_port = int(os.environ.get('SMTP_PORT', 587))
+    smtp_user = os.environ.get('SMTP_USER', '')
+    smtp_pass = os.environ.get('SMTP_PASSWORD', '')
+
+    if not all([smtp_host, smtp_user, smtp_pass]):
+        print("[email] SMTP não configurado — notificação ignorada.")
+        return
+
+    urgente_txt = "🔴 URGENTE" if req.get('urgente') else "Normal"
+    tipo_map = {
+        'manutencao': 'Manutenção',
+        'compras': 'Compras',
+        'rh': 'RH',
+        'ti': 'TI',
+        'outro': 'Outro',
+    }
+    tipo_legivel = tipo_map.get(req.get('tipo', 'outro'), req.get('tipo', 'Outro').capitalize())
+
+    subject = f"[Piromax] Nova Solicitação — {tipo_legivel} ({urgente_txt})"
+
+    body = f"""Nova solicitação registrada no sistema Fogos Piromax.
+
+Tipo:       {tipo_legivel}
+Prioridade: {urgente_txt}
+Data/hora:  {req.get('created_at', '')}
+
+Descrição:
+{req.get('descricao', '')}
+
+---
+Acesse o painel do gestor para responder: /admin/requests
+"""
+
+    msg = MIMEMultipart()
+    msg['From'] = smtp_user
+    msg['To'] = 'flavia@piromax.com.br'
+    msg['Subject'] = subject
+    msg.attach(MIMEText(body, 'plain', 'utf-8'))
+
+    try:
+        with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as server:
+            server.ehlo()
+            server.starttls()
+            server.login(smtp_user, smtp_pass)
+            server.sendmail(smtp_user, ['flavia@piromax.com.br'], msg.as_string())
+        print(f"[email] Notificação enviada para flavia@piromax.com.br (solicitação {req.get('id', '')})")
+    except Exception as e:
+        print(f"[email] Falha ao enviar notificação: {e}")
+
 
 def group_by_cliente(orders):
     """Agrupa lista de pedidos por cliente (já deve estar ordenada por cliente)."""
@@ -138,7 +195,23 @@ def admin_logout():
 # ── Trabalhador — Hub ──────────────────────────────────────────────────────────
 @app.route('/')
 def worker_hub():
-    return render_template('worker_hub.html')
+    try:
+        conn = get_db()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur.execute("SELECT COUNT(*) as cnt FROM special_orders WHERE concluido = FALSE")
+        pedidos_row = cur.fetchone()
+        cur.execute("SELECT COUNT(*) as cnt FROM requests WHERE status = 'pendente'")
+        solicitacoes_row = cur.fetchone()
+        cur.close()
+        conn.close()
+        pedidos_pendentes_count = pedidos_row['cnt'] if pedidos_row else 0
+        solicitacoes_pendentes_count = solicitacoes_row['cnt'] if solicitacoes_row else 0
+    except Exception:
+        pedidos_pendentes_count = 0
+        solicitacoes_pendentes_count = 0
+    return render_template('worker_hub.html',
+                           pedidos_pendentes_count=pedidos_pendentes_count,
+                           solicitacoes_pendentes_count=solicitacoes_pendentes_count)
 
 # ── Trabalhador — Produção ─────────────────────────────────────────────────────
 @app.route('/producao')
@@ -207,6 +280,13 @@ def requests_add():
     conn.commit()
     cur.close()
     conn.close()
+
+    # Notificação por e-mail (erro silencioso — não interrompe a resposta)
+    try:
+        send_email_notificacao(req)
+    except Exception as e:
+        print(f"[email] Erro inesperado na notificação: {e}")
+
     return jsonify({'success': True, 'request': req})
 
 # ── Trabalhador — Pedidos Especiais ───────────────────────────────────────────
