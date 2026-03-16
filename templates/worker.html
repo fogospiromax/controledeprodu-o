@@ -37,10 +37,11 @@
   .header-brand-text .sub { font-size: 0.7rem; color: #9ca3af; }
   .header-right { display: flex; align-items: center; gap: 8px; }
   .worker-badge {
-    background: #f0fdf4; color: #16a34a; border: 1.5px solid #bbf7d0;
-    border-radius: 8px; padding: 5px 10px; font-size: 0.72rem; font-weight: 800;
-    letter-spacing: 0.5px; white-space: nowrap;
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+    background: #f0fdf4; border: 1.5px solid #bbf7d0;
+    display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
   }
+  .header-brand-text .sub { font-size: 0.72rem; color: #6b7280; font-weight: 500; }
   .btn-print { background:#fff; color:#7c3aed; border:1.5px solid #c4b5fd; border-radius:9px; padding:7px 12px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px; }
   .btn-print:hover { background:#f3f0ff; }
   /* ── Footer ── */
@@ -119,11 +120,11 @@
     </div>
     <div class="header-brand-text">
       <div class="title">Fogos Piromax</div>
-      <div class="sub">Programação de Produção</div>
+      <div class="sub">Programação da Semana</div>
     </div>
   </div>
   <div class="header-right">
-    <span class="worker-badge">👷 TRABALHADOR</span>
+    <span class="worker-badge">👷</span>
     <button class="btn-print" onclick="window.print()">🖨️ PDF</button>
   </div>
 </header>
