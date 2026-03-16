@@ -101,14 +101,37 @@
   .print-header h2 { font-size:17px; color:#1f1235; }
   .print-header p { font-size:12px; color:#6b7280; margin-top:3px; }
   @media print {
+    @page { size: 210mm 148.5mm; margin: 8mm; }
     header, .app-footer, .add-card, .btn-remove, .week-nav-btn, .save-bar, .btn-print { display:none !important; }
     body { background:#fff; }
     .page { margin:0; padding:0; max-width:100%; }
-    .emp-card { box-shadow:none; border:1px solid #e5e7eb; break-inside:avoid; }
-    .day-input { border:none; background:transparent !important; padding:7px 0; }
+    .week-nav { display:none !important; }
+    .print-header { display:block !important; margin-bottom:5mm; }
+    .print-header h2 { font-size:13px; }
+    .print-header p { font-size:10px; }
+    /* 1 funcionário por folha A5 */
+    .emp-card {
+      box-shadow:none; border:1px solid #d1d5db;
+      break-before:page; break-inside:avoid;
+      width:100%; margin:0; border-radius:6px;
+      padding:6mm 8mm;
+      min-height:calc(148.5mm - 16mm);
+      display:flex; flex-direction:column; justify-content:flex-start;
+    }
+    .emp-card:first-child { break-before:avoid; }
+    .emp-header { margin-bottom:4mm; }
+    .avatar { width:30px; height:30px; font-size:11px; }
+    .emp-name { font-size:14px; }
+    .emp-filled { display:none; }
+    .day-row { padding:5px 0; }
+    .day-name { font-size:12px; }
+    .day-date { font-size:10px; }
+    .day-input {
+      border:none; background:transparent !important;
+      padding:4px 0; font-size:12px;
+    }
     .day-input.filled { color:#1f1235 !important; font-weight:600; }
-    .week-nav { box-shadow:none; border:1px solid #e5e7eb; }
-    .print-header { display:block !important; }
+    .day-input::placeholder { color:transparent; }
   }
 </style>
 </head>
