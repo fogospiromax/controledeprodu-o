@@ -37,6 +37,12 @@ header {
 .header-logo img { width: 100%; height: 100%; object-fit: contain; }
 .header-brand-text .title { font-size: 0.98rem; font-weight: 700; color: #1e1b4b; }
 .header-brand-text .sub { font-size: 0.7rem; color: #9ca3af; }
+.header-right { display: flex; align-items: center; gap: 8px; }
+.worker-badge {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  background: #f0fdf4; border: 1.5px solid #bbf7d0;
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+}
 
 .container { max-width: 600px; margin: 0 auto; padding: 20px 16px 60px; }
 
@@ -127,9 +133,13 @@ header {
 
 .req-top { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; flex-wrap: wrap; }
 .tipo-badge {
-  background: #f5f3ff; color: #7c3aed; border-radius: 7px;
-  padding: 2px 9px; font-size: 0.72rem; font-weight: 700; white-space: nowrap;
+  border-radius: 7px; padding: 2px 9px; font-size: 0.72rem; font-weight: 700; white-space: nowrap;
+  background: #f5f3ff; color: #7c3aed;
 }
+.tipo-badge.material    { background: #fff7ed; color: #ea580c; }
+.tipo-badge.equipamento { background: #eff6ff; color: #2563eb; }
+.tipo-badge.manutencao  { background: #fefce8; color: #ca8a04; }
+.tipo-badge.outro       { background: #f9fafb; color: #6b7280; }
 .badge-urgente {
   background: #fee2e2; color: #dc2626; border-radius: 6px;
   padding: 2px 7px; font-size: 0.68rem; font-weight: 800; white-space: nowrap;
@@ -223,6 +233,9 @@ header {
       <div class="sub">Solicitações</div>
     </div>
   </div>
+  <div class="header-right">
+    <span class="worker-badge">👷</span>
+  </div>
 </header>
 
 <div class="container">
@@ -266,7 +279,7 @@ header {
       {% for r in urgentes %}
       <div class="req-card urgente" id="req-{{ r.id }}" data-id="{{ r.id }}" data-tipo="{{ r.tipo }}" data-urgente="true">
         <div class="req-top">
-          <span class="tipo-badge">
+          <span class="tipo-badge {{ r.tipo if r.tipo in ['material','equipamento','manutencao','outro'] else 'outro' }}">
             {% if r.tipo == 'material' %}🧱 Material
             {% elif r.tipo == 'equipamento' %}🔧 Equipamento
             {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
@@ -286,7 +299,7 @@ header {
       {% for r in normais %}
       <div class="req-card" id="req-{{ r.id }}" data-id="{{ r.id }}" data-tipo="{{ r.tipo }}" data-urgente="false">
         <div class="req-top">
-          <span class="tipo-badge">
+          <span class="tipo-badge {{ r.tipo if r.tipo in ['material','equipamento','manutencao','outro'] else 'outro' }}">
             {% if r.tipo == 'material' %}🧱 Material
             {% elif r.tipo == 'equipamento' %}🔧 Equipamento
             {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
@@ -316,7 +329,7 @@ header {
       {% for r in concluidas %}
       <div class="req-card concluida">
         <div class="req-top">
-          <span class="tipo-badge">
+          <span class="tipo-badge {{ r.tipo if r.tipo in ['material','equipamento','manutencao','outro'] else 'outro' }}">
             {% if r.tipo == 'material' %}🧱 Material
             {% elif r.tipo == 'equipamento' %}🔧 Equipamento
             {% elif r.tipo == 'manutencao' %}🛠️ Manutenção
@@ -397,7 +410,7 @@ async function enviarSolicitacao() {
     card.dataset.urgente = r.urgente ? 'true' : 'false';
     card.innerHTML = `
       <div class="req-top">
-        <span class="tipo-badge">${tipoLabels[r.tipo] || r.tipo}</span>
+        <span class="tipo-badge ${r.tipo || 'outro'}">${tipoLabels[r.tipo] || r.tipo}</span>
         ${urgBadge}
         <button class="btn-edit-worker" onclick="toggleEditWorker(this)">✏️ Editar</button>
       </div>
@@ -498,7 +511,10 @@ async function salvarEdicaoWorker(id, btn) {
       card.dataset.urgente = urgente ? 'true' : 'false';
       card.querySelector('.req-desc').textContent = desc;
       const tipoBadge = card.querySelector('.tipo-badge');
-      if (tipoBadge) tipoBadge.textContent = TIPO_LABELS[tipo] || tipo;
+      if (tipoBadge) {
+        tipoBadge.className = 'tipo-badge ' + (tipo || 'outro');
+        tipoBadge.textContent = TIPO_LABELS[tipo] || tipo;
+      }
       // Atualiza badge urgente
       let urgBadgeEl = card.querySelector('.badge-urgente');
       if (urgente && !urgBadgeEl) {
