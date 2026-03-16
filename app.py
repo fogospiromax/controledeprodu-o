@@ -168,12 +168,11 @@ except Exception as e:
     print(f"[init_db] Aviso: {e}")
 
 def next_monday_date():
-    """Retorna a próxima segunda-feira (SP). Se hoje já for segunda, vai para a seguinte."""
+    """Retorna a segunda-feira da semana atual (SP).
+    Se hoje já for segunda, retorna hoje mesmo."""
     today = now_sp().date()
-    days_until = (7 - today.weekday()) % 7  # weekday() 0=Seg
-    if days_until == 0:
-        days_until = 7
-    return today + timedelta(days=days_until)
+    days_since_monday = today.weekday()  # 0=Seg, 6=Dom
+    return today - timedelta(days=days_since_monday)
 
 def get_tasks(date_str):
     conn = get_db()
