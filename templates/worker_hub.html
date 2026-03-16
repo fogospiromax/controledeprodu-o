@@ -70,6 +70,20 @@ header {
 }
 .app-footer a { color: #7c3aed; text-decoration: none; font-weight: 600; }
 .app-footer a:hover { text-decoration: underline; }
+
+/* ── Info Card (clima + mensagem) ── */
+.info-card {
+  background: white; border-radius: 16px; padding: 16px 20px;
+  box-shadow: 0 2px 12px rgba(124,58,237,0.07); border: 1.5px solid #ede9fe;
+  margin-bottom: 22px; display: flex; align-items: center; gap: 14px;
+}
+.weather-block { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.weather-icon { font-size: 2rem; line-height: 1; }
+.weather-temp { font-size: 1.4rem; font-weight: 800; color: #1e1b4b; line-height: 1; }
+.weather-desc { font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
+.info-divider { width: 1px; height: 44px; background: #ede9fe; flex-shrink: 0; }
+.daily-msg { font-size: 0.82rem; color: #4b5563; font-style: italic; line-height: 1.45; flex: 1; }
+.daily-msg strong { color: #7c3aed; font-style: normal; }
 </style>
 </head>
 <body>
@@ -90,6 +104,18 @@ header {
 <div class="container">
   <h1 class="hub-title">O que deseja fazer?</h1>
   <p class="hub-date" id="hubDate"></p>
+
+  <div class="info-card">
+    <div class="weather-block">
+      <div class="weather-icon" id="wxIcon">⏳</div>
+      <div>
+        <div class="weather-temp" id="wxTemp">—</div>
+        <div class="weather-desc" id="wxDesc">carregando…</div>
+      </div>
+    </div>
+    <div class="info-divider"></div>
+    <div class="daily-msg" id="dailyMsg">…</div>
+  </div>
 
   <div class="modules">
 
@@ -138,6 +164,84 @@ header {
   const d = new Date();
   const opts = { weekday: 'long', day: 'numeric', month: 'long' };
   document.getElementById('hubDate').textContent = d.toLocaleDateString('pt-BR', opts);
+})();
+
+// ── Mensagens do dia (rotação diária automática) ──────────────────────────
+const MSGS = [
+  "Cada peça que você faz com capricho é o resultado de um time unido. <strong>Bom trabalho!</strong>",
+  "Segurança em primeiro lugar — e depois, muita qualidade. <strong>Que seja um ótimo dia!</strong>",
+  "Seu esforço move a Piromax. <strong>Obrigado por estar aqui hoje!</strong>",
+  "Trabalho bem feito é a nossa maior conquista. <strong>Vamos nessa!</strong>",
+  "Cada detalhe importa. <strong>Continue caprichando!</strong>",
+  "Time unido, resultado garantido. <strong>Bom dia, equipe!</strong>",
+  "A qualidade começa nas suas mãos. <strong>Mostre do que você é capaz!</strong>",
+  "Mais um dia de conquistas pela frente. <strong>Foco e determinação!</strong>",
+  "Você faz parte de algo maior. <strong>Orgulho de trabalhar com vocês!</strong>",
+  "Cada produto entregue é uma vitória nossa. <strong>Vamos com tudo!</strong>",
+  "O cuidado que você coloca no trabalho faz toda a diferença. <strong>Excelente dia!</strong>",
+  "Juntos somos mais fortes. <strong>Bora produzir!</strong>",
+  "Dedicação gera resultados. <strong>A Piromax agradece!</strong>",
+  "Hoje é mais um dia de mostrar o nosso valor. <strong>Arrasem!</strong>",
+  "Com segurança e qualidade, a gente vai longe. <strong>Bom dia!</strong>",
+  "Seu trabalho faz a diferença para muitas famílias. <strong>Obrigado!</strong>",
+  "A excelência é construída dia a dia. <strong>Continue assim!</strong>",
+  "Trabalho com orgulho é trabalho bem feito. <strong>Vamos nessa!</strong>",
+  "Que o dia seja produtivo e seguro para todos! <strong>Bom trabalho!</strong>",
+  "A nossa história é feita de pequenas vitórias diárias. <strong>Conte conosco!</strong>",
+  "Cuidar uns dos outros é o que nos torna um time de verdade. <strong>Bom dia!</strong>",
+  "A Piromax tem orgulho de cada um de vocês. <strong>Obrigado pelo empenho!</strong>",
+  "Qualidade não acontece por acaso — é fruto do seu empenho. <strong>Parabéns!</strong>",
+  "Segurança é responsabilidade de todos. <strong>Cuide-se e cuide do colega!</strong>",
+  "Hoje é um novo começo. <strong>Aproveite cada momento!</strong>",
+  "O seu melhor é o que a gente espera — e você sempre entrega! <strong>Valeu!</strong>",
+  "Trabalho com alegria rende muito mais. <strong>Bom humor e produção!</strong>",
+  "Você é peça fundamental da nossa equipe. <strong>Bom dia!</strong>",
+  "Cada segundo de atenção evita um acidente. <strong>Fique seguro!</strong>",
+  "A semana vai ser ótima porque vocês estão aqui. <strong>Vamos juntos!</strong>",
+  "Seu esforço de hoje é o resultado de amanhã. <strong>Persista!</strong>",
+];
+(function() {
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0)) / 86400000);
+  document.getElementById('dailyMsg').innerHTML = MSGS[dayOfYear % MSGS.length];
+})();
+
+// ── Clima via Open-Meteo (Santo Antônio do Monte/MG) ─────────────────────
+// Coordenadas: lat -20.085, lon -45.284
+const WX_CODES = {
+  0:'☀️',1:'🌤️',2:'⛅',3:'☁️',
+  45:'🌫️',48:'🌫️',
+  51:'🌦️',53:'🌦️',55:'🌧️',
+  61:'🌧️',63:'🌧️',65:'🌧️',
+  71:'🌨️',73:'🌨️',75:'🌨️',77:'🌨️',
+  80:'🌦️',81:'🌧️',82:'⛈️',
+  85:'🌨️',86:'🌨️',
+  95:'⛈️',96:'⛈️',99:'⛈️',
+};
+const WX_DESC = {
+  0:'Céu limpo',1:'Principalmente limpo',2:'Parcialmente nublado',3:'Nublado',
+  45:'Neblina',48:'Neblina',
+  51:'Garoa leve',53:'Garoa',55:'Garoa forte',
+  61:'Chuva leve',63:'Chuva',65:'Chuva forte',
+  71:'Neve leve',73:'Neve',75:'Neve forte',77:'Granizo',
+  80:'Pancadas leves',81:'Pancadas',82:'Pancadas fortes',
+  85:'Neve leve',86:'Neve forte',
+  95:'Trovoada',96:'Trovoada c/ granizo',99:'Trovoada forte',
+};
+(async function() {
+  try {
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=-20.085&longitude=-45.284&current=temperature_2m,weathercode&timezone=America%2FSao_Paulo';
+    const r = await fetch(url);
+    const data = await r.json();
+    const temp = Math.round(data.current.temperature_2m);
+    const code = data.current.weathercode;
+    document.getElementById('wxIcon').textContent = WX_CODES[code] || '🌡️';
+    document.getElementById('wxTemp').textContent = temp + '°C';
+    document.getElementById('wxDesc').textContent = WX_DESC[code] || 'S. Antônio do Monte';
+  } catch(e) {
+    document.getElementById('wxIcon').textContent = '🌡️';
+    document.getElementById('wxTemp').textContent = '—';
+    document.getElementById('wxDesc').textContent = 'S. Antônio do Monte';
+  }
 })();
 </script>
 </body>
