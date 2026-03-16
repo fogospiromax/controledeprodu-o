@@ -29,16 +29,17 @@ header {
 .header-brand-text .sub { font-size: 0.7rem; color: #9ca3af; }
 .header-right { display: flex; align-items: center; gap: 8px; }
 .gestor-badge {
-  background: #f5f3ff; color: #7c3aed; border: 1.5px solid #ede9fe;
-  border-radius: 8px; padding: 5px 10px; font-size: 0.72rem; font-weight: 800;
-  letter-spacing: 0.5px;
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  background: #f0fdf4; border: 1.5px solid #bbf7d0;
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
 }
 .btn-logout {
   background: none; border: 1.5px solid #e5e7eb; border-radius: 8px;
   padding: 6px 12px; font-size: 0.78rem; font-weight: 600;
   color: #6b7280; text-decoration: none; transition: all 0.15s;
 }
-.btn-logout:hover { border-color: #c4b5fd; color: #7c3aed; }
+.btn-logout:hover { border-color: #86efac; color: #16a34a; }
+.header-brand-text .sub { font-size: 0.72rem; color: #6b7280; font-weight: 500; }
 
 .container { max-width: 480px; margin: 48px auto; padding: 0 20px; }
 .hub-title { font-size: 1.25rem; font-weight: 800; color: #1e1b4b; margin-bottom: 6px; text-align: center; }
@@ -101,16 +102,16 @@ header {
   </div>
   <div class="header-brand-text">
     <div class="title">Fogos Piromax</div>
-    <div class="sub">Área do Gestor</div>
+    <div class="sub">Gestão da Produção</div>
   </div>
   <div class="header-right">
-    <span class="gestor-badge">👔 GESTOR</span>
+    <span class="gestor-badge">👔</span>
     <a href="/admin/logout" class="btn-logout">🚪 Sair</a>
   </div>
 </header>
 
 <div class="container">
-  <div class="hub-title">Painel do Gestor</div>
+  <div class="hub-title" id="hubGreeting"></div>
   <div class="hub-date" id="hubDate"></div>
 
   <div class="info-card">
@@ -173,6 +174,9 @@ header {
   const d = new Date();
   const opts = { weekday: 'long', day: 'numeric', month: 'long' };
   document.getElementById('hubDate').textContent = d.toLocaleDateString('pt-BR', opts);
+  const h = d.getHours();
+  const g = h < 12 ? 'Bom dia! ☀️' : h < 18 ? 'Boa tarde! 🌤️' : 'Boa noite! 🌙';
+  document.getElementById('hubGreeting').textContent = g;
 })();
 
 const MSGS = [
