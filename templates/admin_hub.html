@@ -235,7 +235,7 @@ const WX_DESC = {
 };
 (async function() {
   try {
-    const url = 'https://api.open-meteo.com/v1/forecast?latitude=-20.085&longitude=-45.284&current=temperature_2m,weathercode&timezone=America%2FSao_Paulo';
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=-20.085&longitude=-45.284&current=temperature_2m,weathercode&timezone=America%2FSao_Paulo&temperature_unit=celsius';
     const r = await fetch(url);
     const data = await r.json();
     const temp = Math.round(data.current.temperature_2m);
