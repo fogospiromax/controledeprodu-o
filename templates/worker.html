@@ -78,14 +78,34 @@
   .print-header h2 { font-size:17px; color:#1f1235; }
   .print-header p { font-size:12px; color:#6b7280; margin-top:3px; }
   @media print {
+    @page { size: 210mm 148.5mm; margin: 8mm; }
     header, .app-footer, .week-nav-btn, .btn-print { display:none !important; }
     body { background:#fff; }
     .page { margin:0; padding:0; max-width:100%; }
-    #emp-list { display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:start; }
-    .emp-card { box-shadow:none; border:1px solid #e5e7eb; break-inside:avoid; }
-    .week-nav { box-shadow:none; border:1px solid #e5e7eb; }
-    .print-header { display:block !important; }
-    .day-product.filled { background:#f9f5ff; border-left:2px solid #7c3aed; }
+    .week-nav { display:none !important; }
+    .print-header { display:block !important; margin-bottom:5mm; }
+    .print-header h2 { font-size:13px; }
+    .print-header p { font-size:10px; }
+    /* 1 funcionário por folha A5 */
+    .emp-card {
+      box-shadow:none; border:1px solid #d1d5db;
+      break-before:page; break-inside:avoid;
+      width:100%; margin:0; border-radius:6px;
+      padding:6mm 8mm;
+      min-height:calc(148.5mm - 16mm);
+      display:flex; flex-direction:column; justify-content:flex-start;
+    }
+    .emp-card:first-child { break-before:avoid; }
+    .emp-header { margin-bottom:4mm; }
+    .avatar { width:30px; height:30px; font-size:11px; }
+    .emp-name { font-size:14px; }
+    .emp-role { font-size:10px; }
+    .day-row { padding:5px 0; }
+    .day-name { font-size:12px; }
+    .day-date { font-size:10px; }
+    .day-product { font-size:12px; }
+    .day-product.filled { background:#f9f5ff; border-left:2px solid #7c3aed; padding:4px 8px; }
+    .day-product.empty { color:#9ca3af; padding:4px 8px; font-style:italic; }
   }
 </style>
 </head>
