@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Melhorias e Reclamações — Fogos Piromax</title>
+<link rel="manifest" href="/static/manifest.json">
+<link rel="apple-touch-icon" href="/static/logo.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Piromax">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#16a34a">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8f7ff; color: #2d3748; min-height: 100vh; }
+
+/* ── Header ── */
+header {
+  background: white; border-bottom: 1px solid #bbf7d0;
+  box-shadow: 0 1px 8px rgba(22,163,74,0.07);
+  position: sticky; top: 0; z-index: 50;
+  padding: 12px 20px; display: flex; align-items: center; gap: 8px;
+}
+.header-left { display: flex; align-items: center; gap: 8px; flex: 1; }
+.back-btn {
+  width: 34px; height: 34px; background: #f0fdf4; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: #16a34a; font-size: 1.1rem; cursor: pointer;
+  border: 1.5px solid #bbf7d0; font-family: inherit;
+  flex-shrink: 0; text-decoration: none; font-weight: 700; line-height: 1;
+}
+.back-btn:hover { background: #dcfce7; }
+.header-logo {
+  width: 40px; height: 40px; background: white; border-radius: 10px;
+  overflow: hidden; padding: 3px; border: 1px solid #bbf7d0; flex-shrink: 0;
+}
+.header-logo img { width: 100%; height: 100%; object-fit: contain; }
+.header-brand-text { flex: 1; }
+.header-brand-text .title { font-size: 0.98rem; font-weight: 700; color: #1e1b4b; }
+.header-brand-text .sub { font-size: 0.72rem; color: #6b7280; font-weight: 500; }
+.header-right { display: flex; align-items: center; gap: 8px; }
+.gestor-badge {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  background: #f0fdf4; border: 1.5px solid #bbf7d0;
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+}
+
+/* ── Layout ── */
+.container { max-width: 640px; margin: 0 auto; padding: 20px 16px 80px; }
+
+/* ── Formulário ── */
+.add-card {
+  background: white; border-radius: 14px; padding: 18px 20px;
+  border: 1.5px solid #bbf7d0; box-shadow: 0 2px 10px rgba(22,163,74,0.06);
+  margin-bottom: 20px;
+}
+.add-card-title {
+  font-size: 0.75rem; font-weight: 800; color: #16a34a;
+  text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 14px;
+}
+.tipo-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px;
+}
+.tipo-btn {
+  background: #f9fafb; border: 1.5px solid #e5e7eb; border-radius: 10px;
+  padding: 10px 6px; font-size: 0.8rem; font-weight: 600; color: #6b7280;
+  cursor: pointer; font-family: inherit; text-align: center; transition: all 0.15s;
+  line-height: 1.35;
+}
+.tipo-btn:hover { border-color: #86efac; color: #16a34a; }
+.tipo-btn.active.melhoria    { background: #eff6ff; border-color: #93c5fd; color: #2563eb; }
+.tipo-btn.active.recl-cliente { background: #fff7ed; border-color: #fdba74; color: #ea580c; }
+.tipo-btn.active.recl-func   { background: #fee2e2; border-color: #fca5a5; color: #dc2626; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.form-label { font-size: 0.72rem; font-weight: 700; color: #6b7280; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+.form-input {
+  width: 100%; border: 1.5px solid #e5e7eb; border-radius: 9px;
+  padding: 9px 12px; font-size: 0.88rem; font-family: inherit;
+  color: #1e1b4b; outline: none; transition: border-color 0.2s;
+}
+.form-input:focus { border-color: #16a34a; box-shadow: 0 0 0 3px rgba(22,163,74,0.08); }
+.form-textarea {
+  width: 100%; border: 1.5px solid #e5e7eb; border-radius: 9px;
+  padding: 10px 13px; font-size: 0.9rem; font-family: inherit;
+  color: #1e1b4b; resize: vertical; min-height: 76px; outline: none;
+  transition: border-color 0.2s; margin-bottom: 12px;
+}
+.form-textarea:focus { border-color: #16a34a; box-shadow: 0 0 0 3px rgba(22,163,74,0.08); }
+.btn-submit {
+  width: 100%; padding: 10px 20px; background: #16a34a; color: white; border: none;
+  border-radius: 9px; font-size: 0.9rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.btn-submit:hover { background: #15803d; }
+
+/* ── Tabs ── */
+.tabs {
+  display: flex; background: white; border-radius: 12px;
+  border: 1.5px solid #bbf7d0; overflow: hidden; margin-bottom: 20px;
+  box-shadow: 0 1px 6px rgba(22,163,74,0.05);
+}
+.tab-btn {
+  flex: 1; padding: 11px 16px; font-size: 0.88rem; font-weight: 700;
+  background: none; border: none; cursor: pointer; color: #9ca3af;
+  transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: inherit;
+}
+.tab-btn.active { background: #16a34a; color: white; }
+.tab-btn:not(.active):hover { background: #f0fdf4; color: #16a34a; }
+.tab-count {
+  background: rgba(255,255,255,0.25); border-radius: 20px;
+  padding: 1px 7px; font-size: 0.72rem; font-weight: 800;
+}
+.tab-btn:not(.active) .tab-count { background: #dcfce7; color: #16a34a; }
+
+/* ── Separadores de seção ── */
+.section-sep {
+  font-size: 0.68rem; font-weight: 800; letter-spacing: 0.5px;
+  text-transform: uppercase; padding: 4px 2px; margin-bottom: 8px; margin-top: 4px;
+  display: flex; align-items: center; gap: 6px;
+}
+.section-sep.melhoria    { color: #2563eb; }
+.section-sep.melhoria::after    { content: ''; flex: 1; height: 1px; background: #bfdbfe; }
+.section-sep.reclamacao  { color: #dc2626; }
+.section-sep.reclamacao::after  { content: ''; flex: 1; height: 1px; background: #fca5a5; }
+
+/* ── Cards ── */
+.req-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.req-card {
+  background: white; border-radius: 14px;
+  border: 1.5px solid #e5e7eb; box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+  overflow: hidden;
+}
+.req-card.melhoria    { border-color: #bfdbfe; }
+.req-card.recl-cliente { border-color: #fdba74; }
+.req-card.recl-func   { border-color: #fca5a5; }
+.req-card.concluida   { opacity: 0.82; border-color: #bbf7d0; }
+
+.req-card-body { padding: 13px 16px 10px; }
+
+/* ── Badges ── */
+.req-top { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; flex-wrap: wrap; }
+.tipo-badge {
+  border-radius: 7px; padding: 3px 10px; font-size: 0.72rem; font-weight: 700; white-space: nowrap;
+}
+.tipo-badge.melhoria    { background: #eff6ff; color: #2563eb; }
+.tipo-badge.recl-cliente { background: #fff7ed; color: #ea580c; }
+.tipo-badge.recl-func   { background: #fee2e2; color: #dc2626; }
+.badge-concluida {
+  background: #dcfce7; color: #16a34a; border-radius: 6px;
+  padding: 3px 8px; font-size: 0.68rem; font-weight: 700;
+}
+.req-responsavel {
+  margin-left: auto; font-size: 0.72rem; color: #9ca3af; font-weight: 500;
+  white-space: nowrap;
+}
+
+.req-desc {
+  font-size: 0.9rem; color: #1e1b4b; font-weight: 600;
+  line-height: 1.5; margin-bottom: 5px;
+}
+.req-meta { font-size: 0.74rem; color: #9ca3af; }
+
+/* ── Comentários ── */
+.comentarios-section {
+  border-top: 1px solid #f3f4f6; padding: 10px 16px;
+  background: #fafaf9;
+}
+.comentarios-title {
+  font-size: 0.68rem; font-weight: 800; color: #9ca3af;
+  text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 8px;
+  cursor: pointer; display: flex; align-items: center; gap: 5px;
+}
+.comentarios-title:hover { color: #6b7280; }
+.comentario-item {
+  background: white; border-radius: 8px; padding: 8px 11px;
+  border: 1px solid #e5e7eb; margin-bottom: 6px;
+  font-size: 0.82rem; color: #374151; line-height: 1.4;
+}
+.comentario-item.conclusao {
+  border-color: #bbf7d0; background: #f0fdf4; color: #166534;
+}
+.comentario-meta {
+  font-size: 0.7rem; color: #9ca3af; margin-top: 4px;
+}
+.comentario-label {
+  font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+  color: #16a34a; letter-spacing: 0.3px;
+}
+
+/* ── Novo comentário inline ── */
+.novo-comentario {
+  margin-top: 8px; display: flex; gap: 7px;
+}
+.novo-comentario textarea {
+  flex: 1; border: 1.5px solid #e5e7eb; border-radius: 8px;
+  padding: 8px 10px; font-size: 0.84rem; font-family: inherit;
+  color: #1e1b4b; resize: none; height: 60px; outline: none;
+  transition: border-color 0.2s;
+}
+.novo-comentario textarea:focus { border-color: #16a34a; }
+.btn-enviar-comentario {
+  padding: 0 14px; background: #16a34a; color: white; border: none;
+  border-radius: 8px; font-size: 0.8rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; flex-shrink: 0; transition: background 0.15s;
+}
+.btn-enviar-comentario:hover { background: #15803d; }
+
+/* ── Actions ── */
+.req-actions {
+  border-top: 1px solid #f3f4f6; padding: 10px 16px 12px;
+  background: #fafaf9; display: flex; flex-direction: column; gap: 8px;
+}
+.req-actions-btns { display: flex; gap: 7px; }
+
+.btn-concluir {
+  flex: 1; padding: 8px 12px; background: #16a34a; color: white;
+  border: none; border-radius: 8px; font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.btn-concluir:hover { background: #15803d; }
+.btn-comentar {
+  padding: 8px 12px; background: #f0fdf4; color: #16a34a;
+  border: 1.5px solid #bbf7d0; border-radius: 8px; font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: all 0.15s;
+}
+.btn-comentar:hover { background: #dcfce7; }
+.btn-excluir {
+  padding: 8px 11px; background: #fef2f2; color: #dc2626;
+  border: 1.5px solid #fecaca; border-radius: 8px; font-size: 0.82rem;
+  cursor: pointer; font-family: inherit; transition: all 0.15s;
+}
+.btn-excluir:hover { background: #fee2e2; }
+
+/* ── Form de conclusão (inline) ── */
+.concluir-form {
+  border-top: 1px solid #e5e7eb; padding: 12px 16px 14px;
+  background: #f9fafb; display: none; flex-direction: column; gap: 8px;
+}
+.concluir-form.open { display: flex; }
+.concluir-form-title {
+  font-size: 0.72rem; font-weight: 800; color: #16a34a;
+  text-transform: uppercase; letter-spacing: 0.3px;
+}
+.concluir-form textarea {
+  width: 100%; border: 1.5px solid #e5e7eb; border-radius: 8px;
+  padding: 9px 12px; font-size: 0.86rem; font-family: inherit;
+  color: #1e1b4b; resize: vertical; min-height: 66px; outline: none;
+  transition: border-color 0.2s;
+}
+.concluir-form textarea:focus { border-color: #16a34a; }
+.concluir-form-footer { display: flex; gap: 8px; justify-content: flex-end; }
+.btn-cancelar {
+  padding: 8px 14px; background: white; color: #6b7280;
+  border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.82rem;
+  cursor: pointer; font-family: inherit; transition: all 0.15s;
+}
+.btn-cancelar:hover { background: #f9fafb; }
+.btn-confirmar-conclusao {
+  padding: 8px 18px; background: #16a34a; color: white; border: none;
+  border-radius: 8px; font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.btn-confirmar-conclusao:hover { background: #15803d; }
+
+/* ── Empty ── */
+.empty-state { text-align: center; padding: 40px 20px; color: #9ca3af; font-size: 0.92rem; }
+.empty-state .empty-icon { font-size: 2.2rem; margin-bottom: 10px; }
+
+/* ── Toast ── */
+#toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: #1e293b; color: white; padding: 12px 24px;
+  border-radius: 10px; font-size: 0.9rem; font-weight: 600;
+  opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; white-space: nowrap;
+}
+#toast.show { opacity: 1; }
+
+/* ── Footer ── */
+.app-footer {
+  text-align: center; padding: 24px 20px 40px; font-size: 0.78rem; color: #9ca3af;
+  border-top: 1px solid #bbf7d0; margin-top: 32px;
+}
+.app-footer a { color: #16a34a; text-decoration: none; font-weight: 600; }
+.app-footer a:hover { text-decoration: underline; }
+
+@media (max-width: 480px) {
+  .tipo-grid { grid-template-columns: 1fr; }
+  .form-row  { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <a href="/admin" class="back-btn" title="Voltar ao Hub do Gestor">‹</a>
+    <div class="header-logo">
+      <img src="/static/logo.png" alt="Piromax">
+    </div>
+    <div class="header-brand-text">
+      <div class="title">Fogos Piromax</div>
+      <div class="sub">Melhorias e Reclamações</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="gestor-badge">👔</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Formulário novo registro -->
+  <div class="add-card">
+    <div class="add-card-title">+ Novo Registro</div>
+
+    <div class="tipo-grid" id="tipoGrid">
+      <button class="tipo-btn melhoria active" data-value="melhoria" onclick="selecionarTipo(this)">
+        💡 Melhoria<br><span style="font-weight:400;font-size:0.72rem;color:inherit">Produto ou processo</span>
+      </button>
+      <button class="tipo-btn recl-cliente" data-value="recl-cliente" onclick="selecionarTipo(this)">
+        😤 Recl. Cliente<br><span style="font-weight:400;font-size:0.72rem;color:inherit">Reclamação de cliente</span>
+      </button>
+      <button class="tipo-btn recl-func" data-value="recl-func" onclick="selecionarTipo(this)">
+        👤 Recl. Funcionário<br><span style="font-weight:400;font-size:0.72rem;color:inherit">Reclamação interna</span>
+      </button>
+    </div>
+
+    <div class="form-row">
+      <div>
+        <div class="form-label">Responsável (Gestor)</div>
+        <input type="text" class="form-input" id="responsavel" placeholder="Nome do gestor">
+      </div>
+      <div>
+        <div class="form-label">Data</div>
+        <input type="date" class="form-input" id="data-registro">
+      </div>
+    </div>
+
+    <div class="form-label" style="margin-bottom:4px">Descrição</div>
+    <textarea class="form-textarea" id="descricao" placeholder="Descreva a melhoria ou reclamação em detalhes..."></textarea>
+
+    <button class="btn-submit" onclick="enviarRegistro()">📤 Registrar</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="trocarAba('pendentes', this)">
+      Pendentes <span class="tab-count" id="badge-pendentes">{{ pendentes|length }}</span>
+    </button>
+    <button class="tab-btn" onclick="trocarAba('concluidas', this)">
+      Concluídas <span class="tab-count" id="badge-concluidas">{{ concluidas|length }}</span>
+    </button>
+  </div>
+
+  <!-- Tab Pendentes -->
+  <div id="panel-pendentes">
+    <div class="req-list" id="lista-pendentes">
+
+      {% set melhorias   = pendentes | selectattr('tipo', 'equalto', 'melhoria')    | list %}
+      {% set recl_cli    = pendentes | selectattr('tipo', 'equalto', 'recl-cliente') | list %}
+      {% set recl_func   = pendentes | selectattr('tipo', 'equalto', 'recl-func')   | list %}
+
+      {% if melhorias %}
+      <div class="section-sep melhoria">💡 Melhorias</div>
+      {% for r in melhorias %}
+      <div class="req-card melhoria" id="req-{{ r.id }}">
+        <div class="req-card-body">
+          <div class="req-top">
+            <span class="tipo-badge melhoria">💡 Melhoria</span>
+            <span class="req-responsavel">👔 {{ r.responsavel }}</span>
+          </div>
+          <div class="req-desc">{{ r.descricao }}</div>
+          <div class="req-meta">🕐 {{ r.created_at }}</div>
+        </div>
+
+        <!-- Seção de comentários -->
+        <div class="comentarios-section">
+          <div class="comentarios-title" onclick="toggleComentarios('{{ r.id }}')">
+            💬 Comentários ({{ r.comentarios|length }}) <span id="arrow-{{ r.id }}">›</span>
+          </div>
+          <div id="comentarios-{{ r.id }}" style="display:none;">
+            {% for c in r.comentarios %}
+            <div class="comentario-item">
+              {{ c.texto }}
+              <div class="comentario-meta">🕐 {{ c.created_at }}</div>
+            </div>
+            {% endfor %}
+            <div class="novo-comentario">
+              <textarea id="nc-{{ r.id }}" placeholder="Adicionar comentário..."></textarea>
+              <button class="btn-enviar-comentario" onclick="adicionarComentario('{{ r.id }}')">Enviar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ações -->
+        <div class="req-actions">
+          <div class="req-actions-btns">
+            <button class="btn-concluir" onclick="toggleConcluir('{{ r.id }}')">✅ Concluir</button>
+            <button class="btn-comentar" onclick="toggleComentarios('{{ r.id }}')">💬 Comentar</button>
+            <button class="btn-excluir"  onclick="excluirItem('{{ r.id }}')">🗑</button>
+          </div>
+        </div>
+
+        <!-- Form de conclusão -->
+        <div class="concluir-form" id="concluir-form-{{ r.id }}">
+          <div class="concluir-form-title">✅ Comentário de conclusão (obrigatório)</div>
+          <textarea id="conclusao-{{ r.id }}" placeholder="Descreva o que foi feito para resolver / implementar..."></textarea>
+          <div class="concluir-form-footer">
+            <button class="btn-cancelar" onclick="toggleConcluir('{{ r.id }}')">Cancelar</button>
+            <button class="btn-confirmar-conclusao" onclick="concluirItem('{{ r.id }}')">✅ Confirmar</button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+
+      {% if recl_cli %}
+      <div class="section-sep reclamacao">😤 Reclamações de Clientes</div>
+      {% for r in recl_cli %}
+      <div class="req-card recl-cliente" id="req-{{ r.id }}">
+        <div class="req-card-body">
+          <div class="req-top">
+            <span class="tipo-badge recl-cliente">😤 Recl. Cliente</span>
+            <span class="req-responsavel">👔 {{ r.responsavel }}</span>
+          </div>
+          <div class="req-desc">{{ r.descricao }}</div>
+          <div class="req-meta">🕐 {{ r.created_at }}</div>
+        </div>
+        <div class="comentarios-section">
+          <div class="comentarios-title" onclick="toggleComentarios('{{ r.id }}')">
+            💬 Comentários ({{ r.comentarios|length }}) <span id="arrow-{{ r.id }}">›</span>
+          </div>
+          <div id="comentarios-{{ r.id }}" style="display:none;">
+            {% for c in r.comentarios %}
+            <div class="comentario-item">{{ c.texto }}<div class="comentario-meta">🕐 {{ c.created_at }}</div></div>
+            {% endfor %}
+            <div class="novo-comentario">
+              <textarea id="nc-{{ r.id }}" placeholder="Adicionar comentário..."></textarea>
+              <button class="btn-enviar-comentario" onclick="adicionarComentario('{{ r.id }}')">Enviar</button>
+            </div>
+          </div>
+        </div>
+        <div class="req-actions">
+          <div class="req-actions-btns">
+            <button class="btn-concluir" onclick="toggleConcluir('{{ r.id }}')">✅ Concluir</button>
+            <button class="btn-comentar" onclick="toggleComentarios('{{ r.id }}')">💬 Comentar</button>
+            <button class="btn-excluir"  onclick="excluirItem('{{ r.id }}')">🗑</button>
+          </div>
+        </div>
+        <div class="concluir-form" id="concluir-form-{{ r.id }}">
+          <div class="concluir-form-title">✅ Comentário de conclusão (obrigatório)</div>
+          <textarea id="conclusao-{{ r.id }}" placeholder="Descreva como a reclamação foi tratada..."></textarea>
+          <div class="concluir-form-footer">
+            <button class="btn-cancelar" onclick="toggleConcluir('{{ r.id }}')">Cancelar</button>
+            <button class="btn-confirmar-conclusao" onclick="concluirItem('{{ r.id }}')">✅ Confirmar</button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+
+      {% if recl_func %}
+      <div class="section-sep reclamacao">👤 Reclamações de Funcionários</div>
+      {% for r in recl_func %}
+      <div class="req-card recl-func" id="req-{{ r.id }}">
+        <div class="req-card-body">
+          <div class="req-top">
+            <span class="tipo-badge recl-func">👤 Recl. Funcionário</span>
+            <span class="req-responsavel">👔 {{ r.responsavel }}</span>
+          </div>
+          <div class="req-desc">{{ r.descricao }}</div>
+          <div class="req-meta">🕐 {{ r.created_at }}</div>
+        </div>
+        <div class="comentarios-section">
+          <div class="comentarios-title" onclick="toggleComentarios('{{ r.id }}')">
+            💬 Comentários ({{ r.comentarios|length }}) <span id="arrow-{{ r.id }}">›</span>
+          </div>
+          <div id="comentarios-{{ r.id }}" style="display:none;">
+            {% for c in r.comentarios %}
+            <div class="comentario-item">{{ c.texto }}<div class="comentario-meta">🕐 {{ c.created_at }}</div></div>
+            {% endfor %}
+            <div class="novo-comentario">
+              <textarea id="nc-{{ r.id }}" placeholder="Adicionar comentário..."></textarea>
+              <button class="btn-enviar-comentario" onclick="adicionarComentario('{{ r.id }}')">Enviar</button>
+            </div>
+          </div>
+        </div>
+        <div class="req-actions">
+          <div class="req-actions-btns">
+            <button class="btn-concluir" onclick="toggleConcluir('{{ r.id }}')">✅ Concluir</button>
+            <button class="btn-comentar" onclick="toggleComentarios('{{ r.id }}')">💬 Comentar</button>
+            <button class="btn-excluir"  onclick="excluirItem('{{ r.id }}')">🗑</button>
+          </div>
+        </div>
+        <div class="concluir-form" id="concluir-form-{{ r.id }}">
+          <div class="concluir-form-title">✅ Comentário de conclusão (obrigatório)</div>
+          <textarea id="conclusao-{{ r.id }}" placeholder="Descreva como a reclamação foi tratada..."></textarea>
+          <div class="concluir-form-footer">
+            <button class="btn-cancelar" onclick="toggleConcluir('{{ r.id }}')">Cancelar</button>
+            <button class="btn-confirmar-conclusao" onclick="concluirItem('{{ r.id }}')">✅ Confirmar</button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+
+      {% if not melhorias and not recl_cli and not recl_func %}
+      <div class="empty-state" id="empty-pendentes">
+        <div class="empty-icon">📭</div>
+        Nenhum registro pendente.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Tab Concluídas -->
+  <div id="panel-concluidas" style="display:none;">
+    <div class="req-list" id="lista-concluidas">
+      {% if concluidas %}
+      {% for r in concluidas %}
+      <div class="req-card {{ r.tipo }} concluida" id="req-{{ r.id }}">
+        <div class="req-card-body">
+          <div class="req-top">
+            {% if r.tipo == 'melhoria' %}
+            <span class="tipo-badge melhoria">💡 Melhoria</span>
+            {% elif r.tipo == 'recl-cliente' %}
+            <span class="tipo-badge recl-cliente">😤 Recl. Cliente</span>
+            {% else %}
+            <span class="tipo-badge recl-func">👤 Recl. Funcionário</span>
+            {% endif %}
+            <span class="badge-concluida">✅ Concluída</span>
+            <span class="req-responsavel">👔 {{ r.responsavel }}</span>
+          </div>
+          <div class="req-desc">{{ r.descricao }}</div>
+          <div class="req-meta">🕐 {{ r.created_at }} · concluído em {{ r.concluido_em }}</div>
+        </div>
+
+        {% if r.comentarios %}
+        <div class="comentarios-section">
+          <div class="comentarios-title" onclick="toggleComentarios('c{{ r.id }}')">
+            💬 Comentários ({{ r.comentarios|length }}) <span id="arrow-c{{ r.id }}">›</span>
+          </div>
+          <div id="comentarios-c{{ r.id }}" style="display:none;">
+            {% for c in r.comentarios %}
+            <div class="comentario-item{% if loop.last %} conclusao{% endif %}">
+              {% if loop.last %}<div class="comentario-label">Comentário de conclusão</div>{% endif %}
+              {{ c.texto }}
+              <div class="comentario-meta">🕐 {{ c.created_at }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="req-actions">
+          <div class="req-actions-btns">
+            <button class="btn-excluir" onclick="excluirItem('{{ r.id }}')">🗑 Excluir</button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% else %}
+      <div class="empty-state" id="empty-concluidas">
+        <div class="empty-icon">✅</div>
+        Nenhum registro concluído ainda.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<footer class="app-footer">
+  <a href="/admin">← Voltar ao Painel do Gestor</a>
+</footer>
+
+<div id="toast"></div>
+
+<script>
+let tipoSelecionado = 'melhoria';
+
+function selecionarTipo(btn) {
+  document.querySelectorAll('#tipoGrid .tipo-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  tipoSelecionado = btn.dataset.value;
+}
+
+function trocarAba(aba, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-pendentes').style.display  = aba === 'pendentes'  ? '' : 'none';
+  document.getElementById('panel-concluidas').style.display = aba === 'concluidas' ? '' : 'none';
+  btn.classList.add('active');
+}
+
+function toggleComentarios(id) {
+  const el    = document.getElementById('comentarios-' + id);
+  const arrow = document.getElementById('arrow-' + id);
+  const open  = el.style.display !== 'none';
+  el.style.display = open ? 'none' : 'block';
+  if (arrow) arrow.textContent = open ? '›' : '‹';
+}
+
+function toggleConcluir(id) {
+  const form = document.getElementById('concluir-form-' + id);
+  if (!form) return;
+  form.classList.toggle('open');
+}
+
+async function enviarRegistro() {
+  const responsavel = document.getElementById('responsavel').value.trim();
+  const desc        = document.getElementById('descricao').value.trim();
+  const data        = document.getElementById('data-registro').value;
+
+  if (!responsavel) { showToast('⚠️ Informe o nome do gestor.', true); return; }
+  if (!desc)         { showToast('⚠️ Preencha a descrição.', true); return; }
+
+  const payload = { tipo: tipoSelecionado, responsavel, descricao: desc, data };
+  const res  = await fetch('/admin/melhorias/add', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data_res = await res.json();
+  if (data_res.success) {
+    showToast('✅ Registro adicionado!');
+    document.getElementById('responsavel').value = '';
+    document.getElementById('descricao').value   = '';
+    window.location.reload();
+  } else { showToast('Erro ao registrar.', true); }
+}
+
+async function adicionarComentario(id) {
+  const texto = (document.getElementById('nc-' + id)?.value || '').trim();
+  if (!texto) { showToast('⚠️ Digite o comentário.', true); return; }
+
+  const res  = await fetch('/admin/melhorias/' + id + '/comentar', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ texto })
+  });
+  const data = await res.json();
+  if (data.success) {
+    showToast('💬 Comentário adicionado!');
+    const container = document.getElementById('comentarios-' + id);
+    const input     = document.getElementById('nc-' + id);
+    if (container && input) {
+      const div = document.createElement('div');
+      div.className = 'comentario-item';
+      div.innerHTML = `${escHtml(texto)}<div class="comentario-meta">🕐 agora</div>`;
+      container.insertBefore(div, input.parentElement);
+      input.value = '';
+    }
+    // Atualiza contagem no título
+    const titulo = container?.previousElementSibling;
+    if (titulo) {
+      const match = titulo.textContent.match(/\((\d+)\)/);
+      if (match) titulo.textContent = titulo.textContent.replace(/\(\d+\)/, `(${parseInt(match[1]) + 1})`);
+    }
+  } else { showToast('Erro ao comentar.', true); }
+}
+
+async function concluirItem(id) {
+  const comentario = (document.getElementById('conclusao-' + id)?.value || '').trim();
+  if (!comentario) { showToast('⚠️ O comentário de conclusão é obrigatório.', true); return; }
+
+  const res  = await fetch('/admin/melhorias/' + id + '/concluir', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ comentario })
+  });
+  const data = await res.json();
+  if (data.success) {
+    showToast('✅ Concluído!');
+    const card = document.getElementById('req-' + id);
+    if (card) card.remove();
+    const bPend = document.getElementById('badge-pendentes');
+    const bConc = document.getElementById('badge-concluidas');
+    bPend.textContent = Math.max(0, parseInt(bPend.textContent || '0') - 1);
+    bConc.textContent = parseInt(bConc.textContent || '0') + 1;
+    checkEmpty('pendentes');
+  } else { showToast('Erro ao concluir.', true); }
+}
+
+async function excluirItem(id) {
+  if (!confirm('Excluir este registro?')) return;
+  const res  = await fetch('/admin/melhorias/delete/' + id, { method: 'DELETE' });
+  const data = await res.json();
+  if (data.success) {
+    showToast('🗑️ Excluído.');
+    const card = document.getElementById('req-' + id);
+    if (card) card.remove();
+  } else { showToast('Erro ao excluir.', true); }
+}
+
+function checkEmpty(painel) {
+  const lista = document.getElementById('lista-' + painel);
+  if (!lista) return;
+  if (lista.querySelectorAll('.req-card').length === 0 && !lista.querySelector('.empty-state')) {
+    const msg = painel === 'pendentes'
+      ? '<div class="empty-icon">📭</div>Nenhum registro pendente.'
+      : '<div class="empty-icon">✅</div>Nenhum registro concluído ainda.';
+    lista.innerHTML = `<div class="empty-state">${msg}</div>`;
+  }
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg, erro = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.background = erro ? '#dc2626' : '#1e293b';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Preenche data de hoje por padrão
+document.addEventListener('DOMContentLoaded', () => {
+  const hoje = new Date().toISOString().split('T')[0];
+  document.getElementById('data-registro').value = hoje;
+});
+</script>
+
+</body>
+</html>
