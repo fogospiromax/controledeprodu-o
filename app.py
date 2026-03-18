@@ -157,6 +157,27 @@ def init_db():
     # Migrações para bancos já existentes
     cur.execute("ALTER TABLE special_orders ADD COLUMN IF NOT EXISTS data_entrega TEXT DEFAULT ''")
     cur.execute("ALTER TABLE special_orders ADD COLUMN IF NOT EXISTS quantidade_produzida INTEGER DEFAULT 0")
+    # ── Melhorias e Reclamações ──────────────────────────────────────────────
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS melhorias (
+            id TEXT PRIMARY KEY,
+            tipo TEXT NOT NULL,
+            responsavel TEXT NOT NULL,
+            descricao TEXT NOT NULL,
+            status TEXT DEFAULT 'pendente',
+            created_at TEXT NOT NULL,
+            concluido_em TEXT DEFAULT ''
+        )
+    ''')
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS melhorias_comentarios (
+            id TEXT PRIMARY KEY,
+            melhoria_id TEXT NOT NULL REFERENCES melhorias(id) ON DELETE CASCADE,
+            texto TEXT NOT NULL,
+            is_conclusao BOOLEAN DEFAULT FALSE,
+            created_at TEXT NOT NULL
+        )
+    ''')
     conn.commit()
     cur.close()
     conn.close()
@@ -413,13 +434,21 @@ def admin_view():
         pedidos_row = cur.fetchone()
     except Exception:
         pass
+    melhorias_count = 0
+    try:
+        cur.execute("SELECT COUNT(*) as cnt FROM melhorias WHERE status = 'pendente'")
+        mel_row = cur.fetchone()
+        melhorias_count = mel_row['cnt'] if mel_row else 0
+    except Exception:
+        pass
     cur.close()
     conn.close()
     pendentes_count = row['cnt'] if row else 0
     pedidos_pendentes_count = pedidos_row['cnt'] if pedidos_row else 0
     return render_template('admin_hub.html',
                            pendentes_count=pendentes_count,
-                           pedidos_pendentes_count=pedidos_pendentes_count)
+                           pedidos_pendentes_count=pedidos_pendentes_count,
+                           melhorias_pendentes_count=melhorias_count)
 
 # ── Gestor / Admin — Produção por Semana ──────────────────────────────────────
 @app.route('/admin/producao')
@@ -786,6 +815,132 @@ def admin_pedidos_excluir(order_id):
     conn = get_db()
     cur = conn.cursor()
     cur.execute('DELETE FROM special_orders WHERE id=%s', (order_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True})
+
+# ── Gestor / Admin — Melhorias e Reclamações ──────────────────────────────────
+def _get_melhorias_com_comentarios(conn, status):
+    """Retorna lista de melhorias com status dado, incluindo comentários."""
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute(
+        "SELECT * FROM melhorias WHERE status=%s ORDER BY created_at DESC",
+        (status,)
+    )
+    itens = [dict(m) for m in cur.fetchall()]
+    cur.close()
+    for item in itens:
+        cur2 = conn.cursor(cursor_factory=RealDictCursor)
+        cur2.execute(
+            "SELECT * FROM melhorias_comentarios WHERE melhoria_id=%s ORDER BY created_at",
+            (item['id'],)
+        )
+        item['comentarios'] = [dict(c) for c in cur2.fetchall()]
+        cur2.close()
+    return itens
+
+@app.route('/admin/melhorias')
+@login_required
+def admin_melhorias_view():
+    conn = get_db()
+    pendentes  = _get_melhorias_com_comentarios(conn, 'pendente')
+    concluidas = _get_melhorias_com_comentarios(conn, 'concluida')
+    conn.close()
+    return render_template('admin_melhorias.html',
+                           pendentes=pendentes,
+                           concluidas=concluidas)
+
+@app.route('/admin/melhorias/add', methods=['POST'])
+@login_required
+def admin_melhorias_add():
+    data = request.json
+    responsavel = (data.get('responsavel') or '').strip()
+    descricao   = (data.get('descricao') or '').strip()
+    tipo        = data.get('tipo', 'melhoria')
+    if not responsavel or not descricao:
+        return jsonify({'success': False, 'error': 'Campos obrigatórios'}), 400
+    item = {
+        'id': str(uuid.uuid4()),
+        'tipo': tipo,
+        'responsavel': responsavel,
+        'descricao': descricao,
+        'status': 'pendente',
+        'created_at': now_sp_str(),
+        'concluido_em': ''
+    }
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        'INSERT INTO melhorias (id, tipo, responsavel, descricao, status, created_at, concluido_em) '
+        'VALUES (%s, %s, %s, %s, %s, %s, %s)',
+        (item['id'], item['tipo'], item['responsavel'], item['descricao'],
+         item['status'], item['created_at'], item['concluido_em'])
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True, 'item': item})
+
+@app.route('/admin/melhorias/<item_id>/comentar', methods=['POST'])
+@login_required
+def admin_melhorias_comentar(item_id):
+    data  = request.json
+    texto = (data.get('texto') or '').strip()
+    if not texto:
+        return jsonify({'success': False, 'error': 'Comentário vazio'}), 400
+    comentario = {
+        'id': str(uuid.uuid4()),
+        'melhoria_id': item_id,
+        'texto': texto,
+        'is_conclusao': False,
+        'created_at': now_sp_str()
+    }
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        'INSERT INTO melhorias_comentarios (id, melhoria_id, texto, is_conclusao, created_at) '
+        'VALUES (%s, %s, %s, %s, %s)',
+        (comentario['id'], comentario['melhoria_id'], comentario['texto'],
+         comentario['is_conclusao'], comentario['created_at'])
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True, 'comentario': comentario})
+
+@app.route('/admin/melhorias/<item_id>/concluir', methods=['POST'])
+@login_required
+def admin_melhorias_concluir(item_id):
+    data       = request.json
+    comentario = (data.get('comentario') or '').strip()
+    if not comentario:
+        return jsonify({'success': False, 'error': 'Comentário de conclusão obrigatório'}), 400
+    concluido_em = now_sp_str()
+    conn = get_db()
+    cur  = conn.cursor()
+    # Atualiza status da melhoria
+    cur.execute(
+        "UPDATE melhorias SET status='concluida', concluido_em=%s WHERE id=%s",
+        (concluido_em, item_id)
+    )
+    # Insere comentário de conclusão marcado
+    cur.execute(
+        'INSERT INTO melhorias_comentarios (id, melhoria_id, texto, is_conclusao, created_at) '
+        'VALUES (%s, %s, %s, %s, %s)',
+        (str(uuid.uuid4()), item_id, comentario, True, concluido_em)
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True})
+
+@app.route('/admin/melhorias/delete/<item_id>', methods=['DELETE'])
+@login_required
+def admin_melhorias_delete(item_id):
+    conn = get_db()
+    cur  = conn.cursor()
+    cur.execute('DELETE FROM melhorias WHERE id=%s', (item_id,))
     conn.commit()
     cur.close()
     conn.close()
