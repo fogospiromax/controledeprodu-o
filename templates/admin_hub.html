@@ -161,6 +161,18 @@ header {
       <div class="module-arrow">›</div>
     </a>
 
+    <a href="/admin/melhorias" class="module-card">
+      <div class="module-icon">💡</div>
+      <div class="module-info">
+        <div class="module-title">Melhorias e Reclamações</div>
+        <div class="module-desc">Registre melhorias de processo e reclamações</div>
+      </div>
+      {% if melhorias_pendentes_count > 0 %}
+      <span class="module-badge">{{ melhorias_pendentes_count }}</span>
+      {% endif %}
+      <div class="module-arrow">›</div>
+    </a>
+
   </div>
 
 </div>
