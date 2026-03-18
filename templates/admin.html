@@ -37,19 +37,18 @@
   .header-brand-text .sub { font-size: 0.7rem; color: #9ca3af; }
   .header-right { display: flex; align-items: center; gap: 8px; }
   .gestor-badge {
-    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
-    background: #f0fdf4; border: 1.5px solid #bbf7d0;
-    display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+    background: #f5f3ff; color: #7c3aed; border: 1.5px solid #ede9fe;
+    border-radius: 8px; padding: 5px 10px; font-size: 0.72rem; font-weight: 800;
+    letter-spacing: 0.5px; white-space: nowrap;
   }
   .btn-logout {
     background: none; border: 1.5px solid #e5e7eb; border-radius: 8px;
     padding: 6px 10px; font-size: 0.78rem; font-weight: 600;
     color: #6b7280; text-decoration: none; transition: all 0.15s;
   }
-  .btn-logout:hover { border-color: #86efac; color: #16a34a; }
-  .btn-print { background:#fff; color:#16a34a; border:1.5px solid #86efac; border-radius:9px; padding:7px 12px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px; }
-  .btn-print:hover { background:#f0fdf4; }
-  .header-brand-text .sub { font-size: 0.72rem; color: #6b7280; font-weight: 500; }
+  .btn-logout:hover { border-color: #c4b5fd; color: #7c3aed; }
+  .btn-print { background:#fff; color:#7c3aed; border:1.5px solid #c4b5fd; border-radius:9px; padding:7px 12px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px; }
+  .btn-print:hover { background:#f3f0ff; }
   /* ── Footer ── */
   .app-footer {
     text-align: center; padding: 24px 20px 40px; font-size: 0.78rem; color: #9ca3af;
@@ -83,9 +82,12 @@
   .day-row:last-child { border-bottom:none; }
   .day-label { width:106px; flex-shrink:0; }
   .day-name-wrap { display:flex; align-items:center; gap:5px; }
-  .day-dot { display:none; }
+  .day-dot { width:6px; height:6px; border-radius:50%; background:#7c3aed; display:none; }
+  .day-row.monday .day-dot { display:block; }
   .day-name { font-size:13px; font-weight:600; color:#374151; }
+  .day-row.monday .day-name { color:#7c3aed; }
   .day-date { font-size:11px; color:#9ca3af; }
+  .day-row.monday .day-date { color:#a78bfa; }
   .day-input { flex:1; border:1.5px solid #e5e7eb; border-radius:8px; padding:7px 10px; font-size:13px; font-family:inherit; color:#1f1235; outline:none; transition:border-color .15s, background .15s; }
   .day-input:focus { border-color:#7c3aed; background:#faf5ff; }
   .day-input.filled { border-color:#a78bfa; background:#faf5ff; color:#6d28d9; font-weight:500; }
@@ -98,41 +100,69 @@
   .loading { text-align:center; color:#9ca3af; padding:40px 0; font-size:14px; }
   .toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(10px); background:#1f1235; color:#fff; padding:9px 20px; border-radius:99px; font-size:13px; font-weight:600; opacity:0; transition:opacity .3s,transform .3s; pointer-events:none; z-index:999; white-space:nowrap; }
   .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-  .print-header { display:none; text-align:center; margin-bottom:14px; }
-  .print-header h2 { font-size:17px; color:#1f1235; }
-  .print-header p { font-size:12px; color:#6b7280; margin-top:3px; }
+  /* ── Print header (hidden on screen) ── */
+  .print-header { display:none; margin-bottom:16px; padding-bottom:10px; border-bottom:2.5px solid #7c3aed; }
+  .print-header-top { display:flex; justify-content:space-between; align-items:flex-end; }
+  .print-header-left .ph-company { font-size:17px; font-weight:800; color:#1e1b4b; letter-spacing:-0.3px; }
+  .print-header-left .ph-subtitle { font-size:9px; font-weight:700; color:#7c3aed; text-transform:uppercase; letter-spacing:0.6px; margin-top:3px; }
+  .print-header-right { text-align:right; }
+  .print-header-right .ph-week { font-size:13px; font-weight:700; color:#374151; }
+  .print-header-right .ph-date { font-size:8px; color:#9ca3af; margin-top:2px; }
+
+  /* ── @page ── */
+  @page {
+    size: A4 portrait;
+    margin: 14mm 18mm 12mm;
+  }
+  @page { @bottom-left { content: "Fogos Piromax — Programação de Produção"; font-size: 7pt; color: #9ca3af; font-family: sans-serif; } }
+  @page { @bottom-right { content: "Página " counter(page); font-size: 7pt; color: #9ca3af; font-family: sans-serif; } }
+
   @media print {
-    @page { size: 210mm 148.5mm; margin: 8mm; }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     header, .app-footer, .add-card, .btn-remove, .week-nav-btn, .save-bar, .btn-print { display:none !important; }
     body { background:#fff; }
     .page { margin:0; padding:0; max-width:100%; }
-    .week-nav { display:none !important; }
-    .print-header { display:block !important; margin-bottom:5mm; }
-    .print-header h2 { font-size:13px; }
-    .print-header p { font-size:10px; }
-    /* 1 funcionário por folha A5 */
+
+    /* Print header visible */
+    .print-header { display:block !important; }
+
+    /* Week nav */
+    .week-nav { box-shadow:none; border:1px solid #e5e7eb; margin-bottom:12px; }
+
+    /* Employee cards */
     .emp-card {
-      box-shadow:none; border:1px solid #d1d5db;
-      break-before:page; break-inside:avoid;
-      width:100%; margin:0; border-radius:6px;
-      padding:6mm 8mm;
-      min-height:calc(148.5mm - 16mm);
-      display:flex; flex-direction:column; justify-content:flex-start;
+      box-shadow:none;
+      border:1px solid #e5e7eb;
+      break-inside:avoid;
+      page-break-inside:avoid;
+      margin-bottom:12px;
     }
-    .emp-card:first-child { break-before:avoid; }
-    .emp-header { margin-bottom:4mm; }
-    .avatar { width:30px; height:30px; font-size:11px; }
-    .emp-name { font-size:14px; }
-    .emp-filled { display:none; }
-    .day-row { padding:5px 0; }
-    .day-name { font-size:12px; }
-    .day-date { font-size:10px; }
+    .emp-card.print-break-after {
+      break-after:page;
+      page-break-after:always;
+      margin-bottom:0;
+    }
+
+    /* Inputs viram texto simples */
     .day-input {
-      border:none; background:transparent !important;
-      padding:4px 0; font-size:12px;
+      border:none !important;
+      background:transparent !important;
+      padding:6px 0 !important;
+      box-shadow:none !important;
+      pointer-events:none;
     }
-    .day-input.filled { color:#1f1235 !important; font-weight:600; }
-    .day-input::placeholder { color:transparent; }
+    .day-input.filled {
+      color:#6d28d9 !important;
+      font-weight:600 !important;
+      background:#f9f5ff !important;
+      padding:6px 10px !important;
+      border-left:2.5px solid #7c3aed !important;
+      border-radius:4px !important;
+    }
+    .day-input::placeholder { color:transparent !important; }
+
+    /* Avatar */
+    .avatar { -webkit-print-color-adjust:exact !important; }
   }
 </style>
 </head>
@@ -146,11 +176,11 @@
     </div>
     <div class="header-brand-text">
       <div class="title">Fogos Piromax</div>
-      <div class="sub">Programação da Semana</div>
+      <div class="sub">Área do Gestor</div>
     </div>
   </div>
   <div class="header-right">
-    <span class="gestor-badge">👔</span>
+    <span class="gestor-badge">👔 GESTOR</span>
     <button class="btn-print" onclick="window.print()">🖨️ PDF</button>
     <a href="/admin/logout" class="btn-logout">🚪 Sair</a>
   </div>
@@ -158,8 +188,16 @@
 
 <div class="page">
   <div class="print-header">
-    <h2>Fogos Piromax — Programação de Produção</h2>
-    <p id="print-week-label"></p>
+    <div class="print-header-top">
+      <div class="print-header-left">
+        <div class="ph-company">Fogos Piromax</div>
+        <div class="ph-subtitle">Programação de Produção</div>
+      </div>
+      <div class="print-header-right">
+        <div class="ph-week" id="print-week-label">—</div>
+        <div class="ph-date" id="print-date-label">—</div>
+      </div>
+    </div>
   </div>
 
   <div class="week-nav">
@@ -226,6 +264,23 @@ function updateHeader() {
   if (pl) pl.textContent = `Semana ${rangeStr} · ${weekStart.getFullYear()}`;
 }
 
+function updatePrintDate() {
+  const dl = document.getElementById('print-date-label');
+  if (dl) dl.textContent = 'Impresso em ' + new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+function tagPrintBreaks() {
+  const cards = document.querySelectorAll('.emp-card');
+  cards.forEach((c, i) => {
+    c.classList.toggle('print-break-after', i % 2 === 1 && i !== cards.length - 1);
+  });
+}
+
+window.onbeforeprint = function() {
+  updatePrintDate();
+  tagPrintBreaks();
+};
+
 async function loadWeek() {
   const ws = isoDate(weekStart);
   document.getElementById('emp-list').innerHTML = '<div class="loading">Carregando…</div>';
@@ -240,6 +295,7 @@ async function loadWeek() {
     employees = [];
   }
   renderList();
+  tagPrintBreaks();
 }
 
 function renderList() {
@@ -274,7 +330,7 @@ function renderList() {
     DAY_KEYS.forEach((key, di) => {
       const date = addDays(weekStart, di);
       const row = document.createElement('div');
-      row.className = 'day-row';
+      row.className = 'day-row' + (di===0?' monday':'');
       const inp = document.createElement('input');
       inp.type = 'text';
       inp.className = 'day-input' + (emp[key]?' filled':'');
@@ -296,22 +352,10 @@ function renderList() {
     });
     list.appendChild(card);
   });
-
-  // Bottom add-employee card
-  const bottomAdd = document.createElement('div');
-  bottomAdd.className = 'add-card';
-  bottomAdd.innerHTML = `
-    <div class="add-card-title">+ Adicionar Funcionário</div>
-    <div class="add-row">
-      <input class="add-input" type="text" id="new-emp-name-bottom" placeholder="Nome do funcionário…" onkeydown="if(event.key==='Enter')addEmployee('bottom')">
-      <button class="btn-add" onclick="addEmployee('bottom')">Adicionar</button>
-    </div>`;
-  list.appendChild(bottomAdd);
 }
 
-function addEmployee(source) {
-  const inputId = source === 'bottom' ? 'new-emp-name-bottom' : 'new-emp-name';
-  const inp = document.getElementById(inputId);
+function addEmployee() {
+  const inp = document.getElementById('new-emp-name');
   const name = inp.value.trim();
   if (!name) { inp.focus(); return; }
   if (employees.find(e => e.name.toLowerCase() === name.toLowerCase())) {
