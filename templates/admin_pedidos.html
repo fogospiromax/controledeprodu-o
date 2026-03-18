@@ -296,6 +296,61 @@ header {
 .app-footer a { color: #7c3aed; text-decoration: none; font-weight: 600; }
 .app-footer a:hover { text-decoration: underline; }
 
+/* ── Botão Imprimir ── */
+.btn-print { background:#fff; color:#7c3aed; border:1.5px solid #c4b5fd; border-radius:9px; padding:7px 12px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px; }
+.btn-print:hover { background:#f3f0ff; }
+
+/* ── Print header (hidden on screen) ── */
+.print-header { display:none; margin-bottom:16px; padding-bottom:10px; border-bottom:2.5px solid #7c3aed; }
+.print-header-top { display:flex; justify-content:space-between; align-items:flex-end; }
+.print-header-left .ph-company { font-size:17px; font-weight:800; color:#1e1b4b; letter-spacing:-0.3px; }
+.print-header-left .ph-subtitle { font-size:9px; font-weight:700; color:#7c3aed; text-transform:uppercase; letter-spacing:0.6px; margin-top:3px; }
+.print-header-right { text-align:right; }
+.print-header-right .ph-date { font-size:12px; font-weight:700; color:#374151; }
+.print-header-right .ph-date-sub { font-size:8px; color:#9ca3af; margin-top:2px; }
+
+/* ── @page ── */
+@page {
+  size: A4 portrait;
+  margin: 14mm 18mm 12mm;
+}
+@page { @bottom-left { content: "Fogos Piromax — Pedidos Especiais · Pendentes"; font-size: 7pt; color: #9ca3af; font-family: sans-serif; } }
+@page { @bottom-right { content: "Página " counter(page); font-size: 7pt; color: #9ca3af; font-family: sans-serif; } }
+
+@media print {
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  header, .app-footer, .tabs, .add-card, .line-actions, .concluido-actions,
+  .edit-form, .modal-overlay, .toast, .btn-print { display:none !important; }
+  body { background:#fff; }
+  .container { padding:0; max-width:100%; }
+
+  /* Print header */
+  .print-header { display:block !important; }
+
+  /* Sempre mostrar pendentes, nunca concluídos */
+  #tab-pendentes { display:block !important; }
+  #tab-concluidos { display:none !important; }
+
+  /* Separadores */
+  .section-sep { margin-bottom:8px; }
+  .section-sep.urgente { color:#dc2626; }
+  .section-sep.normal { color:#6b7280; }
+
+  /* Cards de cliente */
+  .client-card { box-shadow:none; border:1px solid #e5e7eb; break-inside:avoid; page-break-inside:avoid; }
+  .client-card.urgente { border-color:#fca5a5; border-left:3px solid #dc2626; }
+  .client-group { margin-bottom:8px; }
+
+  /* Linhas de produto */
+  .product-line-inner { padding:8px 14px; }
+
+  /* Badges com cor */
+  .badge-urgent { background:#fee2e2 !important; color:#dc2626 !important; }
+  .badge-qty { background:#f5f3ff !important; color:#7c3aed !important; }
+  .badge-date { background:#fef3c7 !important; color:#b45309 !important; }
+  .badge-partial { background:#fff7ed !important; color:#ea580c !important; }
+}
+
 /* ── Toast ── */
 .toast {
   position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
@@ -366,11 +421,26 @@ header {
     </div>
   </div>
   <div class="header-right">
+    <button class="btn-print" onclick="window.print()">🖨️ PDF</button>
     <span class="gestor-badge">👔</span>
   </div>
 </header>
 
 <div class="container">
+
+  <!-- Print header (visible only on print) -->
+  <div class="print-header">
+    <div class="print-header-top">
+      <div class="print-header-left">
+        <div class="ph-company">Fogos Piromax</div>
+        <div class="ph-subtitle">Pedidos Especiais — Itens Pendentes</div>
+      </div>
+      <div class="print-header-right">
+        <div class="ph-date" id="print-date-label">—</div>
+        <div class="ph-date-sub">Data de impressão</div>
+      </div>
+    </div>
+  </div>
 
   <!-- ── Formulário ── -->
   <div class="add-card">
@@ -841,6 +911,11 @@ function excluirPedido(orderId, btn) {
 function escHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+window.onbeforeprint = function() {
+  const dl = document.getElementById('print-date-label');
+  if (dl) dl.textContent = new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+};
 </script>
 
 <footer class="app-footer">
