@@ -258,7 +258,7 @@ def worker_hub():
 @app.route('/producao')
 def worker_view():
     default_week = next_monday_date().isoformat()
-    return render_template('worker.html', default_week=default_week)
+    return render_template('worker_producaosemanal.html', default_week=default_week)
 
 @app.route('/worker/update', methods=['POST'])
 def worker_update():
@@ -290,7 +290,7 @@ def requests_view():
     conn.close()
     pendentes = [r for r in reqs if r['status'] == 'pendente']
     concluidas = [r for r in reqs if r['status'] == 'concluida']
-    return render_template('requests.html', pendentes=pendentes, concluidas=concluidas)
+    return render_template('worker_solicitacoes.html', pendentes=pendentes, concluidas=concluidas)
 
 @app.route('/requests/add', methods=['POST'])
 def requests_add():
@@ -368,7 +368,7 @@ def worker_pedidos_view():
     normais  = sorted([o for o in pendentes if not o['urgente']],
                       key=lambda o: o['cliente'].lower())
 
-    return render_template('worker_pedidos.html',
+    return render_template('worker_pedidosespeciais.html',
                            urgentes_clientes=group_by_cliente(urgentes),
                            normais_clientes=group_by_cliente(normais),
                            concluidos=concluidos,
@@ -455,7 +455,7 @@ def admin_view():
 @login_required
 def admin_producao_view():
     default_week = next_monday_date().isoformat()
-    return render_template('admin.html', default_week=default_week)
+    return render_template('admin_producaosemanal.html', default_week=default_week)
 
 # ── API — Produção: buscar semana ─────────────────────────────────────────────
 @app.route('/api/producao-semana')
@@ -626,7 +626,7 @@ def admin_requests_view():
     conn.close()
     pendentes = [r for r in reqs if r['status'] == 'pendente']
     concluidas = [r for r in reqs if r['status'] == 'concluida']
-    return render_template('admin_requests.html', pendentes=pendentes, concluidas=concluidas)
+    return render_template('admin_solicitacoes.html', pendentes=pendentes, concluidas=concluidas)
 
 @app.route('/admin/requests/update', methods=['POST'])
 @login_required
@@ -696,7 +696,7 @@ def admin_pedidos_view():
     normais  = sorted([o for o in pendentes if not o['urgente']],
                       key=lambda o: o['cliente'].lower())
 
-    return render_template('admin_pedidos.html',
+    return render_template('admin_pedidosespeciais.html',
                            urgentes_clientes=group_by_cliente(urgentes),
                            normais_clientes=group_by_cliente(normais),
                            concluidos=concluidos,
