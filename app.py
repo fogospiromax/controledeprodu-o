@@ -363,14 +363,28 @@ def worker_pedidos_view():
     concluidos = sorted([o for o in orders if o['concluido']],
                         key=lambda o: o['concluido_em'], reverse=True)
 
-    urgentes = sorted([o for o in pendentes if o['urgente']],
-                      key=lambda o: o['cliente'].lower())
-    normais  = sorted([o for o in pendentes if not o['urgente']],
-                      key=lambda o: o['cliente'].lower())
+    # Agrupa por cliente (normalizado), mantendo ordem por nome
+    pendentes_sorted = sorted(pendentes, key=lambda o: (o['cliente'].strip().lower(), o.get('criado_em', '')))
+    grupos_dict = {}
+    for o in pendentes_sorted:
+        key = o['cliente'].strip().lower()
+        if key not in grupos_dict:
+            grupos_dict[key] = {'cliente': o['cliente'].strip(), 'produtos': []}
+        grupos_dict[key]['produtos'].append(o)
+
+    # Cliente é urgente se qualquer produto dele for urgente
+    urgentes_clientes = sorted(
+        [g for g in grupos_dict.values() if any(p['urgente'] for p in g['produtos'])],
+        key=lambda g: g['cliente'].lower()
+    )
+    normais_clientes = sorted(
+        [g for g in grupos_dict.values() if not any(p['urgente'] for p in g['produtos'])],
+        key=lambda g: g['cliente'].lower()
+    )
 
     return render_template('worker_pedidosespeciais.html',
-                           urgentes_clientes=group_by_cliente(urgentes),
-                           normais_clientes=group_by_cliente(normais),
+                           urgentes_clientes=urgentes_clientes,
+                           normais_clientes=normais_clientes,
                            concluidos=concluidos,
                            total_pendentes=len(pendentes),
                            total_concluidos=len(concluidos))
@@ -691,14 +705,28 @@ def admin_pedidos_view():
     concluidos = sorted([o for o in orders if o['concluido']],
                         key=lambda o: o['concluido_em'], reverse=True)
 
-    urgentes = sorted([o for o in pendentes if o['urgente']],
-                      key=lambda o: o['cliente'].lower())
-    normais  = sorted([o for o in pendentes if not o['urgente']],
-                      key=lambda o: o['cliente'].lower())
+    # Agrupa por cliente (normalizado), mantendo ordem por nome
+    pendentes_sorted = sorted(pendentes, key=lambda o: (o['cliente'].strip().lower(), o.get('criado_em', '')))
+    grupos_dict = {}
+    for o in pendentes_sorted:
+        key = o['cliente'].strip().lower()
+        if key not in grupos_dict:
+            grupos_dict[key] = {'cliente': o['cliente'].strip(), 'produtos': []}
+        grupos_dict[key]['produtos'].append(o)
+
+    # Cliente é urgente se qualquer produto dele for urgente
+    urgentes_clientes = sorted(
+        [g for g in grupos_dict.values() if any(p['urgente'] for p in g['produtos'])],
+        key=lambda g: g['cliente'].lower()
+    )
+    normais_clientes = sorted(
+        [g for g in grupos_dict.values() if not any(p['urgente'] for p in g['produtos'])],
+        key=lambda g: g['cliente'].lower()
+    )
 
     return render_template('admin_pedidosespeciais.html',
-                           urgentes_clientes=group_by_cliente(urgentes),
-                           normais_clientes=group_by_cliente(normais),
+                           urgentes_clientes=urgentes_clientes,
+                           normais_clientes=normais_clientes,
                            concluidos=concluidos,
                            total_pendentes=len(pendentes),
                            total_concluidos=len(concluidos))
@@ -736,11 +764,14 @@ def admin_pedidos_add():
 @login_required
 def admin_pedidos_editar(order_id):
     data = request.json
+    cliente = (data.get('cliente') or '').strip()
+    if not cliente:
+        return jsonify({'success': False, 'error': 'Cliente vazio'}), 400
     conn = get_db()
     cur = conn.cursor()
     cur.execute(
-        'UPDATE special_orders SET produto=%s, quantidade=%s, data_entrega=%s, urgente=%s WHERE id=%s',
-        (data['produto'].strip(), int(data['quantidade']),
+        'UPDATE special_orders SET cliente=%s, produto=%s, quantidade=%s, data_entrega=%s, urgente=%s WHERE id=%s',
+        (cliente, data['produto'].strip(), int(data['quantidade']),
          data.get('data_entrega', '').strip(),
          bool(data.get('urgente', False)), order_id)
     )
