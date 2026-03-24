@@ -484,7 +484,7 @@ header {
             <div class="product-body">
               <div class="product-name">{{ o.produto }}</div>
               <div class="product-meta">
-                <span class="badge-urgent">URGENTE</span>
+                {% if o.urgente %}<span class="badge-urgent">URGENTE</span>{% endif %}
                 <span class="badge-qty">Quant.: {{ saldo }}</span>
                 {% if o.data_entrega %}
                 <span class="badge-date">⏰ {{ o.data_entrega[8:10] }}/{{ o.data_entrega[5:7] }}</span>
@@ -506,6 +506,7 @@ header {
                       data-quantidade="{{ o.quantidade }}"
                       data-entrega="{{ o.data_entrega or '' }}"
                       data-urgente="{{ 'true' if o.urgente else 'false' }}"
+                      data-cliente="{{ grupo.cliente }}"
                       onclick="toggleEdit(this)" title="Editar">✏</button>
               <button class="btn-del" onclick="excluirPedido('{{ o.id }}', this)" title="Excluir">🗑</button>
             </div>
@@ -555,6 +556,7 @@ header {
                       data-quantidade="{{ o.quantidade }}"
                       data-entrega="{{ o.data_entrega or '' }}"
                       data-urgente="{{ 'true' if o.urgente else 'false' }}"
+                      data-cliente="{{ grupo.cliente }}"
                       onclick="toggleEdit(this)" title="Editar">✏</button>
               <button class="btn-del" onclick="excluirPedido('{{ o.id }}', this)" title="Excluir">🗑</button>
             </div>
@@ -758,10 +760,15 @@ function toggleEdit(btn) {
   const qtd      = btn.dataset.quantidade;
   const entrega  = btn.dataset.entrega || '';
   const urgente  = btn.dataset.urgente === 'true';
+  const cliente  = btn.dataset.cliente || '';
 
   editForm = document.createElement('div');
   editForm.className = 'edit-form';
   editForm.innerHTML = `
+    <input type="text" class="e-cliente" placeholder="Cliente"
+      style="width:100%;padding:7px 9px;border:1.5px solid #c4b5fd;border-radius:8px;
+             font-size:0.82rem;color:#1e1b4b;outline:none;font-family:inherit;
+             margin-bottom:6px;box-sizing:border-box;">
     <div class="edit-grid">
       <input type="text"   class="e-produto"  placeholder="Produto">
       <input type="number" class="e-qtd"      value="${qtd}" placeholder="Qtd" min="1">
@@ -774,6 +781,7 @@ function toggleEdit(btn) {
     </div>
   `;
   // Setar via .value evita problemas de escaping com caracteres especiais
+  editForm.querySelector('.e-cliente').value = cliente;
   editForm.querySelector('.e-produto').value = produto;
   editForm.querySelector('.e-data').value    = entrega;
   line.appendChild(editForm);
@@ -789,11 +797,13 @@ function cancelarEdicao(btn) {
 
 function salvarEdicao(orderId, btn) {
   const form    = btn.closest('.edit-form');
+  const cliente = form.querySelector('.e-cliente').value.trim();
   const produto = form.querySelector('.e-produto').value.trim();
   const qtd     = parseInt(form.querySelector('.e-qtd').value);
   const data    = form.querySelector('.e-data').value;
   const urgente = form.querySelector('.btn-edit-urgente').classList.contains('on');
 
+  if (!cliente) { showToast('Preencha o nome do cliente.'); return; }
   if (!produto || !qtd || qtd < 1) {
     showToast('Preencha produto e quantidade.'); return;
   }
@@ -803,7 +813,7 @@ function salvarEdicao(orderId, btn) {
   fetch('/admin/pedidos/' + orderId + '/editar', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ produto, quantidade: qtd, data_entrega: data, urgente })
+    body: JSON.stringify({ cliente, produto, quantidade: qtd, data_entrega: data, urgente })
   })
   .then(r => r.json())
   .then(d => {
