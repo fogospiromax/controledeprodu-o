@@ -363,7 +363,7 @@ header {
           <div class="product-body">
             <div class="product-name">{{ o.produto }}</div>
             <div class="product-meta">
-              <span class="badge-urgent">URGENTE</span>
+              {% if o.urgente %}<span class="badge-urgent">URGENTE</span>{% endif %}
               <span class="badge-qty">Quant.: {{ saldo }}</span>
               {% if o.data_entrega %}
               <span class="badge-date">⏰ {{ o.data_entrega[8:10] }}/{{ o.data_entrega[5:7] }}</span>
